@@ -1,0 +1,36 @@
+version: '3.3'
+services:
+  api_gateway:
+    build: ./staak-gateway
+    volumes:
+      - ./staak-gateway:/src
+      - /src/node_modules
+    command: npm start
+    ports:
+      - '${PORT}:3000'
+    environment:
+      NODE_ENV: production
+  user_service:
+    build: ./user-service
+    volumes:
+      - ./user-service:/src
+      - /src/node_modules
+    command: npm start
+    environment:
+      NODE_ENV: production
+    networks:
+      default:
+        aliases:
+          - users.api
+  jobs_service:
+    build: ./jobs-service
+    volumes:
+      - ./jobs-service:/src
+      - /src/node_modules
+    command: npm start
+    environment:
+      NODE_ENV: production
+    networks:
+      default:
+        aliases:
+          - jobs.api

@@ -1,0 +1,38 @@
+http:
+  port: 3000
+apiEndpoints:
+  users:
+    host: localhost
+    paths: ['/api/users/*']
+  jobs:
+    host: localhost
+    paths: ['/api/jobs/*']
+serviceEndpoints:
+  users:
+    url: 'http://users.api:3000'
+  jobs:
+    url: 'http://jobs.api:3000'
+policies:
+  - basic-auth
+  - cors
+  - expression
+  - key-auth
+  - proxy
+  - rate-limit
+pipelines:
+  users:
+    apiEndpoints:
+      - users
+    policies:
+      - proxy:
+          - action:
+              serviceEndpoint: users
+              changeOrigin: true
+  jobs:
+    apiEndpoints:
+      - jobs
+    policies:
+      - proxy:
+          - action:
+              serviceEndpoint: jobs
+              changeOrigin: true
