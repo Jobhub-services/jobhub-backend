@@ -21,7 +21,9 @@ RUN curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-c
 RUN chmod +x /usr/local/bin/docker-compose
 
 RUN service docker start
-#RUN service docker status
+RUN dockerd
+RUN docker info
+RUN service docker status
 
 
 RUN docker-compose --version
