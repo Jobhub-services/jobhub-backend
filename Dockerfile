@@ -25,6 +25,8 @@ RUN chmod +x /usr/local/bin/docker-compose
 
 #USER docker
 
+RUN chmod 666 /var/run/docker.sock
+
 RUN sudo service docker start
 RUN sudo dockerd
 RUN docker info
