@@ -21,12 +21,12 @@ RUN apt-get -y install docker-ce docker-ce-cli containerd.io
 RUN curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 RUN chmod +x /usr/local/bin/docker-compose
 
-RUN useradd -g docker && echo "docker:docker" | chpasswd && adduser docker sudo
+#RUN useradd docker && echo "docker:docker" | chpasswd && adduser docker sudo
 
-USER docker
+#USER docker
 
-RUN service docker start
-RUN dockerd
+RUN sudo service docker start
+RUN sudo dockerd
 RUN docker info
 RUN service docker status
 
