@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3'
 services:
   api_gateway:
     build: ./staak-gateway
@@ -7,7 +7,7 @@ services:
       - /src/node_modules
     command: npm start
     ports:
-      - '${PORT}:3000'
+      - ${PORT}:3000
     environment:
       NODE_ENV: production
   user_service:
