@@ -4,6 +4,7 @@ ARG port
 USER root
 RUN apt-get update
 RUN apt-get upgrade -y
+RUN apt-get -y install sudo
 RUN apt-get install -y python3
 RUN apt-get install -y pip
 RUN apt-get -y install \
@@ -19,6 +20,10 @@ RUN apt-get -y update
 RUN apt-get -y install docker-ce docker-ce-cli containerd.io
 RUN curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 RUN chmod +x /usr/local/bin/docker-compose
+
+RUN useradd -m docker && echo "docker:docker" | chpasswd && adduser docker sudo
+
+USER docker
 
 RUN service docker start
 RUN dockerd
