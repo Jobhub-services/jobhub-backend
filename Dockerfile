@@ -1,7 +1,7 @@
-FROM ubuntu:20.04
+FROM alpine:latest
 ARG port
 USER root
-RUN sudo apt update && sudo apt install curl
+RUN apk add curl sudo
 RUN curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 RUN chmod +x /usr/local/bin/docker-compose
 
