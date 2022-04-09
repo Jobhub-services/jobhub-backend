@@ -1,7 +1,7 @@
 FROM ubuntu:20.04
 ARG port
 USER root
-RUN apt install curl
+RUN apt-get install curl
 RUN curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 RUN chmod +x /usr/local/bin/docker-compose
 
