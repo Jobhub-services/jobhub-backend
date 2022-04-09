@@ -21,11 +21,10 @@ RUN apt-get -y install docker-ce docker-ce-cli containerd.io
 RUN curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 RUN chmod +x /usr/local/bin/docker-compose
 
-#RUN useradd docker && echo "docker:docker" | chpasswd && adduser docker sudo
-
-#USER docker
-
-RUN chmod 666 /var/run/docker.sock
+RUN adduser --disabled-password --gecos '' docker
+RUN adduser docker sudo
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+USER docker
 
 RUN sudo service docker start
 RUN sudo dockerd
