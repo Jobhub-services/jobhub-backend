@@ -3,7 +3,7 @@ ARG port
 USER root
 
 RUN apt-get update
-RUN apt-get install \
+RUN apt-get -y install \
     ca-certificates \
     curl \
     gnupg \
@@ -13,8 +13,8 @@ RUN echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian \
   $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 RUN apt-get update
-RUN apt-get install docker-ce docker-ce-cli containerd.io
-RUN apt-get install docker-ce=5:18.09.1~3-0~debian-stretch docker-ce-cli=5:18.09.1~3-0~debian-stretch containerd.io
+RUN apt-get -y install docker-ce docker-ce-cli containerd.io
+RUN apt-get -y install docker-ce=5:18.09.1~3-0~debian-stretch docker-ce-cli=5:18.09.1~3-0~debian-stretch containerd.io
 RUN docker --version
 
 
