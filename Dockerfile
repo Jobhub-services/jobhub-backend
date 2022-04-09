@@ -2,7 +2,6 @@ FROM debian:stable
 ARG port
 USER root
 
-RUN apt-get remove docker docker-engine docker.io containerd runc
 RUN apt-get update
 RUN apt-get install \
     ca-certificates \
