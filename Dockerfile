@@ -17,6 +17,8 @@ WORKDIR /staak-api
 
 ENV PORT=$port
 
+RUN docker info
+
 RUN docker-compose build
 
 EXPOSE $PORT
