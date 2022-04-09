@@ -6,6 +6,8 @@ ENV PORT=$port
 COPY . /staak-api
 WORKDIR /staak-api
 
+RUN export PORT=$PORT
+
 RUN docker-compose build
 
 EXPOSE $PORT
