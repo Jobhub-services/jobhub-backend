@@ -15,7 +15,6 @@ RUN echo \
 RUN apt-get update
 RUN apt-get -y install docker-ce docker-ce-cli containerd.io
 
-RUN groupadd docker
 RUN usermod -aG docker $USER
 RUN newgrp docker
 
