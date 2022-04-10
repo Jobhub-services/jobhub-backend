@@ -1,11 +1,12 @@
 http:
   port: ${GATEWAY_PORT:-3000}
+  host: ${GATEWAY_HOST:-localhost}
 apiEndpoints:
   users:
-    host: localhost
+    host: '*'
     paths: ['/api/users/*']
   jobs:
-    host: localhost
+    host: '*'
     paths: ['/api/jobs/*']
 serviceEndpoints:
   users:

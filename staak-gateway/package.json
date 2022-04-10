@@ -10,6 +10,6 @@
 		"express-gateway": "^1.16.11"
 	},
 	"scripts": {
-		"start:dev": "set USER_SERVICE_HOST=localhos && cross-env GATEWAY_PORT=3002 npm start"
+		"start:dev": "cross-env GATEWAY_PORT=3000 npm start"
 	}
 }
