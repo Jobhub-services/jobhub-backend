@@ -24,7 +24,7 @@ ENV LOG_LEVEL=debug
 RUN npm install
 
 WORKDIR /staak-api
-
+ENV NODE_ENV=production
 EXPOSE $PORT
 
-CMD npm run start:app
+CMD export NODE_ENV=production && pm2 --name user_service start user-service/dist/index.js && pm2 --name jobs_service start jobs-service/dist/index.js npm run start:app

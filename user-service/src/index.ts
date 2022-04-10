@@ -20,8 +20,8 @@ if (NODE_ENV !== 'production') set('debug', true);
 
 connect(dbConnection.url, dbConnection.options)
 	.then(async (_connection) => {
-		app.listen(process.env.PORT, () => {
-			console.log(`server started. ${process.env.PORT}`);
+		app.listen(process.env.APP_PORT, () => {
+			console.log(`server started. ${process.env.APP_PORT}`);
 		});
 	})
 	.catch((error) => console.log(error));
