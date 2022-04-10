@@ -25,12 +25,11 @@ RUN npm run build
 #build gateway 
 
 WORKDIR /staak-api/staak-gateway
+ENV LOG_LEVEL=debug
+ENV GATEWAY_PORT=$PORT
 RUN npm install
 
 WORKDIR /staak-api
-
-ENV GATEWAY_PORT=$PORT
-ENV LOG_LEVEL=debug
 
 EXPOSE $PORT
 
