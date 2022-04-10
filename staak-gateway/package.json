@@ -1,11 +1,15 @@
 {
-  "name": "staak-gateway",
-  "description": "Express Gateway Instance Bootstraped from Command Line",
-  "repository": {},
-  "license": "UNLICENSED",
-  "version": "1.0.0",
-  "main": "server.js",
-  "dependencies": {
-    "express-gateway": "^1.16.11"
-  }
+	"name": "staak-gateway",
+	"description": "Express Gateway Instance Bootstraped from Command Line",
+	"repository": {},
+	"license": "UNLICENSED",
+	"version": "1.0.0",
+	"main": "server.js",
+	"dependencies": {
+		"cross-env": "^7.0.3",
+		"express-gateway": "^1.16.11"
+	},
+	"scripts": {
+		"start:dev": "cross-env GATEWAY_PORT=3002 npm start"
+	}
 }
