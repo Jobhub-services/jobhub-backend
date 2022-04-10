@@ -33,4 +33,4 @@ WORKDIR /staak-api
 
 EXPOSE $PORT
 
-CMD pm2 start user-service/dist/index.js && pm2 start jobs-service/dist/index.js && npm run start:app
+CMD npm run start:app
