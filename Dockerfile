@@ -32,4 +32,4 @@ EXPOSE 3002
 EXPOSE $PORT
 
 
-CMD (npm run start --prefix user-service &) && (npm run start --prefix jobs_service &) && npm run start:app
+CMD (npm run start --prefix user-service &) && (npm run start --prefix jobs-service &) && npm run start:app
