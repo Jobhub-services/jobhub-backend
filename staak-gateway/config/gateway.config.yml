@@ -1,6 +1,6 @@
 http:
-  port: ${GATEWAY_PORT:-3000}
-  host: ${GATEWAY_HOST:-localhost}
+  port: ${PORT}
+  host: ${HOST}
 apiEndpoints:
   users:
     host: '*'
