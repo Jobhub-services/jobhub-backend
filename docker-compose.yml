@@ -22,3 +22,15 @@ services:
       default:
         aliases:
           - users.api
+  jobs_service:
+    build: ./jobs-service
+    volumes:
+      - ./jobs-service:/src
+      - /src/node_modules
+    command: npm start
+    environment:
+      NODE_ENV: production
+    networks:
+      default:
+        aliases:
+          - jobs.api

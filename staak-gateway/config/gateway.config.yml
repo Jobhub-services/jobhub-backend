@@ -9,9 +9,9 @@ apiEndpoints:
     paths: ['/api/jobs/*']
 serviceEndpoints:
   users:
-    url: 'http://localhost:5000'
+    url: 'http://users.api:3000'
   jobs:
-    url: 'http://localhost:3000'
+    url: 'http://jobs.api:3000'
 policies:
   - basic-auth
   - cors
