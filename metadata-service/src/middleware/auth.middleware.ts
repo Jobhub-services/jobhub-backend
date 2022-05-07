@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
-import { IUser, UserType } from '@/interfaces/users.interface';
 import User from '@/models/User';
 
 export const auth = (req: Request, res: Response, next: NextFunction) => {
@@ -12,8 +11,8 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
 				message: 'unauthorized',
 			});
 		jwt.verify(authHeader[1], process.env.JWT_SECRET, async (err: any, user: any) => {
-			if (err)
-				res.status(401).send({
+			if (err || !user)
+				return res.status(401).send({
 					message: 'unauthorized',
 				});
 			user = await User.findById(user.sub);
@@ -29,12 +28,4 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
 	}
 };
 
-export const authRole = (req: Request, res: Response, next: NextFunction) => (role: UserType) => {
-	try {
-		const userData: IUser = req.user;
-		if (userData.userType === role) return next();
-		res.status(401).send({ message: 'unauthorized role' });
-	} catch (e) {
-		res.status(403).send('HTTP 403 Forbidden');
-	}
-};
+export const authRole = (req: Request, res: Response, next: NextFunction) => {};

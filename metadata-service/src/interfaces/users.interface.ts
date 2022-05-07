@@ -1,7 +1,6 @@
 export enum UserType {
 	DEVELOPER = 'developer',
 	COMPANY = 'company',
-	SIMPLE = 'simple',
 	ADMIN = 'admin',
 }
 

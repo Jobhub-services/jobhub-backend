@@ -1,5 +1,5 @@
-import { IUser } from '@/interfaces/users.interface';
 import { Request, Response } from 'express';
+import { IUser } from '@/interfaces/users.interface';
 
 export default class UserController {
 	public userInfo = async (req: Request, res: Response) => {

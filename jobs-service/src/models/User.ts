@@ -33,10 +33,6 @@ const userSchema: Schema = new Schema(
 			type: String,
 			required: false,
 		},
-		parent: {
-			type: String,
-			required: false,
-		},
 		userType: {
 			type: String,
 			enum: UserType,
