@@ -1,3 +1,5 @@
+import { Schema } from 'mongoose';
+import { IJobQuestion } from '@/interfaces/jobQuestion.interface';
 export enum JobTypes {
 	FULL_TIME = 'Full time',
 	PART_TIME = 'Part time',
@@ -49,7 +51,7 @@ export interface ICompanyJob {
 	skills?: string[];
 	requirements?: string;
 	status?: JobStatus;
-	questions?: string[];
-	createdBy?: string;
-	updatedBy?: string;
+	questions?: IJobQuestion[];
+	createdBy?: Schema.Types.ObjectId;
+	updatedBy?: Schema.Types.ObjectId;
 }

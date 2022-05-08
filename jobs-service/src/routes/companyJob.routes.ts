@@ -11,8 +11,10 @@ const router = Router();
 router.use('/', (req, res, next) => authRole(req, res, next)(UserType.COMPANY));
 router.post('/', validationMiddleware(CompanyJobDto), companyJobController.createJob);
 router.get('/', companyJobController.getJobs);
+router.get('/edit/:jobid', companyJobController.editJob);
 router.put('/:jobid', companyJobController.updateJob);
 router.get('/:jobid', companyJobController.getJob);
 router.delete('/:jobid', companyJobController.deleteJob);
+router.patch('/restore/:jobid', companyJobController.restoreJob);
 
 export { router as companyJobRouter };

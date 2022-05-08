@@ -21,6 +21,7 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
 				return res.status(401).send({
 					message: 'unauthorized',
 				});
+			req.rootObjectId = user.id;
 			req.user = user;
 			next();
 		});

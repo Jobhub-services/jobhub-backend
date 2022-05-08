@@ -1,6 +1,7 @@
-import { model, Schema, Document } from 'mongoose';
-import mongoose_delete from 'mongoose-delete';
+import { Schema } from 'mongoose';
+import MongooseDelete from 'mongoose-delete';
 import { ICompanyJob, JobTypes, JobDuration, SalaryType, JobStatus } from '@/interfaces/companyJob.interface';
+import { softDeleteModel } from '@/helpers';
 
 const jobLocationSchema = new Schema({
 	country: { type: Schema.Types.ObjectId, ref: 'Country' },
@@ -93,7 +94,7 @@ const companyJobSchema: Schema = new Schema(
 	}
 );
 
-companyJobSchema.plugin(mongoose_delete, { deletedBy: true });
+companyJobSchema.plugin(MongooseDelete, { deletedAt: true, overrideMethods: true, deletedBy: true });
 
 companyJobSchema.virtual('questions', {
 	ref: 'JobQuestion',
@@ -101,7 +102,7 @@ companyJobSchema.virtual('questions', {
 	foreignField: 'job_id',
 });
 
-const CompanyJob = model<ICompanyJob & Document>('CompanyJob', companyJobSchema);
+const CompanyJob = softDeleteModel<ICompanyJob>('CompanyJob', companyJobSchema);
 
 export const normalizetoJSON = (object: any) => {
 	const job = object.toJSON();

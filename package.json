@@ -4,7 +4,8 @@
 	"description": "",
 	"scripts": {
 		"format": "prettier --write .",
-		"start:app": "npm start --prefix staak-gateway"
+		"start:app": "npm start --prefix staak-gateway",
+		"start:dev": "npm run start:dev --prefix staak-gateway"
 	},
 	"author": "",
 	"license": "ISC",

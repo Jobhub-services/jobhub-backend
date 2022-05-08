@@ -1,6 +1,6 @@
 import { ConnectOptions } from 'mongoose';
 
-const { DB_PASSWORD, DB_USERNAME, DB_NAME } = process.env;
+const { DB_CONNECT_URL } = process.env;
 
 type DBConnection = {
 	url: string;
@@ -8,6 +8,6 @@ type DBConnection = {
 };
 
 export const dbConnection: DBConnection = {
-	url: `mongodb+srv://${DB_USERNAME}:${DB_PASSWORD}@staak-cluster.ntblm.mongodb.net/${DB_NAME}?retryWrites=true&w=majority`,
+	url: DB_CONNECT_URL,
 	options: {},
 };

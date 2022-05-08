@@ -13,7 +13,7 @@ import { isValidObjectId } from '@/helpers';
 class CompanyJobController {
 	createJob = async (req: Request, res: Response) => {
 		try {
-			const user = req.user;
+			const rootObjectId = req.rootObjectId;
 			const jobBody: CompanyJobDto = req.body;
 
 			if (jobBody.company_division) {
@@ -70,8 +70,8 @@ class CompanyJobController {
 					certification: jobBody.certification,
 					skills: jobBody.skills,
 					requirements: jobBody.requirements,
-					createdBy: user._id,
-					updatedBy: user._id,
+					createdBy: rootObjectId,
+					updatedBy: rootObjectId,
 				};
 				const job = await CompanyJob.create(companyJob);
 				for (const question of jobBody.questions) {
@@ -90,11 +90,11 @@ class CompanyJobController {
 	};
 	getJobs = async (req: Request, res: Response) => {
 		try {
-			const user = req.user;
+			const rootObjectId = req.rootObjectId;
 			const { name = '', limit = 20, page } = req.query;
 			const count = await CompanyJob.count();
 			const query = CompanyJob.find(
-				{ created_by: user._id },
+				{ createdBy: rootObjectId },
 				{ title: 1, description: 1, status: 1, job_type: 1, duration: 1, start_salary: 1, end_salary: 1, created_at: 1 }
 			)
 				.populate({ path: 'category' })
@@ -114,9 +114,10 @@ class CompanyJobController {
 	};
 	getJob = async (req: Request, res: Response) => {
 		try {
+			const rootObjectId = req.rootObjectId;
 			const jobId = req.params.jobid;
 			if (!jobId || !isValidObjectId(jobId)) return res.status(402).send({ message: 'Job not found' });
-			const query = CompanyJob.findById(jobId)
+			const query = CompanyJob.findOne({ id: jobId, createdBy: rootObjectId })
 				.populate({ path: 'category', select: 'name' })
 				.populate('currency')
 				.populate('skills')
@@ -143,8 +144,52 @@ class CompanyJobController {
 		}
 	};
 
+	editJob = async (req: Request, res: Response) => {
+		try {
+			const rootObjectId = req.rootObjectId;
+			const jobId = req.params.jobid;
+			if (!jobId || !isValidObjectId(jobId)) return res.status(402).send({ message: 'Job not found' });
+			const query = CompanyJob.findOne({ id: jobId, createdBy: rootObjectId })
+				.populate({ path: 'category', select: 'name' })
+				.populate('currency')
+				.populate('skills')
+				.populate('company_division')
+				.populate('questions')
+				.populate({
+					path: 'work_location',
+					populate: {
+						path: 'country',
+					},
+				})
+				.populate({
+					path: 'hire_location',
+					populate: {
+						path: 'country',
+					},
+				});
+			const job = await query;
+			if (!job) return res.status(402).send({ message: 'Job not found' });
+			const result = {
+				...job.toJSON(),
+				questions: job.questions?.map((question) => {
+					return question.question;
+				}),
+			};
+			res.status(200).send({ content: result });
+		} catch {
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
+
 	updateJob = async (req: Request, res: Response) => {
 		try {
+			const rootObjectId = req.rootObjectId;
+			const jobId = req.params.jobid;
+			if (!jobId || !isValidObjectId(jobId)) return res.status(402).send({ message: 'Job not found' });
+			const job = await CompanyJob.findOne({ id: jobId, createdBy: rootObjectId });
+			if (!job) return res.status(402).send({ message: 'Job not found' });
+			console.log(job);
+			res.status(200).send({ message: 'Job updated successfully' });
 		} catch {
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
@@ -152,6 +197,27 @@ class CompanyJobController {
 
 	deleteJob = async (req: Request, res: Response) => {
 		try {
+			const rootObjectId = req.rootObjectId;
+			const jobId = req.params.jobid;
+			if (!jobId || !isValidObjectId(jobId)) return res.status(402).send({ message: 'Job not found' });
+			const job = await CompanyJob.findOne({ id: jobId, createdBy: rootObjectId });
+			if (!job) return res.status(402).send({ message: 'Job not found' });
+			await job.delete(rootObjectId as any);
+			res.status(200).send({ message: 'Job deleted successfully' });
+		} catch {
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
+
+	restoreJob = async (req: Request, res: Response) => {
+		try {
+			const rootObjectId = req.rootObjectId;
+			const jobId = req.params.jobid;
+			if (!jobId || !isValidObjectId(jobId)) return res.status(402).send({ message: 'Job not found' });
+			const job = await CompanyJob.findOneDeleted({ id: jobId, createdBy: rootObjectId });
+			if (!job) return res.status(402).send({ message: 'Job not found' });
+			await job.restore();
+			res.status(200).send({ message: 'Job restored successfully' });
 		} catch {
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
