@@ -185,10 +185,52 @@ class CompanyJobController {
 		try {
 			const rootObjectId = req.rootObjectId;
 			const jobId = req.params.jobid;
+			const { body } = req;
 			if (!jobId || !isValidObjectId(jobId)) return res.status(402).send({ message: 'Job not found' });
 			const job = await CompanyJob.findOne({ id: jobId, createdBy: rootObjectId });
 			if (!job) return res.status(402).send({ message: 'Job not found' });
-			console.log(job);
+			// update properties
+			if (body.title) job.title = body.title;
+			if (body.description) job.description = body.description;
+			if (body.responsabilities) job.responsabilities = body.responsabilities;
+			if (body.company_division && isValidObjectId(body.company_division)) {
+				let isValid = false;
+				isValid = await CompanyDivision.findById(body.company_division);
+				if (isValid) job.company_division = body.company_division;
+			}
+			if (body.category && isValidObjectId(body.category)) {
+				let isValid = false;
+				isValid = await JobCategory.findById(body.category);
+				if (isValid) job.category = body.category;
+			}
+			if (body.category && isValidObjectId(body.category)) {
+				let isValid = false;
+				isValid = await JobCategory.findById(body.category);
+				if (isValid) job.category = body.category;
+			}
+			if (body.job_type) job.job_type = body.job_type;
+			if (body.duration) job.duration = body.duration;
+			if (body.duration_range) job.duration_range = body.duration_range;
+			if (body.salary_type) job.salary_type = body.salary_type;
+			if (body.start_salary) job.start_salary = body.start_salary;
+			if (body.end_salary) job.end_salary = body.end_salary;
+			if (body.currency && isValidObjectId(body.currency)) {
+				let isValid = false;
+				isValid = await Currency.findById(body.currency);
+				if (isValid) job.currency = body.currency;
+			}
+			if (body.benefits) job.benefits = body.benefits;
+			if (body.work_remotly) job.work_remotly = body.work_remotly;
+			if (body.hire_remotly) job.hire_remotly = body.hire_remotly;
+			if (body.visa_sponsorship) job.visa_sponsorship = body.visa_sponsorship;
+			if (body.work_location) job.work_location = body.work_location;
+			if (body.hire_location) job.hire_location = body.hire_location;
+			if (body.education) job.education = body.education;
+			if (body.certification) job.certification = body.certification;
+			if (body.skills) job.skills = body.skills;
+			if (body.requirements) job.requirements = body.requirements;
+			job.updatedBy = rootObjectId;
+			await job.save();
 			res.status(200).send({ message: 'Job updated successfully' });
 		} catch {
 			res.status(500).send({ message: 'Something went wrong please try again' });
@@ -200,9 +242,9 @@ class CompanyJobController {
 			const rootObjectId = req.rootObjectId;
 			const jobId = req.params.jobid;
 			if (!jobId || !isValidObjectId(jobId)) return res.status(402).send({ message: 'Job not found' });
-			const job = await CompanyJob.findOne({ id: jobId, createdBy: rootObjectId });
+			const job = await CompanyJob.delete({ id: jobId, createdBy: rootObjectId });
 			if (!job) return res.status(402).send({ message: 'Job not found' });
-			await job.delete(rootObjectId as any);
+			await JobQuestion.delete({ job_id: jobId });
 			res.status(200).send({ message: 'Job deleted successfully' });
 		} catch {
 			res.status(500).send({ message: 'Something went wrong please try again' });
@@ -217,6 +259,7 @@ class CompanyJobController {
 			const job = await CompanyJob.findOneDeleted({ id: jobId, createdBy: rootObjectId });
 			if (!job) return res.status(402).send({ message: 'Job not found' });
 			await job.restore();
+			await JobQuestion.restore({ job_id: jobId });
 			res.status(200).send({ message: 'Job restored successfully' });
 		} catch {
 			res.status(500).send({ message: 'Something went wrong please try again' });

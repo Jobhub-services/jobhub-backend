@@ -1,4 +1,6 @@
-import { model, Schema, Document } from 'mongoose';
+import { Schema } from 'mongoose';
+import MongooseDelete from 'mongoose-delete';
+import { softDeleteModel } from '@/helpers';
 import { IJobQuestion } from '@/interfaces/jobQuestion.interface';
 
 const jobQuestionSchema: Schema = new Schema({
@@ -9,6 +11,8 @@ const jobQuestionSchema: Schema = new Schema({
 	},
 });
 
-const JobQuestion = model<IJobQuestion & Document>('JobQuestion', jobQuestionSchema);
+jobQuestionSchema.plugin(MongooseDelete, { deletedAt: true, overrideMethods: true });
+
+const JobQuestion = softDeleteModel<IJobQuestion>('JobQuestion', jobQuestionSchema);
 
 export default JobQuestion;
