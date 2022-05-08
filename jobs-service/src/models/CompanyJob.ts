@@ -1,5 +1,5 @@
 import { model, Schema, Document } from 'mongoose';
-import { softDeletePlugin } from 'soft-delete-plugin-mongoose';
+import mongoose_delete from 'mongoose-delete';
 import { ICompanyJob, JobTypes, JobDuration, SalaryType, JobStatus } from '@/interfaces/companyJob.interface';
 
 const jobLocationSchema = new Schema({
@@ -79,13 +79,10 @@ const companyJobSchema: Schema = new Schema(
 			enum: JobStatus,
 			default: JobStatus.READY,
 		},
-		created_by: {
+		createdBy: {
 			type: String,
 		},
-		updated_by: {
-			type: String,
-		},
-		deleted_by: {
+		updatedBy: {
 			type: String,
 		},
 	},
@@ -96,7 +93,7 @@ const companyJobSchema: Schema = new Schema(
 	}
 );
 
-companyJobSchema.plugin(softDeletePlugin);
+companyJobSchema.plugin(mongoose_delete, { deletedBy: true });
 
 companyJobSchema.virtual('questions', {
 	ref: 'JobQuestion',

@@ -50,7 +50,6 @@ export interface ICompanyJob {
 	requirements?: string;
 	status?: JobStatus;
 	questions?: string[];
-	created_by?: string;
-	updated_by?: string;
-	deleted_by?: string;
+	createdBy?: string;
+	updatedBy?: string;
 }

@@ -70,8 +70,8 @@ class CompanyJobController {
 					certification: jobBody.certification,
 					skills: jobBody.skills,
 					requirements: jobBody.requirements,
-					created_by: user._id,
-					updated_by: user._id,
+					createdBy: user._id,
+					updatedBy: user._id,
 				};
 				const job = await CompanyJob.create(companyJob);
 				for (const question of jobBody.questions) {
