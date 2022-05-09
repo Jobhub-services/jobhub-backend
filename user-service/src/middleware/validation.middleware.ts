@@ -23,7 +23,7 @@ const validationMiddleware =
 		validate(tranformedBody, { skipMissingProperties }).then((errors: ValidationError[]) => {
 			if (errors && errors.length > 0) {
 				const message = formatValidationErrors(errors);
-				res.status(402).send(message);
+				res.status(406).send(message);
 			} else {
 				req.body = tranformedBody;
 				next();

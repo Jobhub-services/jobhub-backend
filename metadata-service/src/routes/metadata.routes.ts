@@ -14,4 +14,7 @@ router.get('/currencies', metadataController.getCurrencies);
 router.put('/job-categories', metadataController.initCategories);
 router.get('/job-categories', metadataController.getCategories);
 
+router.put('/languages', metadataController.initLanguages);
+router.get('/languages', metadataController.getLanguages);
+
 export { router as metadataRouter };

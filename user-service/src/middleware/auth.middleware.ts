@@ -13,14 +13,15 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
 			});
 		jwt.verify(authHeader[1], process.env.JWT_SECRET, async (err: any, user: any) => {
 			if (err)
-				res.status(401).send({
+				return res.status(401).send({
 					message: 'unauthorized',
 				});
 			user = await User.findById(user.sub);
 			if (!user)
-				res.status(401).send({
+				return res.status(401).send({
 					message: 'unauthorized',
 				});
+			req.rootObjectId = user.id;
 			req.user = user;
 			next();
 		});

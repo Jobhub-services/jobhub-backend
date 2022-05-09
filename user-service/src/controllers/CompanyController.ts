@@ -1,5 +1,5 @@
-import CompanyDivision from '@/models/CompanyDivision';
 import { Request, Response } from 'express';
+import CompanyDivision from '@/models/CompanyDivision';
 class CompanyController {
 	async createDivision(req: Request, res: Response) {
 		try {

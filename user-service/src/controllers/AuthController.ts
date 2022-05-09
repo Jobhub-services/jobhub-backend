@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
 import { LoginDto, RegisterDto } from '@/dtos/auth.dto';
-import { IUser } from '@/interfaces/users.interface';
+import { IUser, UserType } from '@/interfaces/users.interface';
 import TokenService from '@/services/HashService';
 import User from '@/models/User';
+import Company from '@/models/Company';
+import Developer from '@/models/Developer';
 
 class AuthController {
 	public login = async (req: Request, res: Response) => {
@@ -32,6 +34,8 @@ class AuthController {
 			if (existingUser) return res.status(403).send({ message: 'Email or Username already exist' });
 			userInfo.password = await TokenService.hash(userInfo.password);
 			const user = await User.create(userInfo);
+			if (user.userType === UserType.COMPANY) await Company.create({ userId: user.id });
+			else if (user.userType === UserType.DEVELOPER) await Developer.create({ userId: user.id });
 			res.status(200).send({ message: 'User registred successfully', data: user });
 		} catch {
 			res.status(500).send({ message: 'Something went wrong please try again' });

@@ -4,6 +4,7 @@ import path from 'path';
 import Currency from '@/models/Currency';
 import JobCategory from '@/models/JobCategory';
 import Country from '@/models/Country';
+import Language from '@/models/Language';
 
 class MetadataController {
 	// countries
@@ -106,6 +107,43 @@ class MetadataController {
 			}
 			const categories = await query;
 			res.status(200).send({ content: categories, count, size: categories.length });
+		} catch {
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	}
+	// languages
+	public async initLanguages(req: Request, res: Response) {
+		try {
+			const language = await Language.findOne();
+			if (!language) {
+				const jsonFile = await fs.readFileSync(path.join(__dirname, '..', '..', 'json_data', 'languages.json'));
+				const languages: any[] = JSON.parse(jsonFile.toString());
+				const dbLanguages: { name: string; code: string }[] = [];
+				for (const code in languages) {
+					dbLanguages.push({ name: languages[code], code });
+				}
+				await Language.insertMany(dbLanguages);
+			}
+			res.status(200).send({ message: 'Languages added' });
+		} catch (e) {
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	}
+	public async getLanguages(req: Request, res: Response) {
+		try {
+			const { name = '', limit, page } = req.query;
+			const query = Language.find({ name: { $regex: name, $options: 'i' } });
+			const count = await Language.count();
+			if (limit) {
+				const limitN = Number(limit);
+				query.limit(limitN);
+				if (page) {
+					const pageN = Number(page);
+					query.skip(pageN * limitN);
+				}
+			}
+			const languages = await query;
+			res.status(200).send({ content: languages, count, size: languages.length });
 		} catch {
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}

@@ -18,23 +18,23 @@ class CompanyJobController {
 
 			if (jobBody.company_division) {
 				const response = { company_division: ["Company division isn't valid"] };
-				if (!isValidObjectId(jobBody.company_division)) return res.status(402).send(response);
+				if (!isValidObjectId(jobBody.company_division)) return res.status(406).send(response);
 				const isValid = await CompanyDivision.findById(jobBody.company_division);
-				if (!isValid) return res.status(402).send(response);
+				if (!isValid) return res.status(406).send(response);
 			}
 
 			if (jobBody.category) {
 				const response = { category: ["Category isn't valid"] };
-				if (!isValidObjectId(jobBody.category)) return res.status(402).send(response);
+				if (!isValidObjectId(jobBody.category)) return res.status(406).send(response);
 				const isValid = await JobCategory.findById(jobBody.category);
-				if (!isValid) return res.status(402).send(response);
+				if (!isValid) return res.status(406).send(response);
 			}
 
 			if (jobBody.currency) {
 				const response = { currency: ["Currency isn't valid"] };
-				if (!isValidObjectId(jobBody.currency)) return res.status(402).send(response);
+				if (!isValidObjectId(jobBody.currency)) return res.status(406).send(response);
 				const isValid = await Currency.findById(jobBody.currency);
-				if (!isValid) return res.status(402).send(response);
+				if (!isValid) return res.status(406).send(response);
 			}
 
 			const jobs = [];
@@ -116,7 +116,7 @@ class CompanyJobController {
 		try {
 			const rootObjectId = req.rootObjectId;
 			const jobId = req.params.jobid;
-			if (!jobId || !isValidObjectId(jobId)) return res.status(402).send({ message: 'Job not found' });
+			if (!jobId || !isValidObjectId(jobId)) return res.status(406).send({ message: 'Job not found' });
 			const query = CompanyJob.findOne({ id: jobId, createdBy: rootObjectId })
 				.populate({ path: 'category', select: 'name' })
 				.populate('currency')
@@ -136,7 +136,7 @@ class CompanyJobController {
 					},
 				});
 			const job = await query;
-			if (!job) return res.status(402).send({ message: 'Job not found' });
+			if (!job) return res.status(406).send({ message: 'Job not found' });
 			const result = normalizetoJSON(job);
 			res.status(200).send({ content: result });
 		} catch {
@@ -148,7 +148,7 @@ class CompanyJobController {
 		try {
 			const rootObjectId = req.rootObjectId;
 			const jobId = req.params.jobid;
-			if (!jobId || !isValidObjectId(jobId)) return res.status(402).send({ message: 'Job not found' });
+			if (!jobId || !isValidObjectId(jobId)) return res.status(406).send({ message: 'Job not found' });
 			const query = CompanyJob.findOne({ id: jobId, createdBy: rootObjectId })
 				.populate({ path: 'category', select: 'name' })
 				.populate('currency')
@@ -168,7 +168,7 @@ class CompanyJobController {
 					},
 				});
 			const job = await query;
-			if (!job) return res.status(402).send({ message: 'Job not found' });
+			if (!job) return res.status(406).send({ message: 'Job not found' });
 			const result = {
 				...job.toJSON(),
 				questions: job.questions?.map((question) => {
@@ -186,9 +186,9 @@ class CompanyJobController {
 			const rootObjectId = req.rootObjectId;
 			const jobId = req.params.jobid;
 			const { body } = req;
-			if (!jobId || !isValidObjectId(jobId)) return res.status(402).send({ message: 'Job not found' });
+			if (!jobId || !isValidObjectId(jobId)) return res.status(406).send({ message: 'Job not found' });
 			const job = await CompanyJob.findOne({ id: jobId, createdBy: rootObjectId });
-			if (!job) return res.status(402).send({ message: 'Job not found' });
+			if (!job) return res.status(406).send({ message: 'Job not found' });
 			// update properties
 			if (body.title) job.title = body.title;
 			if (body.description) job.description = body.description;
@@ -241,9 +241,9 @@ class CompanyJobController {
 		try {
 			const rootObjectId = req.rootObjectId;
 			const jobId = req.params.jobid;
-			if (!jobId || !isValidObjectId(jobId)) return res.status(402).send({ message: 'Job not found' });
+			if (!jobId || !isValidObjectId(jobId)) return res.status(406).send({ message: 'Job not found' });
 			const job = await CompanyJob.delete({ id: jobId, createdBy: rootObjectId });
-			if (!job) return res.status(402).send({ message: 'Job not found' });
+			if (!job) return res.status(406).send({ message: 'Job not found' });
 			await JobQuestion.delete({ job_id: jobId });
 			res.status(200).send({ message: 'Job deleted successfully' });
 		} catch {
@@ -255,9 +255,9 @@ class CompanyJobController {
 		try {
 			const rootObjectId = req.rootObjectId;
 			const jobId = req.params.jobid;
-			if (!jobId || !isValidObjectId(jobId)) return res.status(402).send({ message: 'Job not found' });
+			if (!jobId || !isValidObjectId(jobId)) return res.status(406).send({ message: 'Job not found' });
 			const job = await CompanyJob.findOneDeleted({ id: jobId, createdBy: rootObjectId });
-			if (!job) return res.status(402).send({ message: 'Job not found' });
+			if (!job) return res.status(406).send({ message: 'Job not found' });
 			await job.restore();
 			await JobQuestion.restore({ job_id: jobId });
 			res.status(200).send({ message: 'Job restored successfully' });
