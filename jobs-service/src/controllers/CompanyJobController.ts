@@ -16,11 +16,14 @@ class CompanyJobController {
 			const rootObjectId = req.rootObjectId;
 			const jobBody: CompanyJobDto = req.body;
 
+			const objectIdsData: any = {};
+
 			if (jobBody.company_division) {
 				const response = { company_division: ["Company division isn't valid"] };
 				if (!isValidObjectId(jobBody.company_division)) return res.status(406).send(response);
 				const isValid = await CompanyDivision.findById(jobBody.company_division);
 				if (!isValid) return res.status(406).send(response);
+				objectIdsData.company_division = jobBody.company_division;
 			}
 
 			if (jobBody.category) {
@@ -28,6 +31,7 @@ class CompanyJobController {
 				if (!isValidObjectId(jobBody.category)) return res.status(406).send(response);
 				const isValid = await JobCategory.findById(jobBody.category);
 				if (!isValid) return res.status(406).send(response);
+				objectIdsData.category = jobBody.category;
 			}
 
 			if (jobBody.currency) {
@@ -35,6 +39,7 @@ class CompanyJobController {
 				if (!isValidObjectId(jobBody.currency)) return res.status(406).send(response);
 				const isValid = await Currency.findById(jobBody.currency);
 				if (!isValid) return res.status(406).send(response);
+				objectIdsData.currency = jobBody.currency;
 			}
 
 			const jobs = [];
@@ -51,15 +56,12 @@ class CompanyJobController {
 					title: jobBody.title,
 					description: jobBody.description,
 					responsabilities: jobBody.responsabilities,
-					company_division: jobBody.company_division,
-					category: jobBody.category,
 					job_type: jobBody.job_type,
 					duration: jobBody.duration,
 					duration_range: jobBody.duration_range,
 					salary_type: jobBody.salary_type,
 					start_salary: jobBody.start_salary,
 					end_salary: jobBody.end_salary,
-					currency: jobBody.currency,
 					benefits: jobBody.benefits,
 					work_remotly: jobBody.work_remotly,
 					hire_remotly: jobBody.hire_remotly,
@@ -72,7 +74,9 @@ class CompanyJobController {
 					requirements: jobBody.requirements,
 					createdBy: rootObjectId,
 					updatedBy: rootObjectId,
+					...objectIdsData,
 				};
+				console.log(companyJob);
 				const job = await CompanyJob.create(companyJob);
 				for (const question of jobBody.questions) {
 					await JobQuestion.create({
