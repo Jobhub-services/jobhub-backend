@@ -10,5 +10,6 @@ class DeveloperController {
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};
+	private setResume = () => {};
 }
 export default DeveloperController;

@@ -5,6 +5,7 @@ dotenvConfig({ path: `.env.${NODE_ENV}` });
 
 import { connect, set } from 'mongoose';
 import express, { json } from 'express';
+import fileUpload from 'express-fileupload';
 import cors from 'cors';
 import '@/types';
 import { dbConnection } from '@/config/db.config';
@@ -12,6 +13,7 @@ import { SERVICE_API_PATH } from '@/constants/app.constants';
 import Router from '@/routes';
 
 const app = express();
+app.use(fileUpload({}));
 app.use(json());
 app.use(cors());
 app.use(`/api/${SERVICE_API_PATH}`, Router);

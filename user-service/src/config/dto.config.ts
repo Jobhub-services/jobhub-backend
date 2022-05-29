@@ -5,4 +5,8 @@ const isStringMessage = (fieldName: string) => {
 	return `${fieldName} must be a string`;
 };
 
-export { isEmptyMessage, isStringMessage };
+const isEnumMessage = (fieldName: string, enumTypes) => {
+	return `${fieldName} should be ${enumTypes ? Object.values(enumTypes).join(' , ') : 'valid'}`;
+};
+
+export { isEmptyMessage, isStringMessage, isEnumMessage };

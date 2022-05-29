@@ -1,10 +1,11 @@
 FROM node:14-alpine as base
 
-WORKDIR /src
 EXPOSE 3000
-RUN npm install
 COPY . /src
 
+WORKDIR /src
+
+RUN npm install
 RUN npm run build
 
 CMD ["npm", "start"]

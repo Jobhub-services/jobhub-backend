@@ -7,9 +7,11 @@ services:
       - /src/node_modules
     command: npm start
     ports:
-      - '3000'
+      - '3000:3000'
     environment:
       NODE_ENV: production
+      PORT: 3000
+      HOST: localhost
   user_service:
     build: ./user-service
     volumes:

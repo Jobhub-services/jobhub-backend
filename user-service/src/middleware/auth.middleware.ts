@@ -23,6 +23,7 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
 				});
 			req.rootObjectId = user.id;
 			req.user = user;
+			global.authUser = user;
 			next();
 		});
 	} catch (e) {
