@@ -4,7 +4,7 @@ http:
 apiEndpoints:
   users:
     host: '*'
-    paths: ['/api/users/*']
+    paths: ['/api/users/*', '/cdn/*']
   jobs:
     host: '*'
     paths: ['/api/jobs/*']

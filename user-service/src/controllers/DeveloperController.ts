@@ -3,6 +3,7 @@ import Developer from '@/models/Developer';
 import { IDeveloper } from '@/interfaces/developer.interface';
 import { DeveloperDto } from '@/dtos/developer.dto';
 import { UploadedFile } from 'express-fileupload';
+import { storageService } from '@/services/StorageService';
 class DeveloperController {
 	updateProfile = async (req: Request, res: Response) => {
 		try {
@@ -58,6 +59,9 @@ class DeveloperController {
 		profile.social_profile = socialProfile;
 	};
 
-	private updateResume = async (profile: IDeveloper, file: UploadedFile) => {};
+	private updateResume = async (profile: IDeveloper, file: UploadedFile) => {
+		const resumePath = await storageService.moveFile(file);
+		profile.resume = resumePath;
+	};
 }
 export default DeveloperController;

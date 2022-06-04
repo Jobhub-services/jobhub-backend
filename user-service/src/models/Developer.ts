@@ -1,5 +1,6 @@
 import { model, Schema, Document } from 'mongoose';
 import { IDeveloper } from '@/interfaces/developer.interface';
+import { storageService } from '@/services/StorageService';
 
 const languageSchema = new Schema({
 	language: { type: Schema.Types.ObjectId, ref: 'Language' },
@@ -66,6 +67,12 @@ const developerSchema: Schema = new Schema(
 		timestamps: true,
 	}
 );
+
+developerSchema.methods.toJSON = function () {
+	const developer: IDeveloper = this.toObject();
+	developer.resume = storageService.createFileURL(developer.resume);
+	return developer;
+};
 
 const Developer = model<IDeveloper & Document>('Developer', developerSchema);
 

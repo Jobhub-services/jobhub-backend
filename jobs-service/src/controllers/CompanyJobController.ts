@@ -16,34 +16,7 @@ class CompanyJobController {
 			const rootObjectId = req.rootObjectId;
 			const jobBody: CompanyJobDto = req.body;
 
-			const objectIdsData: any = {};
-
-			if (jobBody.company_division) {
-				const response = { company_division: ["Company division isn't valid"] };
-				if (!isValidObjectId(jobBody.company_division)) return res.status(406).send(response);
-				const isValid = await CompanyDivision.findById(jobBody.company_division);
-				if (!isValid) return res.status(406).send(response);
-				objectIdsData.company_division = jobBody.company_division;
-			}
-
-			if (jobBody.category) {
-				const response = { category: ["Category isn't valid"] };
-				if (!isValidObjectId(jobBody.category)) return res.status(406).send(response);
-				const isValid = await JobCategory.findById(jobBody.category);
-				if (!isValid) return res.status(406).send(response);
-				objectIdsData.category = jobBody.category;
-			}
-
-			if (jobBody.currency) {
-				const response = { currency: ["Currency isn't valid"] };
-				if (!isValidObjectId(jobBody.currency)) return res.status(406).send(response);
-				const isValid = await Currency.findById(jobBody.currency);
-				if (!isValid) return res.status(406).send(response);
-				objectIdsData.currency = jobBody.currency;
-			}
-
 			const jobs = [];
-
 			const work_location = jobBody.work_location;
 			jobBody.hire_location = await this._populateHireLocations(jobBody.hire_location);
 			jobBody.skills = await this._populateSkills(jobBody.skills);
@@ -56,6 +29,9 @@ class CompanyJobController {
 					title: jobBody.title,
 					description: jobBody.description,
 					responsabilities: jobBody.responsabilities,
+					company_division: jobBody.company_division,
+					category: jobBody.category,
+					currency: jobBody.currency,
 					job_type: jobBody.job_type,
 					duration: jobBody.duration,
 					duration_range: jobBody.duration_range,
@@ -74,9 +50,7 @@ class CompanyJobController {
 					requirements: jobBody.requirements,
 					createdBy: rootObjectId,
 					updatedBy: rootObjectId,
-					...objectIdsData,
 				};
-				console.log(companyJob);
 				const job = await CompanyJob.create(companyJob);
 				for (const question of jobBody.questions) {
 					await JobQuestion.create({
@@ -86,7 +60,7 @@ class CompanyJobController {
 				}
 				jobs.push(job);
 			}
-			res.status(200).send({ message: 'Job created successfully' });
+			res.status(200).send({ message: 'Job created successfully', countCreated: jobs.length });
 		} catch (e) {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
@@ -99,7 +73,7 @@ class CompanyJobController {
 			const count = await CompanyJob.count();
 			const query = CompanyJob.find(
 				{ createdBy: rootObjectId },
-				{ title: 1, description: 1, status: 1, job_type: 1, duration: 1, start_salary: 1, end_salary: 1, created_at: 1 }
+				{ title: 1, description: 1, status: 1, job_type: 1, duration: 1, start_salary: 1, end_salary: 1, createdAt: 1, updatedAt: 1 }
 			)
 				.populate({ path: 'category' })
 				.populate('currency')
@@ -108,7 +82,8 @@ class CompanyJobController {
 					populate: {
 						path: 'country',
 					},
-				});
+				})
+				.sort({ updatedAt: -1 });
 			const jobs = await query;
 			const result = normalizetoJSONs(jobs);
 			res.status(200).send({ content: result, count, size: jobs.length, pages: Math.floor(count / Number(limit)), currentPage: page });
@@ -120,8 +95,9 @@ class CompanyJobController {
 		try {
 			const rootObjectId = req.rootObjectId;
 			const jobId = req.params.jobid;
+			console.log(jobId);
 			if (!jobId || !isValidObjectId(jobId)) return res.status(406).send({ message: 'Job not found' });
-			const query = CompanyJob.findOne({ id: jobId, createdBy: rootObjectId })
+			const query = CompanyJob.findOne({ _id: jobId, createdBy: rootObjectId })
 				.populate({ path: 'category', select: 'name' })
 				.populate('currency')
 				.populate('skills')

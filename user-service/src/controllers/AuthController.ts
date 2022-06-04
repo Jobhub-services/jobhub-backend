@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { LoginDto, RegisterDto } from '@/dtos/auth.dto';
 import { IUser, UserType } from '@/interfaces/users.interface';
-import TokenService from '@/services/HashService';
+import { tokenService } from '@/services/HashService';
 import User from '@/models/User';
 import Company from '@/models/Company';
 import Developer from '@/models/Developer';
@@ -12,9 +12,9 @@ class AuthController {
 			const userInfo: LoginDto = req.body;
 			const user: IUser = await User.findOne({ $or: [{ email: userInfo.username }, { username: userInfo.username }] });
 			if (user) {
-				const checkPassword = await TokenService.check(userInfo.password, user.password);
+				const checkPassword = await tokenService.check(userInfo.password, user.password);
 				if (checkPassword) {
-					const token = TokenService.createToken(user);
+					const token = tokenService.createToken(user);
 					if (token) {
 						res.status(200).send({ message: 'user authentified successfully', data: token });
 						return;
@@ -32,7 +32,7 @@ class AuthController {
 			const userInfo: RegisterDto = req.body;
 			const existingUser: IUser = await User.findOne({ $or: [{ email: userInfo.email }, { username: userInfo.username }] });
 			if (existingUser) return res.status(403).send({ message: 'Email or Username already exist' });
-			userInfo.password = await TokenService.hash(userInfo.password);
+			userInfo.password = await tokenService.hash(userInfo.password);
 			const user = await User.create(userInfo);
 			if (user.userType === UserType.COMPANY) await Company.create({ userId: user.id });
 			else if (user.userType === UserType.DEVELOPER) await Developer.create({ userId: user.id });

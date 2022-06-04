@@ -2,6 +2,10 @@ import { ArrayNotEmpty, IsArray, IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsSt
 import { JobTypes, JobDuration, SalaryType } from '@/interfaces/companyJob.interface';
 import { isEmptyMessage, isStringMessage, isEnumMessage } from '@/config/dto.config';
 import { Expose, Type } from 'class-transformer';
+import { IsExists } from '@/helpers';
+import CompanyDivision from '@/models/CompanyDivision';
+import JobCategory from '@/models/JobCategory';
+import Currency from '@/models/Currency';
 
 class JobLocationDto {
 	@Expose()
@@ -17,16 +21,19 @@ class JobLocationDto {
 
 export class CompanyJobDto {
 	@Expose()
+	@IsOptional()
 	@IsNotEmpty({ message: isEmptyMessage('Job title') })
 	@IsString({ message: isStringMessage('Job title') })
 	title: string;
 
 	@Expose()
+	@IsOptional()
 	@IsNotEmpty({ message: isEmptyMessage('Job description') })
 	@IsString({ message: isStringMessage('Job description') })
 	description: string;
 
 	@Expose()
+	@IsOptional()
 	@IsNotEmpty({ message: isEmptyMessage('Job responsabilities') })
 	@IsString({ message: isStringMessage('Job responsabilities') })
 	responsabilities: string;
@@ -34,29 +41,36 @@ export class CompanyJobDto {
 	@Expose()
 	@IsOptional()
 	@IsString({ message: isStringMessage('Company division') })
+	@IsExists(CompanyDivision)
 	company_division: string;
 
 	@Expose()
+	@IsOptional()
 	@IsNotEmpty({ message: isEmptyMessage('Job category') })
 	@IsString({ message: isStringMessage('Job category') })
+	@IsExists(JobCategory)
 	category: string;
 
 	@Expose()
+	@IsOptional()
 	@IsNotEmpty({ message: isEmptyMessage('Job type') })
 	@IsEnum(JobTypes, { message: isEnumMessage('Job type', JobTypes) })
 	job_type: JobTypes;
 
 	@Expose()
+	@IsOptional()
 	@IsNotEmpty({ message: isEmptyMessage('Job duration') })
 	@IsEnum(JobDuration, { message: isEnumMessage('Job duration', JobDuration) })
 	duration: JobDuration;
 
 	@Expose()
+	@IsOptional()
 	@IsNotEmpty({ message: isEmptyMessage('Job duration range') })
 	@IsArray()
 	duration_range: string[];
 
 	@Expose()
+	@IsOptional()
 	@IsNotEmpty({ message: isEmptyMessage('Job salary type') })
 	@IsEnum(SalaryType, { message: isEnumMessage('Job salary type', SalaryType) })
 	salary_type: SalaryType;
@@ -74,6 +88,7 @@ export class CompanyJobDto {
 	@Expose()
 	@IsOptional()
 	@IsString({ message: isStringMessage('Job currency') })
+	@IsExists(Currency)
 	currency: string;
 
 	@Expose()
@@ -97,6 +112,7 @@ export class CompanyJobDto {
 	visa_sponsorship: boolean;
 
 	@Expose()
+	@IsOptional()
 	@ArrayNotEmpty({ message: isEmptyMessage('Work location') })
 	@ValidateNested({ each: true })
 	@Type(() => JobLocationDto)

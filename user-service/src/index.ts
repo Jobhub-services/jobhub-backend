@@ -9,13 +9,15 @@ import fileUpload from 'express-fileupload';
 import cors from 'cors';
 import '@/types';
 import { dbConnection } from '@/config/db.config';
-import { SERVICE_API_PATH } from '@/constants/app.constants';
+import { SERVICE_API_PATH, STORAGE_API_PATH } from '@/constants/app.constants';
+import { storageRouter } from '@/routes/storage.routes';
 import Router from '@/routes';
 
 const app = express();
 app.use(fileUpload({}));
 app.use(json());
 app.use(cors());
+app.use(STORAGE_API_PATH, storageRouter);
 app.use(`/api/${SERVICE_API_PATH}`, Router);
 
 if (NODE_ENV !== 'production') set('debug', true);
