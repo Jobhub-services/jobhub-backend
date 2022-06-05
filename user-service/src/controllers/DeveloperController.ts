@@ -11,14 +11,14 @@ class DeveloperController {
 			const rootObjectId = req.rootObjectId;
 			const profile = await Developer.findOne({ userId: rootObjectId });
 
-			if (profile.summary) this.setSummary(profile, profileBody.summary);
-			if (profile.languages) this.setLanguages(profile, profileBody.languages);
-			if (profile.skills) this.setSkills(profile, profileBody.skills);
-			if (profile.role) this.setRole(profile, profileBody.role);
-			if (profile.work_experience) this.setExperiences(profile, profileBody.work_experience);
-			if (profile.educations) this.setEducations(profile, profileBody.educations);
-			if (profile.certifications) this.setCertifications(profile, profileBody.certifications);
-			if (profile.social_profile) this.setSocialProfile(profile, profileBody.social_profile);
+			if (profileBody.summary) this.setSummary(profile, profileBody.summary);
+			if (profileBody.languages) this.setLanguages(profile, profileBody.languages);
+			if (profileBody.skills) this.setSkills(profile, profileBody.skills);
+			if (profileBody.role) this.setRole(profile, profileBody.role);
+			if (profileBody.work_experience) this.setExperiences(profile, profileBody.work_experience);
+			if (profileBody.educations) this.setEducations(profile, profileBody.educations);
+			if (profileBody.certifications) this.setCertifications(profile, profileBody.certifications);
+			if (profileBody.social_profile) this.setSocialProfile(profile, profileBody.social_profile);
 			if (req.files && req.files.resume) await this.updateResume(profile, req.files.resume as UploadedFile);
 
 			await profile.save();
