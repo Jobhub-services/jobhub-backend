@@ -1,9 +1,13 @@
 import { model, Schema, Document } from 'mongoose';
 import { IDeveloper } from '@/interfaces/developer.interface';
 import { storageService } from '@/services/StorageService';
+import Skill from '@/models/Skill';
+import Language from '@/models/Language';
+import Country from '@/models/Country';
+import User from '@/models/User';
 
 const languageSchema = new Schema({
-	language: { type: Schema.Types.ObjectId, ref: 'Language' },
+	language: { type: Schema.Types.ObjectId, ref: Language },
 	level: String,
 });
 
@@ -19,7 +23,7 @@ const experienceSchema = new Schema({
 	endDate: String,
 	description: String,
 	job_type: String,
-	location: { type: Schema.Types.ObjectId, ref: 'Country' },
+	location: { type: Schema.Types.ObjectId, ref: Country },
 });
 
 const educationSchema = new Schema({
@@ -48,12 +52,12 @@ const socialSchema = new Schema({
 
 const developerSchema: Schema = new Schema(
 	{
-		userId: { type: Schema.Types.ObjectId, ref: 'User' },
+		userId: { type: Schema.Types.ObjectId, ref: User },
 		summary: {
 			type: String,
 		},
 		languages: [languageSchema],
-		skills: [{ type: Schema.Types.ObjectId, ref: 'Skill' }],
+		skills: [{ type: Schema.Types.ObjectId, ref: Skill }],
 		role: roleSchema,
 		work_experience: [experienceSchema],
 		educations: [educationSchema],
@@ -70,7 +74,7 @@ const developerSchema: Schema = new Schema(
 
 developerSchema.methods.toJSON = function () {
 	const developer: IDeveloper = this.toObject();
-	developer.resume = storageService.createFileURL(developer.resume);
+	if (developer.resume) developer.resume = storageService.createFileURL(developer.resume);
 	return developer;
 };
 

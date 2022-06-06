@@ -18,13 +18,10 @@ class CompanyJobController {
 
 			const jobs = [];
 			const work_location = jobBody.work_location;
+			const work_remotly = jobBody.work_remotly;
 			jobBody.hire_location = await this._populateHireLocations(jobBody.hire_location);
 			jobBody.skills = await this._populateSkills(jobBody.skills);
-			for (const index in work_location) {
-				const location = work_location[index];
-				if (!isValidObjectId(location.country)) continue;
-				const isValid = await Country.findById(location.country);
-				if (!isValid) continue;
+			const createJobInstance = async (location?: any) => {
 				const companyJob: ICompanyJob = {
 					title: jobBody.title,
 					description: jobBody.description,
@@ -59,7 +56,16 @@ class CompanyJobController {
 					});
 				}
 				jobs.push(job);
-			}
+			};
+			if (work_remotly) await createJobInstance();
+			else
+				for (const index in work_location) {
+					const location = work_location[index];
+					if (!isValidObjectId(location.country)) continue;
+					const isValid = await Country.findById(location.country);
+					if (!isValid) continue;
+					await createJobInstance(location);
+				}
 			res.status(200).send({ message: 'Job created successfully', countCreated: jobs.length });
 		} catch (e) {
 			console.log(e);

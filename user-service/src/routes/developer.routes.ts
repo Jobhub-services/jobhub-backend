@@ -12,5 +12,6 @@ router.use('/', auth);
 router.use('/', (req, res, next) => authRole(req, res, next)(UserType.DEVELOPER));
 
 router.put('/profile', validationMiddleware(DeveloperDto), developerController.updateProfile);
+router.get('/profile', validationMiddleware(DeveloperDto), developerController.getProfile);
 
 export { router as developerRouter };
