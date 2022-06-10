@@ -17,4 +17,7 @@ router.get('/job-categories', metadataController.getCategories);
 router.put('/languages', metadataController.initLanguages);
 router.get('/languages', metadataController.getLanguages);
 
+router.put('/job-roles', metadataController.initJobRoles);
+router.get('/job-roles', metadataController.getJobRoles);
+
 export { router as metadataRouter };

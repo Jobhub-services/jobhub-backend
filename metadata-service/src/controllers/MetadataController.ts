@@ -5,6 +5,7 @@ import Currency from '@/models/Currency';
 import JobCategory from '@/models/JobCategory';
 import Country from '@/models/Country';
 import Language from '@/models/Language';
+import JobRole from '@/models/JobRole';
 
 class MetadataController {
 	// countries
@@ -144,6 +145,43 @@ class MetadataController {
 			}
 			const languages = await query;
 			res.status(200).send({ content: languages, count, size: languages.length });
+		} catch {
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	}
+	// languages
+	public async initJobRoles(req: Request, res: Response) {
+		try {
+			const jobRoles = await JobRole.findOne();
+			if (!jobRoles) {
+				const jsonFile = await fs.readFileSync(path.join(__dirname, '..', '..', 'json_data', 'roles.json'));
+				const roles: string[] = JSON.parse(jsonFile.toString()).data;
+				const dbRoles: { name: string }[] = [];
+				for (const role of roles) {
+					dbRoles.push({ name: role });
+				}
+				await JobRole.insertMany(dbRoles);
+			}
+			res.status(200).send({ message: 'JobRoles added' });
+		} catch (e) {
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	}
+	public async getJobRoles(req: Request, res: Response) {
+		try {
+			const { name = '', limit, page } = req.query;
+			const query = JobRole.find({ name: { $regex: name, $options: 'i' } });
+			const count = await JobRole.count();
+			if (limit) {
+				const limitN = Number(limit);
+				query.limit(limitN);
+				if (page) {
+					const pageN = Number(page);
+					query.skip(pageN * limitN);
+				}
+			}
+			const jobRoles = await query;
+			res.status(200).send({ content: jobRoles, count, size: jobRoles.length });
 		} catch {
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}

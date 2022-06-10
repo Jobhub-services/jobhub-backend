@@ -1,12 +1,11 @@
 import { Router } from 'express';
-import { auth, authRole } from '@/middleware/auth.middleware';
 import StorageController from '@/controllers/StorageController';
+import { authStorage } from '@/middleware/auth.middleware';
 
 const storageController = new StorageController();
 
 const router = Router();
-router.use('/', auth);
-
+router.use('/', authStorage);
 router.get('/:token', storageController.resolveFile);
 
 export { router as storageRouter };

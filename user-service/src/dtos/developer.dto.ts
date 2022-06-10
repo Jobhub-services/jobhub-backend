@@ -3,197 +3,264 @@ import { IsArray, IsEnum, IsOptional, IsString, ValidateNested } from 'class-val
 import { JobTypes } from '@/interfaces/companyJob.interface';
 import { isStringMessage, isEnumMessage } from '@/config/dto.config';
 import { Expose, Type } from 'class-transformer';
-import { IsObjectId, IsExists } from '@/helpers';
+import { IsExists } from '@/helpers';
 import Language from '@/models/Language';
 import Country from '@/models/Country';
+import JobRole from '@/models/JobRole';
+import Skill from '@/models/Skill';
+import Currency from '@/models/Currency';
+import { AvailabilityStatus } from '@/interfaces/developer.interface';
 
 class LanguagesDto {
 	@Expose()
 	@IsExists(Language)
-	language: Schema.Types.ObjectId;
+	language?: Schema.Types.ObjectId;
 
 	@Expose()
 	@IsString()
-	level: string;
+	level?: string;
 }
 
 class RolesDto {
 	@Expose()
 	@IsOptional()
-	@IsString({ each: true })
-	other_roles: string[];
+	@IsExists(JobRole, { each: true })
+	other_roles?: Schema.Types.ObjectId[];
 
 	@Expose()
-	@IsString()
-	primary_role: string;
+	@IsOptional()
+	@IsExists(JobRole)
+	primary_role?: Schema.Types.ObjectId;
+
+	@Expose()
+	@IsOptional()
+	experience?: string;
 }
 
 class ExperiencesDto {
 	@Expose()
 	@IsOptional()
 	@IsString()
-	title: string;
+	title?: string;
 
 	@Expose()
 	@IsOptional()
 	@IsString()
-	company_name: string;
+	company_name?: string;
 
 	@Expose()
 	@IsOptional()
 	@IsString()
-	startDate: string;
+	startDate?: string;
 
 	@Expose()
 	@IsOptional()
 	@IsString()
-	endDate: string;
+	endDate?: string;
 
 	@Expose()
 	@IsOptional()
 	@IsString()
-	description: string;
+	description?: string;
 
 	@Expose()
 	@IsOptional()
 	@IsEnum(JobTypes, { message: isEnumMessage('Job type', JobTypes) })
-	job_type: JobTypes;
+	job_type?: JobTypes;
 
 	@Expose()
 	@IsOptional()
 	@IsExists(Country)
-	location: Schema.Types.ObjectId;
+	location?: Schema.Types.ObjectId;
 }
 
 class EducationsDto {
 	@Expose()
 	@IsOptional()
 	@IsString()
-	title: string;
+	title?: string;
 
 	@Expose()
 	@IsOptional()
 	@IsString()
-	school: string;
+	school?: string;
 
 	@Expose()
 	@IsOptional()
 	@IsString()
-	startDate: string;
+	startDate?: string;
 
 	@Expose()
 	@IsOptional()
 	@IsString()
-	endDate: string;
+	endDate?: string;
 }
 
 class CertificationsDto {
 	@Expose()
 	@IsOptional()
 	@IsString()
-	certificationId: string;
+	certificationId?: string;
 
 	@Expose()
 	@IsOptional()
 	@IsString()
-	title: string;
+	title?: string;
 
 	@Expose()
 	@IsOptional()
 	@IsString()
-	provider: string;
+	provider?: string;
 
 	@Expose()
 	@IsOptional()
 	@IsString()
-	description: string;
+	description?: string;
 
 	@Expose()
 	@IsOptional()
 	@IsString()
-	issuedDate: string;
+	issuedDate?: string;
 
 	@Expose()
 	@IsOptional()
 	@IsString()
-	expirationDate: string;
+	expirationDate?: string;
 
 	@Expose()
 	@IsOptional()
 	@IsString()
-	link: string;
+	link?: string;
 }
 
 class SocialsDto {
 	@Expose()
 	@IsOptional()
 	@IsString()
-	website: string;
+	website?: string;
 
 	@Expose()
 	@IsOptional()
 	@IsString()
-	git: string;
+	git?: string;
 
 	@Expose()
 	@IsOptional()
 	@IsString()
-	linkedin: string;
+	linkedin?: string;
 
 	@Expose()
 	@IsOptional()
 	@IsString()
-	twitter: string;
+	twitter?: string;
+}
+
+class AddressDto {
+	@Expose()
+	@IsOptional()
+	@IsExists(JobRole)
+	country?: Schema.Types.ObjectId;
+
+	@Expose()
+	@IsOptional()
+	@IsString({ message: isStringMessage('City') })
+	city?: string;
+
+	@Expose()
+	@IsOptional()
+	@IsString({ message: isStringMessage('Street') })
+	street?: string;
 }
 
 export class DeveloperDto {
 	@Expose()
 	@IsOptional()
 	@IsString({ message: isStringMessage('Summary') })
-	summary: string;
+	summary?: string;
 
 	@Expose()
 	@IsOptional()
 	@IsArray()
 	@ValidateNested({ each: true })
 	@Type(() => LanguagesDto)
-	languages: LanguagesDto[];
+	languages?: LanguagesDto[];
 
 	@Expose()
 	@IsOptional()
-	@IsObjectId({ each: true })
-	skills: Schema.Types.ObjectId[];
+	@IsExists(Skill, { each: true })
+	skills?: Schema.Types.ObjectId[];
 
 	@Expose()
 	@IsOptional()
-	@ValidateNested({ each: true })
+	@ValidateNested()
 	@Type(() => RolesDto)
-	role: RolesDto;
+	role?: RolesDto;
 
 	@Expose()
 	@IsOptional()
 	@IsArray()
 	@ValidateNested({ each: true })
 	@Type(() => ExperiencesDto)
-	work_experience: ExperiencesDto[];
+	work_experience?: ExperiencesDto[];
 
 	@Expose()
 	@IsOptional()
 	@IsArray()
 	@ValidateNested({ each: true })
 	@Type(() => EducationsDto)
-	educations: EducationsDto[];
+	educations?: EducationsDto[];
 
 	@Expose()
 	@IsOptional()
 	@IsArray()
 	@ValidateNested({ each: true })
 	@Type(() => CertificationsDto)
-	certifications: CertificationsDto[];
+	certifications?: CertificationsDto[];
 
 	@Expose()
 	@IsOptional()
-	@ValidateNested({ each: true })
+	@ValidateNested()
 	@Type(() => SocialsDto)
-	social_profile: SocialsDto;
+	social_profile?: SocialsDto;
+
+	@Expose()
+	@IsOptional()
+	@ValidateNested()
+	@Type(() => AddressDto)
+	address?: AddressDto;
+
+	@Expose()
+	@IsOptional()
+	@IsExists(Currency)
+	currency?: Schema.Types.ObjectId;
+
+	@Expose()
+	@IsOptional()
+	@IsExists(Country, { each: true })
+	desired_location?: Schema.Types.ObjectId[];
+
+	@Expose()
+	@IsOptional()
+	@IsString({ message: isStringMessage('Salary') })
+	salary?: string;
+
+	@Expose()
+	@IsOptional()
+	@IsString({ message: isStringMessage('Job Type') })
+	job_type?: string;
+
+	@Expose()
+	@IsOptional()
+	@IsString({ message: isStringMessage('Other Job Type'), each: true })
+	other_job_type?: string[];
+
+	@Expose()
+	@IsOptional()
+	@IsString({ message: isStringMessage('Wants') })
+	wants?: string;
+
+	@Expose()
+	@IsOptional()
+	@IsEnum(AvailabilityStatus)
+	status?: AvailabilityStatus;
 }

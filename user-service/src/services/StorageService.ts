@@ -15,7 +15,7 @@ class StorageService {
 		await file.mv(filePath);
 		return fileName;
 	}
-	createFileURL = (fileName: string, expiresIn = 60 * 60 * 24 * 365) => {
+	createFileURL = (fileName: string, expiresIn = 60 * 60 * 24) => {
 		const appUrl = this.appUrl;
 		const token = tokenService.hashToken({ fileName }, expiresIn);
 		const fileURL = `${appUrl}${STORAGE_API_PATH}/${token}`;

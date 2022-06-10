@@ -20,10 +20,22 @@ class DeveloperController {
 			if (profileBody.educations) this._setEducations(profile, profileBody.educations);
 			if (profileBody.certifications) this._setCertifications(profile, profileBody.certifications);
 			if (profileBody.social_profile) this._setSocialProfile(profile, profileBody.social_profile);
-			if (req.files && req.files.resume) await this._updateResume(profile, req.files.resume as UploadedFile);
+			if (profileBody.status) this._setStatus(profile, profileBody.status);
+			if (profileBody.address) this._setAddress(profile, profileBody.address);
+			if (profileBody.currency) this._setCurrency(profile, profileBody.currency);
+			if (profileBody.desired_location) this._setDesiredLocation(profile, profileBody.desired_location);
+			if (profileBody.salary) this._setSalary(profile, profileBody.salary);
+			if (profileBody.job_type) this._setJobType(profile, profileBody.job_type);
+			if (profileBody.other_job_type) this._setOtherJobType(profile, profileBody.other_job_type);
+			if (profileBody.wants) this._setWants(profile, profileBody.wants);
+			if (req.files) {
+				if (req.files.avatar) await this._updateAvatar(profile, req.files.avatar as UploadedFile);
+				if (req.files.resume) await this._updateResume(profile, req.files.resume as UploadedFile);
+			}
 
 			await profile.save();
 			const profileContent = await this._getProfileById(rootObjectId);
+
 			res.status(200).send({ content: profileContent });
 		} catch {
 			res.status(500).send({ message: 'Something went wrong please try again' });
@@ -32,11 +44,9 @@ class DeveloperController {
 	getProfile = async (req: Request, res: Response) => {
 		try {
 			const rootObjectId = req.rootObjectId;
-
 			const profile = await this._getProfileById(rootObjectId);
 			res.status(200).send({ content: profile });
 		} catch (e) {
-			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};
@@ -57,6 +67,34 @@ class DeveloperController {
 						path: 'language',
 						select: ['name', 'code'],
 					},
+				})
+				.populate({
+					path: 'address',
+					populate: {
+						path: 'country',
+						select: 'name',
+					},
+				})
+				.populate({
+					path: 'role',
+					populate: [
+						{
+							path: 'other_roles',
+							select: 'name',
+						},
+						{
+							path: 'primary_role',
+							select: 'name',
+						},
+					],
+				})
+				.populate({
+					path: 'currency',
+					select: 'name',
+				})
+				.populate({
+					path: 'desired_location',
+					select: 'name',
 				})
 				.populate({
 					path: 'skills',
@@ -98,6 +136,43 @@ class DeveloperController {
 
 	private _setSocialProfile = (profile: IDeveloper, socialProfile: IDeveloper['social_profile']) => {
 		profile.social_profile = socialProfile;
+	};
+
+	private _setStatus = (profile: IDeveloper, status: IDeveloper['status']) => {
+		profile.status = status;
+	};
+
+	private _setAddress = (profile: IDeveloper, address: IDeveloper['address']) => {
+		profile.address = address;
+	};
+
+	private _setCurrency = (profile: IDeveloper, currency: IDeveloper['currency']) => {
+		profile.currency = currency;
+	};
+
+	private _setDesiredLocation = (profile: IDeveloper, desired_location: IDeveloper['desired_location']) => {
+		profile.desired_location = desired_location;
+	};
+
+	private _setSalary = (profile: IDeveloper, salary: IDeveloper['salary']) => {
+		profile.salary = salary;
+	};
+
+	private _setJobType = (profile: IDeveloper, job_type: IDeveloper['job_type']) => {
+		profile.job_type = job_type;
+	};
+
+	private _setOtherJobType = (profile: IDeveloper, other_job_type: IDeveloper['other_job_type']) => {
+		profile.other_job_type = other_job_type;
+	};
+
+	private _setWants = (profile: IDeveloper, wants: IDeveloper['wants']) => {
+		profile.wants = wants;
+	};
+
+	private _updateAvatar = async (profile: IDeveloper, file: UploadedFile) => {
+		const avatarPath = await storageService.moveFile(file);
+		profile.avatar = avatarPath;
 	};
 
 	private _updateResume = async (profile: IDeveloper, file: UploadedFile) => {

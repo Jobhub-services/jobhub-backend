@@ -6,6 +6,7 @@ dotenvConfig({ path: `.env.${NODE_ENV}` });
 import { connect, set } from 'mongoose';
 import express, { json } from 'express';
 import fileUpload from 'express-fileupload';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import '@/types';
 import { dbConnection } from '@/config/db.config';
@@ -15,6 +16,7 @@ import Router from '@/routes';
 
 const app = express();
 app.use(fileUpload({}));
+app.use(cookieParser());
 app.use(json());
 app.use(cors());
 app.use(STORAGE_API_PATH, storageRouter);

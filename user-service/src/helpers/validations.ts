@@ -40,7 +40,7 @@ export class IsExistsConstraint implements ValidatorConstraintInterface {
 	}
 }
 
-export function IsExists(modal: Model<Document>, fieldName = idFieldName, validationOptions?: ValidationOptions) {
+export function IsExists(modal: Model<Document>, validationOptions?: ValidationOptions, fieldName = idFieldName) {
 	return function (object: Object, propertyName: string) {
 		registerDecorator({
 			target: object.constructor,
