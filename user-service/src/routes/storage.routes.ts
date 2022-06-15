@@ -5,7 +5,7 @@ import { authStorage } from '@/middleware/auth.middleware';
 const storageController = new StorageController();
 
 const router = Router();
-router.use('/', authStorage);
+router.use('/:token', authStorage);
 router.get('/:token', storageController.resolveFile);
 
 export { router as storageRouter };
