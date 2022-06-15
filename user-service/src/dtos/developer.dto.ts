@@ -158,7 +158,7 @@ class SocialsDto {
 class AddressDto {
 	@Expose()
 	@IsOptional()
-	@IsExists(JobRole)
+	@IsExists(Country)
 	country?: Schema.Types.ObjectId;
 
 	@Expose()
