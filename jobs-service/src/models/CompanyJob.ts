@@ -81,10 +81,10 @@ const companyJobSchema: Schema = new Schema(
 			default: JobStatus.READY,
 		},
 		createdBy: {
-			type: String,
+			type: Schema.Types.ObjectId, ref: 'User'
 		},
 		updatedBy: {
-			type: String,
+			type: Schema.Types.ObjectId, ref: 'User'
 		},
 	},
 	{

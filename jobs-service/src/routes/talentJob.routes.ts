@@ -1,0 +1,15 @@
+import { Router } from 'express';
+import { authRole, auth } from '@/middleware/auth.middleware';
+import { UserType } from '@/interfaces/users.interface';
+import validationMiddleware from '@/middleware/validation.middleware';
+import TalentJobController from '@/controllers/TalentJobController';
+import { CompanyJobDto } from '@/dtos/jobs.dto';
+
+const talentJobController = new TalentJobController();
+
+const router = Router();
+router.use('/', (req, res, next) => authRole(req, res, next)(UserType.DEVELOPER));
+router.get('/', talentJobController.getJobs);
+router.get('/:jobid', talentJobController.getJob);
+
+export { router as talentJobRouter };
