@@ -130,6 +130,9 @@ export const normalizetoJSON = (object: any) => {
 				city: location?.city,
 			};
 		}),
+		createdBy: {
+			companyName: job?.createdBy?.companyInfo?.companyName
+		}
 	};
 };
 

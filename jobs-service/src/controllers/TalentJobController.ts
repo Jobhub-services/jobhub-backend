@@ -32,9 +32,7 @@ class TalentJobController {
                 })
                 .populate({
                     path: 'createdBy',
-                    populate: {
-                        path: 'companyInfo'
-                    }
+                    select: 'companyInfo',
                 })
                 .sort({ updatedAt: -1 });
             const jobs = await query;

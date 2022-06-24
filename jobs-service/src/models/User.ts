@@ -12,6 +12,7 @@ const developerSchema: Schema = new Schema({
 	},
 });
 const companySchema: Schema = new Schema({
+	company: { type: Schema.Types.ObjectId, ref: 'Company' },
 	companyName: {
 		type: String,
 		required: true,
@@ -49,7 +50,6 @@ const userSchema: Schema = new Schema(
 		},
 	}
 );
-
 const User = model<IUser & Document>('User', userSchema);
 
 export default User;
