@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { companyJobRouter } from '@/routes/companyJob.routes';
 import { talentJobRouter } from '@/routes/talentJob.routes';
 import { auth } from '@/middleware/auth.middleware';
-import { applicationRouter } from '@/routes/applicationROute';
+import { applicationRouter } from '@/routes/application.routes';
 
 const router = Router();
 router.use('/', auth);
