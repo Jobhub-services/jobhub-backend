@@ -86,6 +86,11 @@ const companyJobSchema: Schema = new Schema(
 		updatedBy: {
 			type: Schema.Types.ObjectId, ref: 'User'
 		},
+
+		applications: [{
+			application: { type: Schema.Types.ObjectId, ref: 'Application' },
+			user: { type: Schema.Types.ObjectId, ref: 'User' },
+		}]
 	},
 	{
 		timestamps: true,

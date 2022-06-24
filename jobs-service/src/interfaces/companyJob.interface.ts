@@ -54,4 +54,8 @@ export interface ICompanyJob {
 	questions?: IJobQuestion[];
 	createdBy?: Schema.Types.ObjectId;
 	updatedBy?: Schema.Types.ObjectId;
+	applications?: [{
+		application: Schema.Types.ObjectId,
+		user: Schema.Types.ObjectId
+	}]
 }

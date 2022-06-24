@@ -1,3 +1,5 @@
+import { Schema } from 'mongoose';
+
 export enum UserType {
 	DEVELOPER = 'developer',
 	COMPANY = 'company',
@@ -7,6 +9,10 @@ export enum UserType {
 interface IDeveloperInfo {
 	firstName: string;
 	lastName: string;
+	applications: [{
+		application: Schema.Types.ObjectId,
+		job: Schema.Types.ObjectId
+	}]
 }
 
 interface ICompanyInfo {

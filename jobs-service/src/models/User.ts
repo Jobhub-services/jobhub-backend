@@ -10,6 +10,10 @@ const developerSchema: Schema = new Schema({
 		type: String,
 		required: true,
 	},
+	applications: [{
+		application: { type: Schema.Types.ObjectId, ref: 'Application' },
+		job: { type: Schema.Types.ObjectId, ref: 'CompanyJob' },
+	}]
 });
 const companySchema: Schema = new Schema({
 	company: { type: Schema.Types.ObjectId, ref: 'Company' },
