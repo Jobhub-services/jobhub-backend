@@ -119,7 +119,7 @@ export const normalizetoJSON = (object: any, includeQuestion: boolean = false) =
 		}),
 
 		questions: job.questions?.map((question) => {
-			if (includeQuestion) return question
+			if (includeQuestion) return { _id: question._id, question: question.question }
 			return question.question;
 		}),
 		work_location: {
