@@ -24,11 +24,7 @@ const companySchema: Schema = new Schema(
 		description: { type: String },
 		social_profile: socialSchema,
 		keywords: { type: [String] },
-		company_division: [{
-			localField: '_id',
-			foreignField: 'company_id',
-			ref: 'ComapnyDivision'
-		}],
+		company_division: { type: [String] },
 		headquarter: headquarterSchema,
 		generalinfo: generalInfoSchema
 	},
