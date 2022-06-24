@@ -104,7 +104,7 @@ companyJobSchema.virtual('questions', {
 
 const CompanyJob = softDeleteModel<ICompanyJob>('CompanyJob', companyJobSchema);
 
-export const normalizetoJSON = (object: any) => {
+export const normalizetoJSON = (object: any, includeQuestion: boolean = false) => {
 	const job = object.toJSON();
 	return {
 		...job,
@@ -117,7 +117,9 @@ export const normalizetoJSON = (object: any) => {
 		skills: job.skills?.map((skill) => {
 			return skill.name;
 		}),
+
 		questions: job.questions?.map((question) => {
+			if (includeQuestion) return question
 			return question.question;
 		}),
 		work_location: {
