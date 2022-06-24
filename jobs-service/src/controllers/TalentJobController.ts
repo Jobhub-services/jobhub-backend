@@ -70,7 +70,7 @@ class TalentJobController {
                 });
             const job = await query;
             if (!job) return res.status(406).send({ message: 'Job not found' });
-            const result = normalizetoJSON(job);
+            const result = normalizetoJSON(job, true);
             res.status(200).send({ content: result });
         } catch {
             res.status(500).send({ message: 'Something went wrong please try again' });
