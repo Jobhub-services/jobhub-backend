@@ -66,9 +66,7 @@ class TalentJobController {
                 })
                 .populate({
                     path: 'createdBy',
-                    populate: {
-                        path: 'companyInfo'
-                    }
+                    select: 'companyInfo',
                 });
             const job = await query;
             if (!job) return res.status(406).send({ message: 'Job not found' });
