@@ -18,7 +18,7 @@ class ApplicationController {
             if (!appBody.jobId || !isValidObjectId(appBody.jobId)) return res.status(406).send({ message: 'Job not found' });
             const companyJob = await CompanyJob.findById(appBody.jobId)
             const profile = await User.findById(rootObjectId);
-            if (this._isApplicationSubmited(profile, appBody.jobId)) return res.status(200).send({ message: 'You have submited an application' });
+            if (this._isApplicationSubmited(profile, appBody.jobId)) return res.status(406).send({ message: 'You have submited an application' });
             const application: IApplication = {
                 resume: appBody.resume,
                 questions: appBody.questions as any,
