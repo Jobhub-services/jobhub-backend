@@ -7,6 +7,7 @@ import Country from '@/models/Country';
 import User from '@/models/User';
 import JobRole from '@/models/JobRole';
 import Currency from '@/models/Currency';
+import { IUser } from '@/interfaces/users.interface';
 
 const languageSchema = new Schema({
 	language: { type: Schema.Types.ObjectId, ref: Language },
@@ -82,6 +83,7 @@ const developerSchema: Schema = new Schema(
 		status: {
 			type: String,
 			enum: AvailabilityStatus,
+			default: AvailabilityStatus.OPEN,
 		},
 		avatar: {
 			type: String,
@@ -92,13 +94,29 @@ const developerSchema: Schema = new Schema(
 	},
 	{
 		timestamps: true,
+		toJSON: { virtuals: true },
+		toObject: { virtuals: true },
 	}
 );
+
+developerSchema.virtual('user', { ref: User, localField: 'userId', foreignField: '_id', justOne: true });
+
+const autoPopulate = function (next) {
+	this.populate('user');
+	next();
+};
+
+developerSchema.pre('findOne', autoPopulate);
+developerSchema.pre('find', autoPopulate);
 
 developerSchema.methods.toJSON = function () {
 	const developer: IDeveloper = this.toObject();
 	if (developer.resume) developer.resume = storageService.createFileURL(developer.resume);
 	if (developer.avatar) developer.avatar = storageService.createFileURL(developer.avatar);
+	if (developer.user) {
+		const jsonData = developer.user;
+		developer.user = { fullName: jsonData.fullName, email: jsonData.email, username: jsonData.username };
+	}
 	return developer;
 };
 

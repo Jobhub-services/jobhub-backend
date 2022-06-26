@@ -47,12 +47,20 @@ const userSchema: Schema = new Schema(
 	{
 		timestamps: true,
 		toJSON: {
-			transform(doc, ret) {
+			transform(doc, ret: IUser) {
 				delete ret.password;
 			},
+			virtuals: true,
+		},
+		toObject: {
+			virtuals: true,
 		},
 	}
 );
+userSchema.virtual('fullName').get(function () {
+	if (this.developerInfo) return `${this.developerInfo.firstName} ${this.developerInfo.lastName}`;
+	return undefined;
+});
 
 const User = model<IUser & Document>('User', userSchema);
 

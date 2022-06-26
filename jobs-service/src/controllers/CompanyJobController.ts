@@ -110,7 +110,6 @@ class CompanyJobController {
 		try {
 			const rootObjectId = req.rootObjectId;
 			const jobId = req.params.jobid;
-			console.log(jobId);
 			if (!jobId || !isValidObjectId(jobId)) return res.status(406).send({ message: 'Job not found' });
 			const query = CompanyJob.findOne({ _id: jobId, createdBy: rootObjectId })
 				.populate({ path: 'category', select: 'name' })

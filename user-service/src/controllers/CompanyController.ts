@@ -4,6 +4,8 @@ import CompanyDivision from '@/models/CompanyDivision';
 import { CompanyDto } from '@/dtos/company.dto';
 import Company from '@/models/Company';
 import { ICompany } from '@/interfaces/company.interface';
+import Developer from '@/models/Developer';
+import { isValidObjectId } from '@/helpers';
 class CompanyController {
 	async createDivision(req: Request, res: Response) {
 		try {
@@ -63,10 +65,91 @@ class CompanyController {
 	};
 	getTalents = async (req: Request, res: Response) => {
 		try {
+			const { name = '', limit = 20, page } = req.query;
+			const count = await Developer.count();
+			const query = Developer.find({}, { summary: 1, userId: 1, status: 1, address: 1, skills: 1, createdAt: 1, updatedAt: 1 })
+				.populate({
+					path: 'address',
+					populate: {
+						path: 'country',
+						select: 'name',
+					},
+				})
+				.populate({
+					path: 'skills',
+					select: 'name',
+				})
+				.populate({
+					path: 'role',
+					populate: [
+						{
+							path: 'primary_role',
+							select: 'name',
+						},
+					],
+				});
+			if (limit) {
+				const limitN = Number(limit);
+				query.limit(limitN);
+				if (page) {
+					const pageN = Number(page);
+					query.skip(pageN * limitN);
+				}
+			}
+			const talents = await query;
+			res.status(200).send({ content: talents, count, size: talents.length, pages: Math.ceil(count / Number(limit)), currentPage: page });
 		} catch {}
 	};
 	getTalentDetails = async (req: Request, res: Response) => {
 		try {
+			const talentId = req.params.talentId;
+			if (!talentId || !isValidObjectId(talentId)) return res.status(406).send({ message: 'Talent not found' });
+			const query = Developer.findById(talentId)
+				.populate({
+					path: 'work_experience',
+					populate: {
+						path: 'location',
+						select: 'name',
+					},
+				})
+				.populate({
+					path: 'languages',
+					populate: {
+						path: 'language',
+						select: ['name', 'code'],
+					},
+				})
+				.populate({
+					path: 'address',
+					populate: {
+						path: 'country',
+						select: 'name',
+					},
+				})
+				.populate({
+					path: 'role',
+					populate: [
+						{
+							path: 'other_roles',
+							select: 'name',
+						},
+						{
+							path: 'primary_role',
+							select: 'name',
+						},
+					],
+				})
+				.populate({
+					path: 'desired_location',
+					select: 'name',
+				})
+				.populate({
+					path: 'skills',
+					select: 'name',
+				});
+			const talent = await query;
+			if (!talent) return res.status(406).send({ message: 'Talent not found' });
+			res.status(200).send({ content: talent });
 		} catch {}
 	};
 	private _setDescription = (profile: ICompany, description: ICompany['description']) => {

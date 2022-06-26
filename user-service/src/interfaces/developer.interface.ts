@@ -1,4 +1,5 @@
 import { Schema } from 'mongoose';
+import { IUser } from './users.interface';
 
 export enum AvailabilityStatus {
 	READY = 'ready',
@@ -59,6 +60,7 @@ type Address = {
 
 export interface IDeveloper {
 	userId?: Schema.Types.ObjectId;
+	user?: any;
 	summary?: string;
 	languages?: Languages[];
 	skills?: Schema.Types.ObjectId[];
