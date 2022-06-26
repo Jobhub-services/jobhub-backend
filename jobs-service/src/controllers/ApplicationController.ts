@@ -1,73 +1,126 @@
-import { Schema, Types } from 'mongoose';
-import { ApplicationDto } from "@/dtos/application.dto";
-import { IApplication } from "@/interfaces/application.interface";
-import { ICompanyJob } from "@/interfaces/companyJob.interface";
-import { IUser } from "@/interfaces/users.interface";
-import Application from "@/models/Application";
-import CompanyJob from "@/models/CompanyJob";
-import User from "@/models/User";
-import { Request, Response } from "express";
+import { ApplicationDto } from '@/dtos/application.dto';
+import { IApplication } from '@/interfaces/application.interface';
+import Application from '@/models/Application';
+import CompanyJob from '@/models/CompanyJob';
+import { Request, Response } from 'express';
 import { isValidObjectId } from '@/helpers';
-
+import JobQuestion from '@/models/JobQuestion';
+import { UserType } from '@/interfaces/users.interface';
 
 class ApplicationController {
-    createApp = async (req: Request, res: Response) => {
-        try {
-            const rootObjectId = req.rootObjectId;
-            const appBody: ApplicationDto = req.body;
-            if (!appBody.jobId || !isValidObjectId(appBody.jobId)) return res.status(406).send({ message: 'Job not found' });
-            const companyJob = await CompanyJob.findById(appBody.jobId)
-            const profile = await User.findById(rootObjectId);
-            if (this._isApplicationSubmited(profile, appBody.jobId)) return res.status(406).send({ message: 'You have submited an application' });
-            const application: IApplication = {
-                resume: appBody.resume,
-                questions: appBody.questions as any,
-                start_date: appBody.start_date,
-                notice_period: appBody.notice_period
-            };
-            const app = await Application.create(application);
-            this._setUserApplications(profile, app._id, appBody.jobId)
-            profile.save()
-            this._setJobApplications(companyJob, app._id, rootObjectId)
-            companyJob.save()
-            res.status(200).send({ message: 'Application submited successfully', jobId: appBody.jobId });
-        } catch (e: any) {
-            console.log(e);
-            res.status(500).send({ message: 'Something went wrong please try again' });
-        }
-    }
-    getApplications = async (req: Request, res: Response) => {
-        try {
-            const rootObjectId = req.rootObjectId;
-            const { name = '', limit = 20, page } = req.query;
-            const query = User.findOne(rootObjectId)
-                .populate({
-                    path: 'developerInfo',
-                    populate: {
-                        path: 'applications',
-                        populate: {
-                            path: 'application',
-                        }
-                    }
-                })
-            const applications = await query;
-            res.status(200).send({ content: applications, size: 10, currentPage: page });
-        } catch {
-            res.status(500).send({ message: 'Something went wrong please try again' });
-        }
-    }
-    private _setUserApplications = (profile: IUser, appId: Schema.Types.ObjectId, jobId: Schema.Types.ObjectId) => {
-        let profileApps = profile.developerInfo.applications
-        profileApps.push({ application: appId, job: jobId })
-        profile.developerInfo.applications = profileApps
-    };
-    private _setJobApplications = (job: ICompanyJob, appId: Schema.Types.ObjectId, userId: Schema.Types.ObjectId) => {
-        let jobApps = job.applications
-        jobApps.push({ application: appId, user: userId })
-        job.applications = jobApps
-    };
-    private _isApplicationSubmited = (profile: IUser, jobId: Schema.Types.ObjectId): boolean => {
-        return profile.developerInfo.applications.some(elem => String(elem.job) === String(jobId))
-    }
+	createApp = async (req: Request, res: Response) => {
+		try {
+			const rootObjectId = req.rootObjectId;
+			const appBody: ApplicationDto = req.body;
+			const isValidQeustions = await this._validateQuestions(appBody.jobId, appBody.responses);
+			if (!isValidQeustions) return res.status(406).send({ message: 'Something went wrong with your answers' });
+			const application: IApplication = {
+				userId: rootObjectId,
+				jobId: appBody.jobId,
+				motivation: appBody.motivation,
+				responses: appBody.responses,
+				start_date: appBody.start_date,
+				notice_period: appBody.notice_period,
+			};
+			const createdApplication = await Application.create(application);
+			res.status(200).send({ message: 'Application submited successfully', application: createdApplication });
+		} catch (e: any) {
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
+
+	updateApplication = async (req: Request, res: Response) => {
+		try {
+		} catch {}
+	};
+	getMyApplications = async (req: Request, res: Response) => {
+		try {
+			const rootObjectId = req.rootObjectId;
+			const { name = '', limit = 20, page } = req.query;
+			const queryConditions = { userId: rootObjectId };
+			const count = await Application.count(queryConditions);
+			const query = Application.find(queryConditions);
+			if (limit) {
+				const limitN = Number(limit);
+				query.limit(limitN);
+				if (page) {
+					const pageN = Number(page);
+					query.skip(pageN * limitN);
+				}
+			}
+			const applications = await query;
+			res.status(200).send({ content: applications, count, size: applications.length, pages: Math.ceil(count / Number(limit)), currentPage: page });
+		} catch {
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
+
+	getJobApplications = async (req: Request, res: Response) => {
+		try {
+			const rootObjectId = req.rootObjectId;
+			const jobId = req.params.jobId;
+			if (!isValidObjectId(jobId) || !(await CompanyJob.exists({ _id: jobId, createdBy: rootObjectId })))
+				return res.status(406).send({ message: 'Access to job not allowed' });
+			const { name = '', limit = 20, page } = req.query;
+			const queryConditions = { jobId };
+			const count = await Application.count({ queryConditions });
+			const query = Application.find(queryConditions);
+			if (limit) {
+				const limitN = Number(limit);
+				query.limit(limitN);
+				if (page) {
+					const pageN = Number(page);
+					query.skip(pageN * limitN);
+				}
+			}
+			const applications = await query;
+			res.status(200).send({ content: applications, count, size: applications.length, pages: Math.ceil(count / Number(limit)), currentPage: page });
+		} catch (e) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
+
+	getJobApplication = async (req: Request, res: Response) => {
+		try {
+			const user = req.user;
+			const applicationId = req.params.applicationId;
+			if (!isValidObjectId(applicationId)) return res.status(406).send({ message: 'Application not found' });
+			let application;
+
+			if (user.userType === UserType.DEVELOPER) {
+				application = await Application.findOne({ _id: applicationId, userId: user._id });
+			} else {
+				application = await Application.findOne({ _id: applicationId });
+				// check job association
+				if (application && !(await CompanyJob.exists({ _id: application.jobId, createdBy: user._id }))) application = null;
+			}
+
+			if (!application) return res.status(406).send({ message: 'Application not found' });
+			res.status(200).send({ content: application });
+		} catch (e) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
+
+	createInterview = async (req: Request, res: Response) => {
+		try {
+		} catch {}
+	};
+
+	private async _validateQuestions(jobId: IApplication['jobId'], responses: IApplication['responses']): Promise<boolean> {
+		let isValidRecords = true;
+		const questions = await JobQuestion.find({ job_id: jobId });
+		const qstIds = questions.map((item) => item.id);
+		for (const i in responses) {
+			const response = responses[i];
+			if (qstIds.indexOf(response.question) < 0) {
+				isValidRecords = false;
+				break;
+			}
+		}
+		return isValidRecords;
+	}
 }
 export default ApplicationController;

@@ -8,9 +8,15 @@ const companyController = new CompanyController();
 const router = Router();
 
 router.use('/', auth);
-router.use('/', (req, res, next) => authRole(req, res, next)(UserType.COMPANY));
+router.use('/', authRole(UserType.COMPANY));
 
 router.get('/division', companyController.getDivision);
 router.post('/division', companyController.createDivision);
+
+router.get('/profile', companyController.getProfile);
+router.put('/profile', companyController.updateProfile);
+
+router.get('/talents', companyController.getTalents);
+router.get('/talents/:talentId', companyController.getTalentDetails);
 
 export { router as companyRouter };

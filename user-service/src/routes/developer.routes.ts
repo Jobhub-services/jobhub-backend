@@ -9,7 +9,7 @@ const developerController = new DeveloperController();
 
 const router = Router();
 router.use('/', auth);
-router.use('/', (req, res, next) => authRole(req, res, next)(UserType.DEVELOPER));
+router.use('/', authRole(UserType.DEVELOPER));
 
 router.put('/profile', validationMiddleware(DeveloperDto), developerController.updateProfile);
 router.get('/profile', validationMiddleware(DeveloperDto), developerController.getProfile);

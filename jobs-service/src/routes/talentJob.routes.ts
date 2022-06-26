@@ -8,7 +8,8 @@ import { CompanyJobDto } from '@/dtos/jobs.dto';
 const talentJobController = new TalentJobController();
 
 const router = Router();
-router.use('/', (req, res, next) => authRole(req, res, next)(UserType.DEVELOPER));
+
+router.use('/', authRole(UserType.DEVELOPER));
 router.get('/', talentJobController.getJobs);
 router.get('/:jobid', talentJobController.getJob);
 

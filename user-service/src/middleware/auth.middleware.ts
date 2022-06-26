@@ -43,7 +43,7 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
 	}
 };
 
-export const authRole = (req: Request, res: Response, next: NextFunction) => (role: UserType) => {
+export const authRole = (role: UserType) => (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const userData: IUser = req.user;
 		if (userData.userType === role) return next();

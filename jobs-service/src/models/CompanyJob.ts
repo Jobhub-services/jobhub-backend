@@ -81,16 +81,13 @@ const companyJobSchema: Schema = new Schema(
 			default: JobStatus.READY,
 		},
 		createdBy: {
-			type: Schema.Types.ObjectId, ref: 'User'
+			type: Schema.Types.ObjectId,
+			ref: 'User',
 		},
 		updatedBy: {
-			type: Schema.Types.ObjectId, ref: 'User'
+			type: Schema.Types.ObjectId,
+			ref: 'User',
 		},
-
-		applications: [{
-			application: { type: Schema.Types.ObjectId, ref: 'Application' },
-			user: { type: Schema.Types.ObjectId, ref: 'User' },
-		}]
 	},
 	{
 		timestamps: true,
@@ -124,7 +121,7 @@ export const normalizetoJSON = (object: any, includeQuestion: boolean = false) =
 		}),
 
 		questions: job.questions?.map((question) => {
-			if (includeQuestion) return { _id: question._id, question: question.question }
+			if (includeQuestion) return { _id: question._id, question: question.question };
 			return question.question;
 		}),
 		work_location: {
@@ -138,8 +135,8 @@ export const normalizetoJSON = (object: any, includeQuestion: boolean = false) =
 			};
 		}),
 		createdBy: {
-			companyName: job?.createdBy?.companyInfo?.companyName
-		}
+			companyName: job?.createdBy?.companyInfo?.companyName,
+		},
 	};
 };
 

@@ -5,11 +5,16 @@ import validationMiddleware from '@/middleware/validation.middleware';
 import { ApplicationDto } from '@/dtos/application.dto';
 import ApplicationController from '@/controllers/ApplicationController';
 
-const applicationController = new ApplicationController()
+const applicationController = new ApplicationController();
 
 const router = Router();
-router.use('/', (req, res, next) => authRole(req, res, next)(UserType.DEVELOPER));
-router.post('/', validationMiddleware(ApplicationDto), applicationController.createApp);
-router.get('/', applicationController.getApplications);
+router.post('/', authRole(UserType.DEVELOPER), validationMiddleware(ApplicationDto), applicationController.createApp);
+router.put('/:applicationId', authRole(UserType.DEVELOPER), applicationController.updateApplication);
+
+router.get('/my', authRole(UserType.DEVELOPER), applicationController.getMyApplications);
+router.get('/job/:jobId', authRole(UserType.COMPANY), applicationController.getJobApplications);
+router.get('/show/:applicationId', applicationController.getJobApplication);
+
+router.post('/:applicationId/interview', applicationController.createInterview);
 
 export { router as applicationRouter };

@@ -77,7 +77,7 @@ class CompanyJobController {
 		try {
 			const rootObjectId = req.rootObjectId;
 			const { name = '', limit = 20, page } = req.query;
-			const count = await CompanyJob.count();
+			const count = await CompanyJob.count({ createdBy: rootObjectId });
 			const query = CompanyJob.find(
 				{ createdBy: rootObjectId },
 				{ title: 1, description: 1, status: 1, job_type: 1, duration: 1, start_salary: 1, end_salary: 1, createdAt: 1, updatedAt: 1 }
@@ -91,9 +91,17 @@ class CompanyJobController {
 					},
 				})
 				.sort({ updatedAt: -1 });
+			if (limit) {
+				const limitN = Number(limit);
+				query.limit(limitN);
+				if (page) {
+					const pageN = Number(page);
+					query.skip(pageN * limitN);
+				}
+			}
 			const jobs = await query;
 			const result = normalizetoJSONs(jobs);
-			res.status(200).send({ content: result, count, size: jobs.length, pages: Math.floor(count / Number(limit)), currentPage: page });
+			res.status(200).send({ content: result, count, size: jobs.length, pages: Math.ceil(count / Number(limit)), currentPage: page });
 		} catch {
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}

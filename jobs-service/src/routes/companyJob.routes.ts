@@ -8,7 +8,7 @@ import { CompanyJobDto } from '@/dtos/jobs.dto';
 const companyJobController = new CompanyJobController();
 
 const router = Router();
-router.use('/', (req, res, next) => authRole(req, res, next)(UserType.COMPANY));
+router.use('/', authRole(UserType.COMPANY));
 router.post('/', validationMiddleware(CompanyJobDto), companyJobController.createJob);
 router.get('/', companyJobController.getJobs);
 router.get('/edit/:jobid', companyJobController.editJob);

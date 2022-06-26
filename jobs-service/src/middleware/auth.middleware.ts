@@ -6,6 +6,7 @@ import User from '@/models/User';
 export const auth = (req: Request, res: Response, next: NextFunction) => {
 	try {
 		let authHeader: any = req.headers['authorization'];
+
 		authHeader = authHeader?.split(' ');
 		if (!authHeader || authHeader[0] !== 'Bearer')
 			return res.status(401).send({
@@ -16,7 +17,11 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
 				return res.status(401).send({
 					message: 'unauthorized',
 				});
-			user = await User.findById(user?.sub);
+			if (!user)
+				return res.status(401).send({
+					message: 'unauthorized',
+				});
+			user = await User.findById(user.sub);
 			if (!user)
 				return res.status(401).send({
 					message: 'unauthorized',
@@ -30,7 +35,7 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
 	}
 };
 
-export const authRole = (req: Request, res: Response, next: NextFunction) => (role: UserType) => {
+export const authRole = (role: UserType) => (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const userData: IUser = req.user;
 		if (userData.userType === role) return next();

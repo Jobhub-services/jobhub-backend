@@ -40,7 +40,6 @@ export class CompanyJobDto {
 
 	@Expose()
 	@IsOptional()
-	@IsString({ message: isStringMessage('Company division') })
 	@IsExists(CompanyDivision)
 	company_division: string;
 
