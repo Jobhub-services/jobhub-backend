@@ -10,8 +10,13 @@ const developerSchema: Schema = new Schema({
 		type: String,
 		required: true,
 	},
+	applications: [{
+		application: { type: Schema.Types.ObjectId, ref: 'Application' },
+		job: { type: Schema.Types.ObjectId, ref: 'CompanyJob' },
+	}]
 });
 const companySchema: Schema = new Schema({
+	company: { type: Schema.Types.ObjectId, ref: 'Company' },
 	companyName: {
 		type: String,
 		required: true,
@@ -49,7 +54,6 @@ const userSchema: Schema = new Schema(
 		},
 	}
 );
-
 const User = model<IUser & Document>('User', userSchema);
 
 export default User;

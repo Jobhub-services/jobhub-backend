@@ -81,11 +81,16 @@ const companyJobSchema: Schema = new Schema(
 			default: JobStatus.READY,
 		},
 		createdBy: {
-			type: String,
+			type: Schema.Types.ObjectId, ref: 'User'
 		},
 		updatedBy: {
-			type: String,
+			type: Schema.Types.ObjectId, ref: 'User'
 		},
+
+		applications: [{
+			application: { type: Schema.Types.ObjectId, ref: 'Application' },
+			user: { type: Schema.Types.ObjectId, ref: 'User' },
+		}]
 	},
 	{
 		timestamps: true,
@@ -104,7 +109,7 @@ companyJobSchema.virtual('questions', {
 
 const CompanyJob = softDeleteModel<ICompanyJob>('CompanyJob', companyJobSchema);
 
-export const normalizetoJSON = (object: any) => {
+export const normalizetoJSON = (object: any, includeQuestion: boolean = false) => {
 	const job = object.toJSON();
 	return {
 		...job,
@@ -117,7 +122,9 @@ export const normalizetoJSON = (object: any) => {
 		skills: job.skills?.map((skill) => {
 			return skill.name;
 		}),
+
 		questions: job.questions?.map((question) => {
+			if (includeQuestion) return { _id: question._id, question: question.question }
 			return question.question;
 		}),
 		work_location: {
@@ -130,6 +137,9 @@ export const normalizetoJSON = (object: any) => {
 				city: location?.city,
 			};
 		}),
+		createdBy: {
+			companyName: job?.createdBy?.companyInfo?.companyName
+		}
 	};
 };
 

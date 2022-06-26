@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { ICompanyJob, JobLocation } from '@/interfaces/companyJob.interface';
 import { CompanyJobDto } from '@/dtos/jobs.dto';
 import CompanyJob, { normalizetoJSON, normalizetoJSONs } from '@/models/CompanyJob';
+import User from '@/models/User';
 import JobQuestion from '@/models/JobQuestion';
 import CompanyDivision from '@/models/CompanyDivision';
 import JobCategory from '@/models/JobCategory';
