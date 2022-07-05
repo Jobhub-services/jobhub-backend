@@ -53,7 +53,7 @@ class ApplicationController {
 						},
 					},
 				})
-				.sort({ updatedAt: 1 });
+				.sort({ updatedAt: -1 });
 
 			if (limit) {
 				const limitN = Number(limit);
