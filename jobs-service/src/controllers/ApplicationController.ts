@@ -40,18 +40,20 @@ class ApplicationController {
 			const { name = '', limit = 20, page } = req.query;
 			const queryConditions = { userId: rootObjectId };
 			const count = await Application.count(queryConditions);
-			const query = Application.find(queryConditions).populate({
-				path: 'jobId',
-				select: ['title'],
-				populate: {
-					path: 'createdBy',
-					select: ['_id'],
+			const query = Application.find(queryConditions)
+				.populate({
+					path: 'jobId',
+					select: ['title'],
 					populate: {
-						path: 'companyInfo',
-						select: ['companyName'],
+						path: 'createdBy',
+						select: ['_id'],
+						populate: {
+							path: 'companyInfo',
+							select: ['companyName'],
+						},
 					},
-				},
-			});
+				})
+				.sort({ updatedAt: 1 });
 
 			if (limit) {
 				const limitN = Number(limit);
