@@ -1,7 +1,8 @@
 import { ApplicationDto } from '@/dtos/application.dto';
 import { IApplication } from '@/interfaces/application.interface';
-import Application from '@/models/Application';
+import Application, { normalizetoJSONs } from '@/models/Application';
 import CompanyJob from '@/models/CompanyJob';
+import Company from '@/models/Company';
 import { Request, Response } from 'express';
 import { isValidObjectId } from '@/helpers';
 import JobQuestion from '@/models/JobQuestion';
@@ -39,7 +40,19 @@ class ApplicationController {
 			const { name = '', limit = 20, page } = req.query;
 			const queryConditions = { userId: rootObjectId };
 			const count = await Application.count(queryConditions);
-			const query = Application.find(queryConditions);
+			const query = Application.find(queryConditions).populate({
+				path: 'jobId',
+				select: ['title'],
+				populate: {
+					path: 'createdBy',
+					select: ['_id'],
+					populate: {
+						path: 'companyInfo',
+						select: ['companyName'],
+					},
+				},
+			});
+
 			if (limit) {
 				const limitN = Number(limit);
 				query.limit(limitN);
@@ -49,7 +62,8 @@ class ApplicationController {
 				}
 			}
 			const applications = await query;
-			res.status(200).send({ content: applications, count, size: applications.length, pages: Math.ceil(count / Number(limit)), currentPage: page });
+			const result = normalizetoJSONs(applications);
+			res.status(200).send({ content: result, count, size: applications.length, pages: Math.ceil(count / Number(limit)), currentPage: page });
 		} catch {
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
@@ -89,7 +103,28 @@ class ApplicationController {
 			let application;
 
 			if (user.userType === UserType.DEVELOPER) {
-				application = await Application.findOne({ _id: applicationId, userId: user._id });
+				application = await Application.findOne({ _id: applicationId, userId: user._id }).populate({
+					path: 'jobId',
+					populate: {
+						path: 'createdBy',
+						select: ['_id'],
+						populate: {
+							path: 'companyInfo',
+							select: ['companyName'],
+						},
+					},
+				});
+				if (application) {
+					const companyId = application.jobId.createdBy._id;
+					let companyInfo = await Company.findOne({ userId: companyId });
+					application = {
+						...application.toJSON(),
+						company: {
+							...companyInfo.toJSON(),
+							companyName: application.jobId?.createdBy?.companyInfo?.companyName,
+						},
+					};
+				}
 			} else {
 				application = await Application.findOne({ _id: applicationId });
 				// check job association
@@ -122,5 +157,6 @@ class ApplicationController {
 		}
 		return isValidRecords;
 	}
+	private async _talentApplication() {}
 }
 export default ApplicationController;

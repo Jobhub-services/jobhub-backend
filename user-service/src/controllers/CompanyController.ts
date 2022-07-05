@@ -59,7 +59,7 @@ class CompanyController {
 			const profileContent = await this._getProfileById(rootObjectId);
 
 			res.status(200).send({ content: profileContent });
-		} catch {
+		} catch (e: any) {
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};
