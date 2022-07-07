@@ -1,3 +1,4 @@
+import { normalizeTalentDetailtoJSON } from './../models/Application';
 import { ApplicationDto } from '@/dtos/application.dto';
 import { IApplication } from '@/interfaces/application.interface';
 import Application, { normalizetoJSONs } from '@/models/Application';
@@ -105,27 +106,39 @@ class ApplicationController {
 			let application;
 
 			if (user.userType === UserType.DEVELOPER) {
-				application = await Application.findOne({ _id: applicationId, userId: user._id }).populate({
-					path: 'jobId',
-					populate: {
-						path: 'createdBy',
-						select: ['_id'],
+				application = await Application.findOne({ _id: applicationId, userId: user._id })
+					.populate({
+						path: 'jobId',
+						populate: [
+							{
+								path: 'createdBy',
+								select: ['_id'],
+								populate: {
+									path: 'companyInfo',
+									select: ['companyName'],
+								},
+							},
+							{ path: 'category' },
+							{ path: 'currency' },
+							{ path: 'work_location', populate: { path: 'country' } },
+							{ path: 'hire_location', populate: { path: 'country' } },
+							{ path: 'skills' },
+						],
+					})
+					.populate({
+						path: 'responses',
 						populate: {
-							path: 'companyInfo',
-							select: ['companyName'],
+							path: 'question',
+							model: 'JobQuestion',
 						},
-					},
-				});
+					});
 				if (application) {
 					const companyId = application.jobId.createdBy._id;
-					let companyInfo = await Company.findOne({ userId: companyId });
-					application = {
-						...application.toJSON(),
-						company: {
-							...companyInfo.toJSON(),
-							companyName: application.jobId?.createdBy?.companyInfo?.companyName,
-						},
-					};
+					let companyInfo = await Company.findOne({ userId: companyId }).populate({
+						path: 'headquarter',
+						populate: { path: 'country', select: ['name'] },
+					});
+					application = normalizeTalentDetailtoJSON(application, companyInfo);
 				}
 			} else {
 				application = await Application.findOne({ _id: applicationId });
@@ -137,7 +150,7 @@ class ApplicationController {
 			res.status(200).send({ content: application });
 		} catch (e) {
 			console.log(e);
-			res.status(500).send({ message: 'Something went wrong please try again' });
+			res.status(500).send({ message: 'Something went wrong please try again', errors: e });
 		}
 	};
 
