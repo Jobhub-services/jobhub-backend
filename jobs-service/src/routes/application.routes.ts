@@ -12,6 +12,7 @@ router.post('/', authRole(UserType.DEVELOPER), validationMiddleware(ApplicationD
 router.put('/:applicationId', authRole(UserType.DEVELOPER), applicationController.updateApplication);
 
 router.get('/my', authRole(UserType.DEVELOPER), applicationController.getMyApplications);
+router.get('/company', authRole(UserType.COMPANY), applicationController.getCompanyJobApplications);
 router.get('/job/:jobId', authRole(UserType.COMPANY), applicationController.getJobApplications);
 router.get('/show/:applicationId', applicationController.getJobApplication);
 

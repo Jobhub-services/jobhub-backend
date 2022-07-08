@@ -153,7 +153,42 @@ class ApplicationController {
 			res.status(500).send({ message: 'Something went wrong please try again', errors: e });
 		}
 	};
-
+	getCompanyJobApplications = async (req: Request, res: Response) => {
+		try {
+			const rootObjectId = req.rootObjectId;
+			const byJob = req.query.byJob;
+			let result = null;
+			if (byJob === 'true') {
+				result = await CompanyJob.aggregate([
+					{
+						$match: { createdBy: rootObjectId },
+					},
+					{
+						$lookup: {
+							from: 'applications',
+							localField: '_id',
+							foreignField: 'jobId',
+							as: 'jobApp',
+						},
+					},
+					{ $project: { title: 1, category: 1, jobApp: 1 } },
+				]).exec(function (err, transactions) {
+					// Don't forget your error handling
+					// The callback with your transactions
+					// Assuming you are having a Tag model
+					CompanyJob.populate(transactions, { path: 'userId' }, function (err, populatedTransactions) {
+						console.log(populatedTransactions);
+						// Your populated translactions are inside populatedTransactions
+					});
+				});
+			} else {
+			}
+			res.status(200).send({ content: result });
+		} catch (e) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
 	createInterview = async (req: Request, res: Response) => {
 		try {
 		} catch {}
