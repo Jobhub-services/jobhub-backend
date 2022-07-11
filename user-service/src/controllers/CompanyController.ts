@@ -38,9 +38,6 @@ class CompanyController {
 			if (profileBody.social_profile) this._setSocialProfile(profile, profileBody.social_profile);
 			if (profileBody.headquarter) this._setHeadquarter(profile, profileBody.headquarter);
 			if (profileBody.generalinfo) this._setGeneralinfo(profile, profileBody.generalinfo);
-			if (req.files) {
-				if (req.files.avatar) await this._updateAvatar(profile, req.files.avatar as UploadedFile);
-			}
 			await profile.save();
 			const profileContent = await this._getProfileById(rootObjectId);
 
@@ -60,6 +57,9 @@ class CompanyController {
 			if (profileBody.social_profile) this._setSocialProfile(profile, profileBody.social_profile);
 			if (profileBody.headquarter) this._setHeadquarter(profile, profileBody.headquarter);
 			if (profileBody.generalinfo) this._setGeneralinfo(profile, profileBody.generalinfo);
+			if (req.files) {
+				if (req.files.avatar) await this._updateAvatar(profile, req.files.avatar as UploadedFile);
+			}
 			await profile.save();
 			const profileContent = await this._getProfileById(rootObjectId);
 
