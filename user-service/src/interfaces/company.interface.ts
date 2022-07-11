@@ -12,4 +12,5 @@ export interface ICompany {
 	social_profile?: TSocialProfile;
 	headquarter?: THeadQuarter;
 	generalinfo?: TGeneralInfo;
+	avatar?: string;
 }

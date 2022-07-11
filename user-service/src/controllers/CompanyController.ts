@@ -4,6 +4,8 @@ import CompanyDivision from '@/models/CompanyDivision';
 import { CompanyDto } from '@/dtos/company.dto';
 import Company from '@/models/Company';
 import { ICompany } from '@/interfaces/company.interface';
+import { UploadedFile } from 'express-fileupload';
+import { storageService } from '@/services/StorageService';
 import Developer from '@/models/Developer';
 import { isValidObjectId } from '@/helpers';
 class CompanyController {
@@ -36,6 +38,9 @@ class CompanyController {
 			if (profileBody.social_profile) this._setSocialProfile(profile, profileBody.social_profile);
 			if (profileBody.headquarter) this._setHeadquarter(profile, profileBody.headquarter);
 			if (profileBody.generalinfo) this._setGeneralinfo(profile, profileBody.generalinfo);
+			if (req.files) {
+				if (req.files.avatar) await this._updateAvatar(profile, req.files.avatar as UploadedFile);
+			}
 			await profile.save();
 			const profileContent = await this._getProfileById(rootObjectId);
 
@@ -184,6 +189,10 @@ class CompanyController {
 		} catch {
 			return null;
 		}
+	};
+	private _updateAvatar = async (profile: ICompany, file: UploadedFile) => {
+		const avatarPath = await storageService.moveFile(file);
+		profile.avatar = avatarPath;
 	};
 }
 export default CompanyController;
