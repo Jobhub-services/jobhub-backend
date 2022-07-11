@@ -2,6 +2,7 @@ import { model, Schema, Document } from 'mongoose';
 import { ICompany } from '@/interfaces/company.interface';
 import Country from '@/models/Country';
 import { storageService } from '@/services/StorageService';
+import User from '@/models/User';
 
 const headquarterSchema: Schema = new Schema({
 	country: { type: Schema.Types.ObjectId, ref: Country },
@@ -37,7 +38,7 @@ const companySchema: Schema = new Schema(
 	}
 );
 
-//companySchema.virtual('user', { ref: User, localField: 'userId', foreignField: '_id', justOne: true });
+companySchema.virtual('user', { ref: User, localField: 'userId', foreignField: '_id', justOne: true });
 
 const autoPopulate = function (next) {
 	this.populate('user');
