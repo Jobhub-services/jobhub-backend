@@ -1,17 +1,14 @@
+import { Types } from 'mongoose';
 import { ArrayNotEmpty, IsArray, IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { JobTypes, JobDuration, SalaryType } from '@/interfaces/companyJob.interface';
 import { isEmptyMessage, isStringMessage, isEnumMessage } from '@/config/dto.config';
 import { Expose, Type } from 'class-transformer';
-import { IsExists } from '@/helpers';
-import CompanyDivision from '@/models/CompanyDivision';
-import JobCategory from '@/models/JobCategory';
-import Currency from '@/models/Currency';
+import { IsObjectId } from '@/helpers';
 
 class JobLocationDto {
 	@Expose()
-	@IsNotEmpty({ message: isEmptyMessage('Country') })
-	@IsString({ message: isStringMessage('Country') })
-	country: string;
+	@IsObjectId()
+	country: Types.ObjectId;
 
 	@Expose()
 	@IsNotEmpty({ message: isEmptyMessage('City') })
@@ -40,15 +37,14 @@ export class CompanyJobDto {
 
 	@Expose()
 	@IsOptional()
-	@IsExists(CompanyDivision)
-	company_division: string;
+	@IsObjectId()
+	company_division: Types.ObjectId;
 
 	@Expose()
 	@IsOptional()
 	@IsNotEmpty({ message: isEmptyMessage('Job category') })
-	@IsString({ message: isStringMessage('Job category') })
-	@IsExists(JobCategory)
-	category: string;
+	@IsObjectId()
+	category: Types.ObjectId;
 
 	@Expose()
 	@IsOptional()
@@ -86,9 +82,8 @@ export class CompanyJobDto {
 
 	@Expose()
 	@IsOptional()
-	@IsString({ message: isStringMessage('Job currency') })
-	@IsExists(Currency)
-	currency: string;
+	@IsObjectId()
+	currency: Types.ObjectId;
 
 	@Expose()
 	@IsOptional()
@@ -112,13 +107,14 @@ export class CompanyJobDto {
 
 	@Expose()
 	@IsOptional()
-	@ArrayNotEmpty({ message: isEmptyMessage('Work location') })
+	@IsArray()
 	@ValidateNested({ each: true })
 	@Type(() => JobLocationDto)
 	work_location: JobLocationDto[];
 
 	@Expose()
 	@IsOptional()
+	@IsArray()
 	@ValidateNested({ each: true })
 	@Type(() => JobLocationDto)
 	hire_location: JobLocationDto[];
@@ -133,7 +129,9 @@ export class CompanyJobDto {
 
 	@Expose()
 	@IsOptional()
-	skills: string[];
+	@IsArray()
+	@IsObjectId({ each: true })
+	skills: Types.ObjectId[];
 
 	@Expose()
 	@IsOptional()
@@ -141,5 +139,6 @@ export class CompanyJobDto {
 
 	@Expose()
 	@IsOptional()
+	@IsArray()
 	questions: string[];
 }

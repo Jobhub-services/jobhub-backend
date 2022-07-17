@@ -1,9 +1,12 @@
-import { Schema } from 'mongoose';
-import { IJobQuestion } from '@/interfaces/jobQuestion.interface';
+import { Types } from 'mongoose';
+import { ICountryData, ISkillData, ICurrencyData, IJobCategoryData } from '@/interfaces/metadata.interface';
+import { ICompanyDivision } from '@/interfaces/company.interface';
+
 export enum JobTypes {
 	FULL_TIME = 'Full time',
 	PART_TIME = 'Part time',
 }
+
 export enum SalaryType {
 	YEARLY = 'Yearly',
 	MONTHLY = 'Monthly',
@@ -15,43 +18,49 @@ export enum JobDuration {
 	TEMPORARY = 'Temporary',
 	SEASONAL = 'Seasonal',
 }
+
 export enum JobStatus {
 	OPEN = 'open',
 	CLOSED = 'closed',
 	READY = 'ready',
 }
 
+export interface IJobQuestion {
+	_id?: Types.ObjectId;
+	question: string;
+}
+
 export type JobLocation = {
-	country: string;
+	country: ICountryData;
 	city: string;
 };
 
 export interface ICompanyJob {
-	_id?: string;
+	_id?: Types.ObjectId;
 	title: string;
 	description: string;
 	responsabilities?: string;
-	company_division?: string;
-	category?: string;
-	job_type?: JobTypes;
-	duration?: JobDuration;
 	duration_range?: string[];
-	salary_type?: SalaryType;
 	start_salary?: string;
 	end_salary?: string;
-	currency?: string;
 	benefits?: string;
 	work_remotly?: boolean;
 	hire_remotly?: boolean;
 	visa_sponsorship?: boolean;
-	work_location?: JobLocation;
-	hire_location?: JobLocation[];
 	education?: string[];
 	certification?: string[];
-	skills?: string[];
 	requirements?: string;
+	company_division?: ICompanyDivision;
+	category?: IJobCategoryData;
+	job_type?: JobTypes;
+	duration?: JobDuration;
+	salary_type?: SalaryType;
+	currency?: ICurrencyData;
+	work_location?: JobLocation;
+	hire_location?: JobLocation[];
+	skills?: ISkillData[];
 	status?: JobStatus;
 	questions?: IJobQuestion[];
-	createdBy?: Schema.Types.ObjectId;
-	updatedBy?: Schema.Types.ObjectId;
+	createdBy?: Types.ObjectId;
+	updatedBy?: Types.ObjectId;
 }

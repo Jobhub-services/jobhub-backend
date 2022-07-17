@@ -1,5 +1,5 @@
-import { Schema } from 'mongoose';
-import { IUser } from './users.interface';
+import { Types } from 'mongoose';
+import { ILangData, IJobRoleData, ICountryData, ISkillData, ICurrencyData } from '@/interfaces/metadata.interface';
 
 export enum AvailabilityStatus {
 	READY = 'ready',
@@ -8,13 +8,13 @@ export enum AvailabilityStatus {
 }
 
 type Languages = {
-	language?: Schema.Types.ObjectId;
+	language?: ILangData;
 	level?: string;
 };
 
 type Roles = {
-	other_roles?: Schema.Types.ObjectId[];
-	primary_role?: Schema.Types.ObjectId;
+	other_roles?: IJobRoleData[];
+	primary_role?: IJobRoleData;
 	experience?: string;
 };
 
@@ -25,7 +25,7 @@ type Experiences = {
 	endDate?: string;
 	description?: string;
 	job_type?: string;
-	location?: Schema.Types.ObjectId;
+	location?: ICountryData;
 };
 
 type Educations = {
@@ -53,30 +53,33 @@ type Socials = {
 };
 
 type Address = {
-	country?: Schema.Types.ObjectId;
+	country?: ICountryData;
 	city?: string;
 	street?: string;
 };
 
 export interface IDeveloper {
-	userId?: Schema.Types.ObjectId;
+	userId?: Types.ObjectId;
 	user?: any;
 	summary?: string;
 	languages?: Languages[];
-	skills?: Schema.Types.ObjectId[];
+	skills?: ISkillData[];
 	role?: Roles;
+	firstName: string;
+	lastName: string;
 	work_experience?: Experiences[];
 	educations?: Educations[];
 	certifications?: Certifications[];
 	social_profile?: Socials;
 	address: Address;
-	currency: Schema.Types.ObjectId;
-	desired_location: Schema.Types.ObjectId[];
+	currency: ICurrencyData;
+	desired_location: ICountryData[];
 	salary?: string;
 	job_type?: string;
 	other_job_type?: string[];
 	wants?: string;
 	status?: AvailabilityStatus;
 	avatar?: string;
+	avatarUrl?: string;
 	resume?: string;
 }

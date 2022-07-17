@@ -1,5 +1,5 @@
 import { registerDecorator, ValidationOptions, ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
-import { Types, Model, Document } from 'mongoose';
+import { Types } from 'mongoose';
 const { ObjectId } = Types;
 
 export function isValidObjectId(id) {

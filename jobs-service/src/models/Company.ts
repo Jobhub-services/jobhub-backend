@@ -1,37 +1,52 @@
-import { model, Schema, Document } from 'mongoose';
+import { model, Schema, Types, Document } from 'mongoose';
 import { ICompany } from '@/interfaces/company.interface';
-import Country from '@/models/Country';
+import User from '@/models/User';
+import { countrySchema } from '@/models/MetadataSchema';
 
 const headquarterSchema: Schema = new Schema({
-	country: { type: Schema.Types.ObjectId, ref: Country },
+	country: countrySchema,
 	city: String,
-	street: String
-})
+	street: String,
+});
 const generalInfoSchema: Schema = new Schema({
 	founded: String,
 	industry: String,
 	company_size: String,
-})
+});
 const socialSchema: Schema = new Schema({
 	linkedin: String,
 	facebook: String,
 	website: String,
 	twitter: String,
-})
+});
+
+const companyDivisionSchema: Schema = new Schema({
+	name: {
+		type: String,
+		required: true,
+	},
+});
+
 const companySchema: Schema = new Schema(
 	{
-		userId: { type: Schema.Types.ObjectId, ref: 'User' },
-		description: { type: String },
+		userId: { type: Types.ObjectId, ref: User },
+		description: String,
+		companyName: String,
 		social_profile: socialSchema,
-		keywords: { type: [String] },
-		company_division: { type: [String] },
+		keywords: [{ type: String }],
 		headquarter: headquarterSchema,
-		generalinfo: generalInfoSchema
+		generalinfo: generalInfoSchema,
+		company_division: [companyDivisionSchema],
+		avatar: String,
 	},
 	{
 		timestamps: true,
+		toJSON: { virtuals: true },
+		toObject: { virtuals: true },
 	}
 );
+
+companySchema.virtual('user', { ref: User, localField: 'userId', foreignField: '_id', justOne: true });
 
 const Company = model<ICompany & Document>('Company', companySchema);
 

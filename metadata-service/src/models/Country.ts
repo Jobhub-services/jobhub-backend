@@ -1,20 +1,15 @@
 import { model, Schema, Document } from 'mongoose';
 import { ICountry } from '@/interfaces/country.interface';
-const countrySchema: Schema = new Schema(
-	{
-		code: {
-			type: String,
-			required: true,
-		},
-		name: {
-			type: String,
-			required: true,
-		},
+const countrySchema: Schema = new Schema({
+	code: {
+		type: String,
+		required: true,
 	},
-	{
-		timestamps: true,
-	}
-);
+	name: {
+		type: String,
+		required: true,
+	},
+});
 
 const Country = model<ICountry & Document>('Country', countrySchema);
 

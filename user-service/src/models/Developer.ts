@@ -1,22 +1,17 @@
-import { model, Schema, Document } from 'mongoose';
+import { model, Schema, Types, Document } from 'mongoose';
 import { AvailabilityStatus, IDeveloper } from '@/interfaces/developer.interface';
 import { storageService } from '@/services/StorageService';
-import Skill from '@/models/Skill';
-import Language from '@/models/Language';
-import Country from '@/models/Country';
+import { langSchema, jobRoleSchema, countrySchema, skillSchema, currencySchema } from '@/models/MetadataSchema';
 import User from '@/models/User';
-import JobRole from '@/models/JobRole';
-import Currency from '@/models/Currency';
-import { IUser } from '@/interfaces/users.interface';
 
 const languageSchema = new Schema({
-	language: { type: Schema.Types.ObjectId, ref: Language },
+	language: langSchema,
 	level: String,
 });
 
 const roleSchema = new Schema({
-	other_roles: [{ type: Schema.Types.ObjectId, ref: JobRole }],
-	primary_role: { type: Schema.Types.ObjectId, ref: JobRole },
+	other_roles: [jobRoleSchema],
+	primary_role: jobRoleSchema,
 	experience: String,
 });
 
@@ -27,7 +22,7 @@ const experienceSchema = new Schema({
 	endDate: String,
 	description: String,
 	job_type: String,
-	location: { type: Schema.Types.ObjectId, ref: Country },
+	location: countrySchema,
 });
 
 const educationSchema = new Schema({
@@ -55,41 +50,37 @@ const socialSchema = new Schema({
 });
 
 const addressSchema = new Schema({
-	country: { type: Schema.Types.ObjectId, ref: Country },
+	country: countrySchema,
 	city: String,
 	street: String,
 });
 
 const developerSchema: Schema = new Schema(
 	{
-		userId: { type: Schema.Types.ObjectId, ref: User },
-		summary: {
-			type: String,
-		},
+		userId: { type: Types.ObjectId, ref: User },
+		firstName: String,
+		lastName: String,
+		summary: String,
+		salary: String,
+		job_type: String,
+		wants: String,
+		avatar: String,
+		resume: String,
 		languages: [languageSchema],
-		skills: [{ type: Schema.Types.ObjectId, ref: Skill }],
+		skills: [skillSchema],
 		role: roleSchema,
 		work_experience: [experienceSchema],
 		educations: [educationSchema],
 		certifications: [certificationSchema],
 		social_profile: socialSchema,
 		address: addressSchema,
-		currency: { type: Schema.Types.ObjectId, ref: Currency },
-		desired_location: [{ type: Schema.Types.ObjectId, ref: Country }],
-		salary: String,
-		job_type: String,
+		currency: currencySchema,
+		desired_location: [countrySchema],
 		other_job_type: [{ type: String }],
-		wants: String,
 		status: {
 			type: String,
 			enum: AvailabilityStatus,
 			default: AvailabilityStatus.OPEN,
-		},
-		avatar: {
-			type: String,
-		},
-		resume: {
-			type: String,
 		},
 	},
 	{
@@ -99,7 +90,17 @@ const developerSchema: Schema = new Schema(
 	}
 );
 
+developerSchema.virtual('fullName').get(function () {
+	return `${this.firstName} ${this.lastName}`;
+});
+
 developerSchema.virtual('user', { ref: User, localField: 'userId', foreignField: '_id', justOne: true });
+
+developerSchema.virtual('avatarUrl').get(function () {
+	const avatar = this.avatar;
+	if (avatar) return storageService.createFileURL(avatar);
+	return null;
+});
 
 const autoPopulate = function (next) {
 	this.populate('user');
@@ -112,10 +113,11 @@ developerSchema.pre('find', autoPopulate);
 developerSchema.methods.toJSON = function () {
 	const developer: IDeveloper = this.toObject();
 	if (developer.resume) developer.resume = storageService.createFileURL(developer.resume);
-	if (developer.avatar) developer.avatar = storageService.createFileURL(developer.avatar);
+	developer.avatar = developer.avatarUrl;
+	delete developer.avatarUrl;
 	if (developer.user) {
 		const jsonData = developer.user;
-		developer.user = { fullName: jsonData.fullName, email: jsonData.email, username: jsonData.username };
+		developer.user = { email: jsonData.email, username: jsonData.username };
 	}
 	return developer;
 };

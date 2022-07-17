@@ -1,26 +1,28 @@
+import { Request, Response } from 'express';
 import { normalizeTalentDetailtoJSON } from './../models/Application';
 import { ApplicationDto } from '@/dtos/application.dto';
 import { IApplication } from '@/interfaces/application.interface';
+import { ICompanyJob } from '@/interfaces/companyJob.interface';
+import { isValidObjectId } from '@/helpers';
+import { UserType } from '@/interfaces/users.interface';
 import Application, { normalizetoJSONs } from '@/models/Application';
 import CompanyJob from '@/models/CompanyJob';
 import Company from '@/models/Company';
-import { Request, Response } from 'express';
-import { isValidObjectId } from '@/helpers';
-import JobQuestion from '@/models/JobQuestion';
-import { UserType } from '@/interfaces/users.interface';
+import User from '@/models/User';
 
 class ApplicationController {
 	createApp = async (req: Request, res: Response) => {
 		try {
 			const rootObjectId = req.rootObjectId;
 			const appBody: ApplicationDto = req.body;
-			const isValidQeustions = await this._validateQuestions(appBody.jobId, appBody.responses);
-			if (!isValidQeustions) return res.status(406).send({ message: 'Something went wrong with your answers' });
+			const applicationJob = await CompanyJob.findById(appBody.jobId);
+			const responses = await this._populateResponses(applicationJob.questions, appBody.responses);
 			const application: IApplication = {
 				userId: rootObjectId,
+				companyId: applicationJob.createdBy,
 				jobId: appBody.jobId,
 				motivation: appBody.motivation,
-				responses: appBody.responses,
+				responses,
 				start_date: appBody.start_date,
 				notice_period: appBody.notice_period,
 			};
@@ -45,14 +47,9 @@ class ApplicationController {
 				.populate({
 					path: 'jobId',
 					select: ['title'],
-					populate: {
-						path: 'createdBy',
-						select: ['_id'],
-						populate: {
-							path: 'companyInfo',
-							select: ['companyName'],
-						},
-					},
+				})
+				.populate({
+					path: 'companyId',
 				})
 				.sort({ updatedAt: -1 });
 
@@ -153,34 +150,72 @@ class ApplicationController {
 			res.status(500).send({ message: 'Something went wrong please try again', errors: e });
 		}
 	};
+	/**
+	 *
+	 * get list of jobs for company
+	 * @param req query:
+	 * @param res list of jobs
+	 */
 	getCompanyJobApplications = async (req: Request, res: Response) => {
 		try {
 			const rootObjectId = req.rootObjectId;
-			const byJob = req.query.byJob;
+			const query = req.query;
+			console.log(req.headers);
+			const byJob = query.byJob;
 			let result = null;
 			if (byJob === 'true') {
-				result = await CompanyJob.aggregate([
+				result = await Application.aggregate([
 					{
-						$match: { createdBy: rootObjectId },
+						$match: {
+							companyId: rootObjectId,
+						},
 					},
 					{
 						$lookup: {
-							from: 'applications',
-							localField: '_id',
-							foreignField: 'jobId',
-							as: 'jobApp',
+							from: User.collection.collectionName,
+							localField: 'userId',
+							foreignField: '_id',
+							as: 'user',
 						},
 					},
-					{ $project: { title: 1, category: 1, jobApp: 1 } },
-				]).exec(function (err, transactions) {
-					// Don't forget your error handling
-					// The callback with your transactions
-					// Assuming you are having a Tag model
-					CompanyJob.populate(transactions, { path: 'userId' }, function (err, populatedTransactions) {
-						console.log(populatedTransactions);
-						// Your populated translactions are inside populatedTransactions
-					});
-				});
+					{ $unwind: '$user' },
+					{
+						$group: {
+							_id: '$jobId',
+							applications: {
+								$push: {
+									motivation: '$motivation',
+									user: '$user',
+									status: '$status',
+									userId: '$userId',
+									createdAt: '$createdAt',
+									updatedAt: '$updatedAt',
+								},
+							},
+						},
+					},
+					{
+						$lookup: {
+							from: CompanyJob.collection.collectionName,
+							localField: '_id',
+							foreignField: '_id',
+							as: 'job',
+						},
+					},
+					{ $unwind: '$job' },
+					{
+						$project: {
+							_id: 0,
+							applications: { $slice: ['$applications', 2] },
+							title: '$job.title',
+							createdAt: '$job.createdAt',
+							updatedAt: '$job.updatedAt',
+							job_id: '$job._id',
+							category: '$job.category_name',
+						},
+					},
+					{ $sort: { createdAt: -1 } },
+				]);
 			} else {
 			}
 			res.status(200).send({ content: result });
@@ -189,24 +224,25 @@ class ApplicationController {
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};
+
 	createInterview = async (req: Request, res: Response) => {
 		try {
 		} catch {}
 	};
 
-	private async _validateQuestions(jobId: IApplication['jobId'], responses: IApplication['responses']): Promise<boolean> {
-		let isValidRecords = true;
-		const questions = await JobQuestion.find({ job_id: jobId });
-		const qstIds = questions.map((item) => item.id);
-		for (const i in responses) {
-			const response = responses[i];
-			if (qstIds.indexOf(response.question) < 0) {
-				isValidRecords = false;
-				break;
-			}
-		}
-		return isValidRecords;
+	private async _populateResponses(questions: ICompanyJob['questions'], responses: ApplicationDto['responses']): Promise<IApplication['responses']> {
+		const resultResponses: IApplication['responses'] = [];
+		responses.forEach((response) => {
+			const qst = questions.find((item) => item._id == response.question);
+			if (qst)
+				resultResponses.push({
+					response: response.response,
+					question: qst,
+				});
+		});
+		return resultResponses;
 	}
+
 	private async _talentApplication() {}
 }
 export default ApplicationController;

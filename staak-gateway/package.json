@@ -7,7 +7,11 @@
 	"main": "server.js",
 	"dependencies": {
 		"cross-env": "^7.0.3",
-		"express-gateway": "^1.16.11"
+		"dotenv": "^16.0.1",
+		"express-gateway": "^1.16.11",
+		"express-gateway-plugin-rewrite": "^1.3.0",
+		"jsonwebtoken": "^8.5.1",
+		"mongoose": "6.2.10"
 	},
 	"scripts": {
 		"start:dev": "cross-env PORT=3000 HOST=localhost npm start"
