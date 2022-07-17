@@ -1,44 +1,26 @@
-import { Schema } from 'mongoose';
+import { Types } from 'mongoose';
 import { Request, Response } from 'express';
-import CompanyDivision from '@/models/CompanyDivision';
 import { CompanyDto } from '@/dtos/company.dto';
 import Company from '@/models/Company';
 import { ICompany } from '@/interfaces/company.interface';
 import Developer from '@/models/Developer';
 import { isValidObjectId } from '@/helpers';
+import { metadataService } from '@/services/MetadataService';
 class CompanyController {
-	async createDivision(req: Request, res: Response) {
+	getDivision = async (req: Request, res: Response) => {
 		try {
-			const user = req.user;
-			const division = await CompanyDivision.create({ name: req.body.name, company_id: user._id });
-			res.status(200).send({ content: division });
+			const rootObjectId = req.rootObjectId;
+			const company = await this._getProfileById(rootObjectId);
+			const company_division = company.company_division;
+			res.status(200).send({ content: company_division, size: company_division.length });
 		} catch {
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
-	}
-	async getDivision(req: Request, res: Response) {
-		try {
-			const user = req.user;
-			const divisions = await CompanyDivision.find({ company_id: user._id });
-			res.status(200).send({ content: divisions, size: divisions.length });
-		} catch {
-			res.status(500).send({ message: 'Something went wrong please try again' });
-		}
-	}
+	};
 	getProfile = async (req: Request, res: Response) => {
 		try {
-			const profileBody: CompanyDto = req.body;
 			const rootObjectId = req.rootObjectId;
-			const profile = await Company.findOne({ userId: rootObjectId });
-			if (profileBody.description) this._setDescription(profile, profileBody.description);
-			if (profileBody.keywords) this._setKeywords(profile, profileBody.keywords);
-			if (profileBody.company_division) this._setCompanyDivision(profile, profileBody.company_division);
-			if (profileBody.social_profile) this._setSocialProfile(profile, profileBody.social_profile);
-			if (profileBody.headquarter) this._setHeadquarter(profile, profileBody.headquarter);
-			if (profileBody.generalinfo) this._setGeneralinfo(profile, profileBody.generalinfo);
-			await profile.save();
 			const profileContent = await this._getProfileById(rootObjectId);
-
 			res.status(200).send({ content: profileContent });
 		} catch {
 			res.status(500).send({ message: 'Something went wrong please try again' });
@@ -51,13 +33,12 @@ class CompanyController {
 			const profile = await Company.findOne({ userId: rootObjectId });
 			if (profileBody.description) this._setDescription(profile, profileBody.description);
 			if (profileBody.keywords) this._setKeywords(profile, profileBody.keywords);
-			if (profileBody.company_division) this._setCompanyDivision(profile, profileBody.company_division);
+			if (profileBody.company_division) await this._setCompanyDivision(profile, profileBody.company_division);
 			if (profileBody.social_profile) this._setSocialProfile(profile, profileBody.social_profile);
-			if (profileBody.headquarter) this._setHeadquarter(profile, profileBody.headquarter);
+			if (profileBody.headquarter) await this._setHeadquarter(profile, profileBody.headquarter);
 			if (profileBody.generalinfo) this._setGeneralinfo(profile, profileBody.generalinfo);
 			await profile.save();
 			const profileContent = await this._getProfileById(rootObjectId);
-
 			res.status(200).send({ content: profileContent });
 		} catch (e: any) {
 			res.status(500).send({ message: 'Something went wrong please try again' });
@@ -67,27 +48,7 @@ class CompanyController {
 		try {
 			const { name = '', limit = 20, page } = req.query;
 			const count = await Developer.count();
-			const query = Developer.find({}, { summary: 1, userId: 1, status: 1, address: 1, skills: 1, createdAt: 1, updatedAt: 1 })
-				.populate({
-					path: 'address',
-					populate: {
-						path: 'country',
-						select: 'name',
-					},
-				})
-				.populate({
-					path: 'skills',
-					select: 'name',
-				})
-				.populate({
-					path: 'role',
-					populate: [
-						{
-							path: 'primary_role',
-							select: 'name',
-						},
-					],
-				});
+			const query = Developer.find({}, { summary: 1, userId: 1, status: 1, address: 1, skills: 1, createdAt: 1, updatedAt: 1 });
 			if (limit) {
 				const limitN = Number(limit);
 				query.limit(limitN);
@@ -104,81 +65,44 @@ class CompanyController {
 		try {
 			const talentId = req.params.talentId;
 			if (!talentId || !isValidObjectId(talentId)) return res.status(406).send({ message: 'Talent not found' });
-			const query = Developer.findById(talentId)
-				.populate({
-					path: 'work_experience',
-					populate: {
-						path: 'location',
-						select: 'name',
-					},
-				})
-				.populate({
-					path: 'languages',
-					populate: {
-						path: 'language',
-						select: ['name', 'code'],
-					},
-				})
-				.populate({
-					path: 'address',
-					populate: {
-						path: 'country',
-						select: 'name',
-					},
-				})
-				.populate({
-					path: 'role',
-					populate: [
-						{
-							path: 'other_roles',
-							select: 'name',
-						},
-						{
-							path: 'primary_role',
-							select: 'name',
-						},
-					],
-				})
-				.populate({
-					path: 'desired_location',
-					select: 'name',
-				})
-				.populate({
-					path: 'skills',
-					select: 'name',
-				});
+			const query = Developer.findById(talentId);
 			const talent = await query;
 			if (!talent) return res.status(406).send({ message: 'Talent not found' });
 			res.status(200).send({ content: talent });
 		} catch {}
 	};
-	private _setDescription = (profile: ICompany, description: ICompany['description']) => {
+
+	/**** function for update company */
+	private _setDescription = (profile: ICompany, description: CompanyDto['description']) => {
 		profile.description = description;
 	};
-	private _setKeywords = (profile: ICompany, keywords: ICompany['keywords']) => {
+
+	private _setKeywords = (profile: ICompany, keywords: CompanyDto['keywords']) => {
 		profile.keywords = keywords;
 	};
-	private _setCompanyDivision = (profile: ICompany, company_division: ICompany['company_division']) => {
-		profile.company_division = company_division;
+
+	private _setCompanyDivision = async (profile: ICompany, company_division: CompanyDto['company_division']) => {
+		const divisions: ICompany['company_division'] = [];
+		company_division.forEach((division) => {
+			divisions.push({ name: division });
+		});
 	};
-	private _setSocialProfile = (profile: ICompany, social_profile: ICompany['social_profile']) => {
+
+	private _setSocialProfile = (profile: ICompany, social_profile: CompanyDto['social_profile']) => {
 		profile.social_profile = social_profile;
 	};
-	private _setHeadquarter = (profile: ICompany, headquarter: ICompany['headquarter']) => {
-		profile.headquarter = headquarter;
+
+	private _setHeadquarter = async (profile: ICompany, headquarter: CompanyDto['headquarter']) => {
+		profile.headquarter = { ...headquarter, country: await metadataService.getCountry(headquarter.country) };
 	};
-	private _setGeneralinfo = (profile: ICompany, generalinfo: ICompany['generalinfo']) => {
+
+	private _setGeneralinfo = (profile: ICompany, generalinfo: CompanyDto['generalinfo']) => {
 		profile.generalinfo = generalinfo;
 	};
-	private _getProfileById = async (userId: Schema.Types.ObjectId) => {
+
+	private _getProfileById = async (userId: Types.ObjectId) => {
 		try {
-			const query = Company.findOne({ userId }).populate({
-				path: 'headquarter',
-				populate: {
-					path: 'country',
-					select: 'name',
-				},
-			});
+			const query = Company.findOne({ userId });
 			const profile = await query;
 			return profile;
 		} catch {

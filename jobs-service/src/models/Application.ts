@@ -1,26 +1,34 @@
-import { Schema, Document } from 'mongoose';
+import { Schema, Document, Types } from 'mongoose';
 import { softDeleteModel } from '@/helpers';
 import { ApplicationStatus, IApplication } from '@/interfaces/application.interface';
+import User from '@/models/User';
+import Company from '@/models/Company';
+import CompanyJob from '@/models/CompanyJob';
+
+const questionSchema: Schema = new Schema(
+	{
+		_id: Types.ObjectId,
+		question: String,
+	},
+	{
+		_id: false,
+	}
+);
 
 const responseSchema: Schema = new Schema({
-	question: { type: Schema.Types.ObjectId, ref: 'JobQuestions' },
+	question: questionSchema,
 	response: { type: String },
 });
 
 const applicationSchema: Schema = new Schema(
 	{
-		userId: { type: Schema.Types.ObjectId, ref: 'User' },
-		jobId: { type: Schema.Types.ObjectId, ref: 'CompanyJob' },
-		motivation: {
-			type: String,
-		},
+		userId: { type: Types.ObjectId, ref: User },
+		companyId: { type: Types.ObjectId, ref: Company },
+		jobId: { type: Types.ObjectId, ref: CompanyJob },
+		motivation: String,
+		notice_period: String,
+		start_date: String,
 		responses: [responseSchema],
-		notice_period: {
-			type: String,
-		},
-		start_date: {
-			type: String,
-		},
 		status: {
 			type: String,
 			default: ApplicationStatus.NEW,

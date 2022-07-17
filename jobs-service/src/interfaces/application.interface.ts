@@ -1,7 +1,8 @@
-import { Schema } from 'mongoose';
+import { Types } from 'mongoose';
+import { IJobQuestion } from '@/interfaces/companyJob.interface';
 
 export type UserResponse = {
-	question: Schema.Types.ObjectId;
+	question: IJobQuestion;
 	response?: String;
 };
 
@@ -13,11 +14,12 @@ export enum ApplicationStatus {
 }
 
 export interface IApplication {
-	jobId: Schema.Types.ObjectId;
-	userId: Schema.Types.ObjectId;
-	motivation: string;
+	jobId: Types.ObjectId;
+	companyId: Types.ObjectId;
+	userId: Types.ObjectId;
 	responses?: UserResponse[];
+	status?: ApplicationStatus;
+	motivation: string;
 	notice_period?: String;
 	start_date?: String;
-	status?: ApplicationStatus;
 }

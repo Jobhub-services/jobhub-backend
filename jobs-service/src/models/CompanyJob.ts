@@ -1,28 +1,41 @@
-import { Schema } from 'mongoose';
+import { Schema, Types } from 'mongoose';
 import MongooseDelete from 'mongoose-delete';
 import { softDeleteModel } from '@/helpers';
 import { ICompanyJob, JobTypes, JobDuration, SalaryType, JobStatus } from '@/interfaces/companyJob.interface';
+import User from '@/models/User';
+import { countrySchema, currencySchema, jobCategorySchema, skillSchema } from '@/models/MetadataSchema';
 
 const jobLocationSchema = new Schema({
-	country: { type: Schema.Types.ObjectId, ref: 'Country' },
+	country: countrySchema,
 	city: { type: String, trim: true },
+});
+
+const companyDivisionSchema: Schema = new Schema(
+	{
+		_id: Types.ObjectId,
+		name: String,
+	},
+	{
+		_id: false,
+	}
+);
+
+const questionSchema = new Schema({
+	question: String,
 });
 
 const companyJobSchema: Schema = new Schema(
 	{
-		title: {
-			type: String,
-			required: true,
-		},
-		description: {
-			type: String,
-			required: true,
-		},
-		responsabilities: {
-			type: String,
-		},
-		company_division: { type: Schema.Types.ObjectId, ref: 'CompanyDivision' },
-		category: { type: Schema.Types.ObjectId, ref: 'JobCategory' },
+		title: String,
+		description: String,
+		start_salary: String,
+		end_salary: String,
+		benefits: String,
+		work_remotly: Boolean,
+		hire_remotly: Boolean,
+		visa_sponsorship: Boolean,
+		responsabilities: String,
+		requirements: String,
 		job_type: {
 			type: String,
 			enum: JobTypes,
@@ -31,62 +44,32 @@ const companyJobSchema: Schema = new Schema(
 			type: String,
 			enum: JobDuration,
 		},
-		duration_range: [
-			{
-				type: String,
-			},
-		],
+		duration_range: [{ type: String }],
 		salary_type: {
 			type: String,
 			enum: SalaryType,
 		},
-		start_salary: {
-			type: String,
-		},
-		end_salary: {
-			type: String,
-		},
-		currency: { type: Schema.Types.ObjectId, ref: 'Currency' },
-		benefits: {
-			type: String,
-		},
-		work_remotly: {
-			type: Boolean,
-		},
-		hire_remotly: {
-			type: Boolean,
-		},
-		visa_sponsorship: {
-			type: Boolean,
-		},
+		company_division: companyDivisionSchema,
+		category: jobCategorySchema,
+		currency: currencySchema,
 		work_location: jobLocationSchema,
 		hire_location: [jobLocationSchema],
-		education: [
-			{
-				type: String,
-			},
-		],
-		certification: [
-			{
-				type: String,
-			},
-		],
-		skills: [{ type: Schema.Types.ObjectId, ref: 'Skill' }],
-		requirements: {
-			type: String,
-		},
+		skills: [skillSchema],
+		questions: [questionSchema],
+		education: [{ type: String }],
+		certification: [{ type: String }],
 		status: {
 			type: String,
 			enum: JobStatus,
 			default: JobStatus.READY,
 		},
 		createdBy: {
-			type: Schema.Types.ObjectId,
-			ref: 'User',
+			type: Types.ObjectId,
+			ref: User,
 		},
 		updatedBy: {
-			type: Schema.Types.ObjectId,
-			ref: 'User',
+			type: Types.ObjectId,
+			ref: User,
 		},
 	},
 	{
@@ -97,12 +80,6 @@ const companyJobSchema: Schema = new Schema(
 );
 
 companyJobSchema.plugin(MongooseDelete, { deletedAt: true, overrideMethods: true, deletedBy: true });
-
-companyJobSchema.virtual('questions', {
-	ref: 'JobQuestion',
-	localField: '_id',
-	foreignField: 'job_id',
-});
 
 const CompanyJob = softDeleteModel<ICompanyJob>('CompanyJob', companyJobSchema);
 

@@ -6,6 +6,6 @@ express;
 declare module 'express' {
 	interface Request {
 		user?: IUser;
-		rootObjectId?: Schema.Types.ObjectId;
+		rootObjectId?: Types.ObjectId;
 	}
 }

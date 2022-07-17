@@ -5,11 +5,15 @@
 	"scripts": {
 		"format": "prettier --write .",
 		"start:app": "npm start --prefix staak-gateway",
-		"start:dev": "npm run start:dev --prefix staak-gateway"
+		"start:dev": "npm run start:dev --prefix staak-gateway",
+		"start:local": "./scripts/run-serve.sh"
 	},
 	"author": "",
 	"license": "ISC",
 	"devDependencies": {
 		"prettier": "^2.6.2"
+	},
+	"dependencies": {
+		"express-gateway-plugin-rewrite": "^1.3.0"
 	}
 }

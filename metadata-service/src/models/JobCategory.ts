@@ -1,19 +1,14 @@
 import { model, Schema, Document } from 'mongoose';
 import { IJobCategory } from '@/interfaces/jobCategory.interface';
-const jobCategorySchema: Schema = new Schema(
-	{
-		name: {
-			type: String,
-			required: true,
-		},
-		industry: {
-			type: String,
-		},
+const jobCategorySchema: Schema = new Schema({
+	name: {
+		type: String,
+		required: true,
 	},
-	{
-		timestamps: true,
-	}
-);
+	industry: {
+		type: String,
+	},
+});
 
 const JobCategory = model<IJobCategory & Document>('JobCategory', jobCategorySchema);
 

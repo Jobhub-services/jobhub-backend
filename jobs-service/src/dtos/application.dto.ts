@@ -1,15 +1,14 @@
-import { Schema } from 'mongoose';
+import { Types } from 'mongoose';
 import { isEmptyMessage, isStringMessage } from '@/config/dto.config';
 import { IsExists, IsObjectId } from '@/helpers';
 import CompanyJob from '@/models/CompanyJob';
-import JobQuestion from '@/models/JobQuestion';
 import { Expose, Type } from 'class-transformer';
 import { IsArray, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 
 class ResponseDto {
 	@Expose()
-	@IsExists(JobQuestion)
-	question: Schema.Types.ObjectId;
+	@IsObjectId()
+	question: Types.ObjectId;
 
 	@Expose()
 	@IsNotEmpty({ message: isEmptyMessage('Response') })
@@ -20,7 +19,7 @@ class ResponseDto {
 export class ApplicationDto {
 	@Expose()
 	@IsExists(CompanyJob)
-	jobId: Schema.Types.ObjectId;
+	jobId: Types.ObjectId;
 
 	@Expose()
 	@IsNotEmpty({ message: isEmptyMessage('Application motivation') })

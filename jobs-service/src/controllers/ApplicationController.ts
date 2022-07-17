@@ -1,13 +1,15 @@
+import { Request, Response } from 'express';
 import { normalizeTalentDetailtoJSON } from './../models/Application';
 import { ApplicationDto } from '@/dtos/application.dto';
 import { IApplication } from '@/interfaces/application.interface';
+import { isValidObjectId } from '@/helpers';
+import { UserType } from '@/interfaces/users.interface';
 import Application, { normalizetoJSONs } from '@/models/Application';
+import JobQuestion from '@/models/JobQuestion';
+import JobCategory from '@/models/JobCategory';
 import CompanyJob from '@/models/CompanyJob';
 import Company from '@/models/Company';
-import { Request, Response } from 'express';
-import { isValidObjectId } from '@/helpers';
-import JobQuestion from '@/models/JobQuestion';
-import { UserType } from '@/interfaces/users.interface';
+import User, { developerCollectionName } from '@/models/User';
 
 class ApplicationController {
 	createApp = async (req: Request, res: Response) => {
@@ -16,8 +18,10 @@ class ApplicationController {
 			const appBody: ApplicationDto = req.body;
 			const isValidQeustions = await this._validateQuestions(appBody.jobId, appBody.responses);
 			if (!isValidQeustions) return res.status(406).send({ message: 'Something went wrong with your answers' });
+			const applicationJob = await CompanyJob.findById(appBody.jobId);
 			const application: IApplication = {
 				userId: rootObjectId,
+				companyId: applicationJob.createdBy,
 				jobId: appBody.jobId,
 				motivation: appBody.motivation,
 				responses: appBody.responses,
@@ -153,34 +157,108 @@ class ApplicationController {
 			res.status(500).send({ message: 'Something went wrong please try again', errors: e });
 		}
 	};
+	/**
+	 *
+	 * get list of jobs for company
+	 * @param req query:
+	 * @param res list of jobs
+	 */
 	getCompanyJobApplications = async (req: Request, res: Response) => {
 		try {
 			const rootObjectId = req.rootObjectId;
-			const byJob = req.query.byJob;
+			const query = req.query;
+			console.log(req.headers);
+			const byJob = query.byJob;
 			let result = null;
 			if (byJob === 'true') {
-				result = await CompanyJob.aggregate([
+				result = await Application.aggregate([
 					{
-						$match: { createdBy: rootObjectId },
+						$match: {
+							companyId: rootObjectId,
+						},
 					},
 					{
 						$lookup: {
-							from: 'applications',
-							localField: '_id',
-							foreignField: 'jobId',
-							as: 'jobApp',
+							from: User.collection.collectionName,
+							localField: 'userId',
+							foreignField: '_id',
+							pipeline: [
+								{
+									$lookup: {
+										from: developerCollectionName,
+										localField: '_id',
+										foreignField: 'userId',
+										as: 'developer',
+									},
+								},
+								{ $unwind: '$developer' },
+								{
+									$project: {
+										_id: 0,
+										summary: '$developer.summary',
+									},
+								},
+							],
+							as: 'user',
 						},
 					},
-					{ $project: { title: 1, category: 1, jobApp: 1 } },
-				]).exec(function (err, transactions) {
-					// Don't forget your error handling
-					// The callback with your transactions
-					// Assuming you are having a Tag model
-					CompanyJob.populate(transactions, { path: 'userId' }, function (err, populatedTransactions) {
-						console.log(populatedTransactions);
-						// Your populated translactions are inside populatedTransactions
-					});
-				});
+					{ $unwind: '$user' },
+					{
+						$group: {
+							_id: '$jobId',
+							applications: {
+								$push: {
+									motivation: '$motivation',
+									user: '$user',
+									status: '$status',
+									userId: '$userId',
+									createdAt: '$createdAt',
+									updatedAt: '$updatedAt',
+								},
+							},
+						},
+					},
+					{
+						$lookup: {
+							from: CompanyJob.collection.collectionName,
+							localField: '_id',
+							foreignField: '_id',
+							pipeline: [
+								{
+									$lookup: {
+										from: JobCategory.collection.collectionName,
+										localField: 'category',
+										foreignField: '_id',
+										as: 'job_category',
+									},
+								},
+								{
+									$project: {
+										_id: 1,
+										category_name: { $first: '$job_category.name' },
+										title: 1,
+										createdAt: 1,
+										updatedAt: 1,
+									},
+								},
+							],
+							as: 'job',
+						},
+					},
+					{ $unwind: '$job' },
+					{
+						$project: {
+							_id: 0,
+							applications: { $slice: ['$applications', 2] },
+							title: '$job.title',
+							createdAt: '$job.createdAt',
+							updatedAt: '$job.updatedAt',
+							job_id: '$job._id',
+							category: '$job.category_name',
+						},
+					},
+					{ $sort: { createdAt: -1 } },
+				]);
 			} else {
 			}
 			res.status(200).send({ content: result });
@@ -189,11 +267,11 @@ class ApplicationController {
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};
+
 	createInterview = async (req: Request, res: Response) => {
 		try {
 		} catch {}
 	};
-
 	private async _validateQuestions(jobId: IApplication['jobId'], responses: IApplication['responses']): Promise<boolean> {
 		let isValidRecords = true;
 		const questions = await JobQuestion.find({ job_id: jobId });

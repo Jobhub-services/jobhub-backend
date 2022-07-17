@@ -1,33 +1,39 @@
-import { Schema } from 'mongoose';
+import { Types } from 'mongoose';
+import { ICountryData } from '@/interfaces/metadata.interface';
 
-export type SocialProfile = {
+export type TSocialProfile = {
 	linkedin?: String;
 	facebook?: String;
 	website?: String;
 	twitter?: String;
 };
-export type GeneralInfo = {
+export type TGeneralInfo = {
 	founded?: String;
 	industry?: String;
 	company_size?: String;
 };
 
-export type HeadQuarter = {
-	country: Schema.Types.ObjectId;
+export type THeadQuarter = {
+	country: ICountryData;
 	city?: String;
 	street?: String;
 };
 
 export interface ICompanyDivision {
-	company_id: string; // put user id of the company
+	_id?: Types.ObjectId;
 	name: string;
 }
+
 export interface ICompany {
-	userId: Schema.Types.ObjectId;
+	userId: Types.ObjectId;
+	user: any;
 	description?: string;
+	companyName: string;
 	keywords?: string[];
-	company_division?: string[];
-	social_profile?: SocialProfile;
-	headquarter?: HeadQuarter;
-	generalinfo?: GeneralInfo;
+	company_division?: ICompanyDivision[];
+	social_profile?: TSocialProfile;
+	headquarter?: THeadQuarter;
+	generalinfo?: TGeneralInfo;
+	avatar?: string;
+	avatarUrl?: string;
 }

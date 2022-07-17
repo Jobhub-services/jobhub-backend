@@ -1,20 +1,15 @@
-import { Schema } from 'mongoose';
+import { Types } from 'mongoose';
 import { IsArray, IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { JobTypes } from '@/interfaces/companyJob.interface';
 import { isStringMessage, isEnumMessage } from '@/config/dto.config';
 import { Expose, Type } from 'class-transformer';
-import { IsExists } from '@/helpers';
-import Language from '@/models/Language';
-import Country from '@/models/Country';
-import JobRole from '@/models/JobRole';
-import Skill from '@/models/Skill';
-import Currency from '@/models/Currency';
+import { IsObjectId } from '@/helpers';
 import { AvailabilityStatus } from '@/interfaces/developer.interface';
 
 class LanguagesDto {
 	@Expose()
-	@IsExists(Language)
-	language?: Schema.Types.ObjectId;
+	@IsObjectId()
+	language?: Types.ObjectId;
 
 	@Expose()
 	@IsString()
@@ -24,13 +19,13 @@ class LanguagesDto {
 class RolesDto {
 	@Expose()
 	@IsOptional()
-	@IsExists(JobRole, { each: true })
-	other_roles?: Schema.Types.ObjectId[];
+	@IsObjectId({ each: true })
+	other_roles?: Types.ObjectId[];
 
 	@Expose()
 	@IsOptional()
-	@IsExists(JobRole)
-	primary_role?: Schema.Types.ObjectId;
+	@IsObjectId()
+	primary_role?: Types.ObjectId;
 
 	@Expose()
 	@IsOptional()
@@ -70,8 +65,8 @@ class ExperiencesDto {
 
 	@Expose()
 	@IsOptional()
-	@IsExists(Country)
-	location?: Schema.Types.ObjectId;
+	@IsObjectId()
+	location?: Types.ObjectId;
 }
 
 class EducationsDto {
@@ -158,8 +153,8 @@ class SocialsDto {
 class AddressDto {
 	@Expose()
 	@IsOptional()
-	@IsExists(Country)
-	country?: Schema.Types.ObjectId;
+	@IsObjectId()
+	country?: Types.ObjectId;
 
 	@Expose()
 	@IsOptional()
@@ -187,8 +182,8 @@ export class DeveloperDto {
 
 	@Expose()
 	@IsOptional()
-	@IsExists(Skill, { each: true })
-	skills?: Schema.Types.ObjectId[];
+	@IsObjectId({ each: true })
+	skills?: Types.ObjectId[];
 
 	@Expose()
 	@IsOptional()
@@ -231,13 +226,13 @@ export class DeveloperDto {
 
 	@Expose()
 	@IsOptional()
-	@IsExists(Currency)
-	currency?: Schema.Types.ObjectId;
+	@IsObjectId()
+	currency?: Types.ObjectId;
 
 	@Expose()
 	@IsOptional()
-	@IsExists(Country, { each: true })
-	desired_location?: Schema.Types.ObjectId[];
+	@IsObjectId({ each: true })
+	desired_location?: Types.ObjectId[];
 
 	@Expose()
 	@IsOptional()
