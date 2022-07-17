@@ -4,9 +4,7 @@ import { UserType } from '@/interfaces/users.interface';
 import DeveloperController from '@/controllers/DeveloperController';
 import validationMiddleware from '@/middleware/validation.middleware';
 import { DeveloperDto } from '@/dtos/developer.dto';
-
 const developerController = new DeveloperController();
-
 const router = Router();
 router.use('/', authRole(UserType.DEVELOPER));
 

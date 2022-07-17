@@ -7,6 +7,7 @@ export default class UserController {
 	public userInfo = async (req: Request, res: Response) => {
 		try {
 			const userData: IUser = req.user;
+			delete userData.password;
 			const userInfo: any = {
 				...userData,
 			};
@@ -20,7 +21,7 @@ export default class UserController {
 				userInfo.companyName = company.companyName;
 				userInfo.avatar = company.avatarUrl;
 			}
-			res.status(200).send({ message: 'Info fetched successfully', data: userData });
+			res.status(200).send({ message: 'Info fetched successfully', data: userInfo });
 		} catch {
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}

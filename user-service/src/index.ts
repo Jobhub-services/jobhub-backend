@@ -15,6 +15,7 @@ import { storageRouter } from '@/routes/storage.routes';
 import Router from '@/routes';
 
 const app = express();
+
 app.use(fileUpload({}));
 app.use(cookieParser());
 app.use(json());
@@ -24,6 +25,7 @@ app.use('/', (req: Request, res: Response, next) => {
 		req.user = JSON.parse(req.headers['user'] as string);
 		const userId = new Types.ObjectId(String(req.headers['user_id']));
 		req.user._id = userId;
+		global.authUser = req.user;
 		req.rootObjectId = userId;
 	}
 	next();
