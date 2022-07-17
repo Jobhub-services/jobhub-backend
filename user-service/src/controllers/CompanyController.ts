@@ -3,6 +3,8 @@ import { Request, Response } from 'express';
 import { CompanyDto } from '@/dtos/company.dto';
 import Company from '@/models/Company';
 import { ICompany } from '@/interfaces/company.interface';
+import { UploadedFile } from 'express-fileupload';
+import { storageService } from '@/services/StorageService';
 import Developer from '@/models/Developer';
 import { UploadedFile } from 'express-fileupload';
 import { isValidObjectId } from '@/helpers';
@@ -119,6 +121,10 @@ class CompanyController {
 		} catch {
 			return null;
 		}
+	};
+	private _updateAvatar = async (profile: ICompany, file: UploadedFile) => {
+		const avatarPath = await storageService.moveFile(file);
+		profile.avatar = avatarPath;
 	};
 }
 export default CompanyController;
