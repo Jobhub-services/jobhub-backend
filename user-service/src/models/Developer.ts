@@ -91,7 +91,8 @@ const developerSchema: Schema = new Schema(
 );
 
 developerSchema.virtual('fullName').get(function () {
-	return `${this.firstName} ${this.lastName}`;
+	const fullName = `${this.firstName ?? ''} ${this.lastName ?? ''}`;
+	return fullName.trim();
 });
 
 developerSchema.virtual('user', { ref: User, localField: 'userId', foreignField: '_id', justOne: true });
@@ -123,5 +124,35 @@ developerSchema.methods.toJSON = function () {
 };
 
 const Developer = model<IDeveloper & Document>('Developer', developerSchema);
+
+export function populateDevelopersToJson(developers: IDeveloper[]) {
+	const result = [];
+	developers.forEach((developer) => {
+		result.push(populateDeveloperToJson(developer));
+	});
+	return result;
+}
+export function populateDeveloperToJson(developer: IDeveloper) {
+	const result: any = {
+		...developer.toJSON(),
+	};
+	if (developer.address?.country) result.address.country = result.address.country.name;
+	if (Array.isArray(developer.languages))
+		result.languages = developer.languages.map((lang) => {
+			return {
+				level: lang.level,
+				language: lang.language.name,
+			};
+		});
+	if (Array.isArray(developer.skills))
+		result.skills = developer.skills.map((skill) => {
+			return skill.name;
+		});
+	if (developer.role) {
+		result.role.primary_role = developer.role.primary_role?.name;
+		if (Array.isArray(developer.role.other_roles)) result.role.other_roles = developer.role.other_roles.map((role) => role.name);
+	}
+	return result;
+}
 
 export default Developer;

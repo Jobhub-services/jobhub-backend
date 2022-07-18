@@ -5,7 +5,7 @@ import Company from '@/models/Company';
 import { ICompany } from '@/interfaces/company.interface';
 import { UploadedFile } from 'express-fileupload';
 import { storageService } from '@/services/StorageService';
-import Developer from '@/models/Developer';
+import Developer, { populateDevelopersToJson, populateDeveloperToJson } from '@/models/Developer';
 import { isValidObjectId } from '@/helpers';
 import { metadataService } from '@/services/MetadataService';
 class CompanyController {
@@ -46,6 +46,7 @@ class CompanyController {
 			const profileContent = await this._getProfileById(rootObjectId);
 			res.status(200).send({ content: profileContent });
 		} catch (e: any) {
+			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};
@@ -53,7 +54,7 @@ class CompanyController {
 		try {
 			const { name = '', limit = 20, page } = req.query;
 			const count = await Developer.count();
-			const query = Developer.find({}, { summary: 1, userId: 1, status: 1, address: 1, skills: 1, createdAt: 1, updatedAt: 1, avatar: 1 });
+			const query = Developer.find();
 			if (limit) {
 				const limitN = Number(limit);
 				query.limit(limitN);
@@ -62,9 +63,26 @@ class CompanyController {
 					query.skip(pageN * limitN);
 				}
 			}
+			query.projection({
+				summary: 1,
+				userId: 1,
+				status: 1,
+				address: 1,
+				skills: 1,
+				createdAt: 1,
+				updatedAt: 1,
+				avatar: 1,
+				firstName: 1,
+				lastName: 1,
+				role: 1,
+			});
 			const talents = await query;
-			res.status(200).send({ content: talents, count, size: talents.length, pages: Math.ceil(count / Number(limit)), currentPage: page });
-		} catch {}
+			const talnetsList = populateDevelopersToJson(talents);
+			res.status(200).send({ content: talnetsList, count, size: talents.length, pages: Math.ceil(count / Number(limit)), currentPage: page });
+		} catch (e: any) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
 	};
 	getTalentDetails = async (req: Request, res: Response) => {
 		try {
@@ -73,8 +91,12 @@ class CompanyController {
 			const query = Developer.findById(talentId);
 			const talent = await query;
 			if (!talent) return res.status(406).send({ message: 'Talent not found' });
-			res.status(200).send({ content: talent });
-		} catch {}
+			const talnetList = populateDeveloperToJson(talent);
+			res.status(200).send({ content: talnetList });
+		} catch (e: any) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
 	};
 
 	/**** function for update company */
@@ -115,7 +137,6 @@ class CompanyController {
 		try {
 			const query = Company.findOne({ userId });
 			const profile = await query;
-
 			return profile;
 		} catch {
 			return null;

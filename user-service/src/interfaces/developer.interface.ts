@@ -82,4 +82,6 @@ export interface IDeveloper {
 	avatar?: string;
 	avatarUrl?: string;
 	resume?: string;
+
+	toJSON(): IDeveloper;
 }

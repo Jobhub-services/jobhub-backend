@@ -37,6 +37,7 @@ class DeveloperController {
 			const profileContent = await this._getProfileById(rootObjectId);
 			res.status(200).send({ content: profileContent });
 		} catch (e) {
+			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};
@@ -84,9 +85,9 @@ class DeveloperController {
 
 	private _setRole = async (profile: IDeveloper, role: DeveloperDto['role']) => {
 		const developerRole: IDeveloper['role'] = {};
-		developerRole.primary_role = await metadataService.getJobRole(role.primary_role);
-		developerRole.other_roles = await metadataService.getJobRoles(role.other_roles);
-		developerRole.experience = role.experience;
+		if (role.primary_role) developerRole.primary_role = await metadataService.getJobRole(role.primary_role);
+		if (role.other_roles) developerRole.other_roles = await metadataService.getJobRoles(role.other_roles);
+		if (role.experience) developerRole.experience = role.experience;
 		profile.role = developerRole;
 	};
 
