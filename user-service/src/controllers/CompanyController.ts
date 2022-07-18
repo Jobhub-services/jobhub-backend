@@ -115,6 +115,7 @@ class CompanyController {
 		try {
 			const query = Company.findOne({ userId });
 			const profile = await query;
+
 			return profile;
 		} catch {
 			return null;

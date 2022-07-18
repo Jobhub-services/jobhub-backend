@@ -8,13 +8,15 @@ const {
 } = require('mongoose');
 
 const excludedRoutes = ['/api/users/auth/login', '/api/users/auth/register'];
+const excludedRoutePaths = ['/cdn/*'];
 
 module.exports = {
 	name: 'auth',
 	policy: (actionParams) => {
 		return (req, res, next) => {
 			const pathUrl = req.baseUrl + req.path;
-			if (excludedRoutes.indexOf(pathUrl) >= 0) return next();
+			const routePath = req.route.path;
+			if (excludedRoutes.indexOf(pathUrl) >= 0 || excludedRoutePaths.indexOf(routePath) >= 0) return next();
 			connect(process.env.DB_CONNECT_URL)
 				.then(({ connection }) => {
 					try {

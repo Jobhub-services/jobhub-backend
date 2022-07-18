@@ -56,9 +56,10 @@ companySchema.virtual('avatarUrl').get(function () {
 });
 
 companySchema.methods.toJSON = function () {
-	const company: ICompany = this.toObject();
+	const company = this.toObject();
 	company.avatar = company.avatarUrl;
 	delete company.avatarUrl;
+	company.company_division = company.company_division.map((division) => division.name);
 	if (company.user) {
 		const jsonData = company.user;
 		company.user = { email: jsonData.email, username: jsonData.username };
