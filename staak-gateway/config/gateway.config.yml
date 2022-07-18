@@ -34,7 +34,7 @@ pipelines:
     policies:
       - cros:
           - action:
-              - origin: false
+              - origin: '*'
       - auth:
       - proxy:
           - action:
@@ -46,7 +46,7 @@ pipelines:
     policies:
       - cros:
           - action:
-              - origin: false
+              - origin: '*'
       - auth:
       - proxy:
           - action:
@@ -58,7 +58,7 @@ pipelines:
     policies:
       - cros:
           - action:
-              - origin: false
+              - origin: '*'
       - auth:
       - proxy:
           - action:
