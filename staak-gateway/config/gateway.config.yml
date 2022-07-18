@@ -32,6 +32,9 @@ pipelines:
     apiEndpoints:
       - users
     policies:
+      - cros:
+          - action:
+              - origin: false
       - auth:
       - proxy:
           - action:
@@ -41,6 +44,9 @@ pipelines:
     apiEndpoints:
       - jobs
     policies:
+      - cros:
+          - action:
+              - origin: false
       - auth:
       - proxy:
           - action:
@@ -50,6 +56,9 @@ pipelines:
     apiEndpoints:
       - metadata
     policies:
+      - cros:
+          - action:
+              - origin: false
       - auth:
       - proxy:
           - action:
