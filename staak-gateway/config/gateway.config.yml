@@ -23,10 +23,9 @@ policies:
   - cors
   - expression
   - key-auth
+  - auth
   - proxy
   - rate-limit
-  - auth
-  - request-transformer
 
 pipelines:
   users:

@@ -2,29 +2,27 @@ import { Request, Response } from 'express';
 import { normalizeTalentDetailtoJSON } from './../models/Application';
 import { ApplicationDto } from '@/dtos/application.dto';
 import { IApplication } from '@/interfaces/application.interface';
+import { ICompanyJob } from '@/interfaces/companyJob.interface';
 import { isValidObjectId } from '@/helpers';
 import { UserType } from '@/interfaces/users.interface';
 import Application, { normalizetoJSONs } from '@/models/Application';
-import JobQuestion from '@/models/JobQuestion';
-import JobCategory from '@/models/JobCategory';
 import CompanyJob from '@/models/CompanyJob';
 import Company from '@/models/Company';
-import User, { developerCollectionName } from '@/models/User';
+import User from '@/models/User';
 
 class ApplicationController {
 	createApp = async (req: Request, res: Response) => {
 		try {
 			const rootObjectId = req.rootObjectId;
 			const appBody: ApplicationDto = req.body;
-			const isValidQeustions = await this._validateQuestions(appBody.jobId, appBody.responses);
-			if (!isValidQeustions) return res.status(406).send({ message: 'Something went wrong with your answers' });
 			const applicationJob = await CompanyJob.findById(appBody.jobId);
+			const responses = await this._populateResponses(applicationJob.questions, appBody.responses);
 			const application: IApplication = {
 				userId: rootObjectId,
 				companyId: applicationJob.createdBy,
 				jobId: appBody.jobId,
 				motivation: appBody.motivation,
-				responses: appBody.responses,
+				responses,
 				start_date: appBody.start_date,
 				notice_period: appBody.notice_period,
 			};
@@ -49,14 +47,9 @@ class ApplicationController {
 				.populate({
 					path: 'jobId',
 					select: ['title'],
-					populate: {
-						path: 'createdBy',
-						select: ['_id'],
-						populate: {
-							path: 'companyInfo',
-							select: ['companyName'],
-						},
-					},
+				})
+				.populate({
+					path: 'companyId',
 				})
 				.sort({ updatedAt: -1 });
 
@@ -182,23 +175,6 @@ class ApplicationController {
 							from: User.collection.collectionName,
 							localField: 'userId',
 							foreignField: '_id',
-							pipeline: [
-								{
-									$lookup: {
-										from: developerCollectionName,
-										localField: '_id',
-										foreignField: 'userId',
-										as: 'developer',
-									},
-								},
-								{ $unwind: '$developer' },
-								{
-									$project: {
-										_id: 0,
-										summary: '$developer.summary',
-									},
-								},
-							],
 							as: 'user',
 						},
 					},
@@ -223,25 +199,6 @@ class ApplicationController {
 							from: CompanyJob.collection.collectionName,
 							localField: '_id',
 							foreignField: '_id',
-							pipeline: [
-								{
-									$lookup: {
-										from: JobCategory.collection.collectionName,
-										localField: 'category',
-										foreignField: '_id',
-										as: 'job_category',
-									},
-								},
-								{
-									$project: {
-										_id: 1,
-										category_name: { $first: '$job_category.name' },
-										title: 1,
-										createdAt: 1,
-										updatedAt: 1,
-									},
-								},
-							],
 							as: 'job',
 						},
 					},
@@ -272,19 +229,20 @@ class ApplicationController {
 		try {
 		} catch {}
 	};
-	private async _validateQuestions(jobId: IApplication['jobId'], responses: IApplication['responses']): Promise<boolean> {
-		let isValidRecords = true;
-		const questions = await JobQuestion.find({ job_id: jobId });
-		const qstIds = questions.map((item) => item.id);
-		for (const i in responses) {
-			const response = responses[i];
-			if (qstIds.indexOf(response.question) < 0) {
-				isValidRecords = false;
-				break;
-			}
-		}
-		return isValidRecords;
+
+	private async _populateResponses(questions: ICompanyJob['questions'], responses: ApplicationDto['responses']): Promise<IApplication['responses']> {
+		const resultResponses: IApplication['responses'] = [];
+		responses.forEach((response) => {
+			const qst = questions.find((item) => item._id == response.question);
+			if (qst)
+				resultResponses.push({
+					response: response.response,
+					question: qst,
+				});
+		});
+		return resultResponses;
 	}
+
 	private async _talentApplication() {}
 }
 export default ApplicationController;

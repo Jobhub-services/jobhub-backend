@@ -12,7 +12,6 @@ class DeveloperController {
 			const profileBody: DeveloperDto = req.body;
 			const rootObjectId = req.rootObjectId;
 			const profile = await Developer.findOne({ userId: rootObjectId });
-
 			if (profileBody.summary) this._setSummary(profile, profileBody.summary);
 			if (profileBody.languages) await this._setLanguages(profile, profileBody.languages);
 			if (profileBody.skills) await this._setSkills(profile, profileBody.skills);
@@ -37,7 +36,7 @@ class DeveloperController {
 			await profile.save();
 			const profileContent = await this._getProfileById(rootObjectId);
 			res.status(200).send({ content: profileContent });
-		} catch {
+		} catch (e) {
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};

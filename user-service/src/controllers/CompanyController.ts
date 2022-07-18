@@ -3,9 +3,13 @@ import { Request, Response } from 'express';
 import { CompanyDto } from '@/dtos/company.dto';
 import Company from '@/models/Company';
 import { ICompany } from '@/interfaces/company.interface';
+import { UploadedFile } from 'express-fileupload';
+import { storageService } from '@/services/StorageService';
 import Developer from '@/models/Developer';
+import { UploadedFile } from 'express-fileupload';
 import { isValidObjectId } from '@/helpers';
 import { metadataService } from '@/services/MetadataService';
+import { storageService } from '@/services/StorageService';
 class CompanyController {
 	getDivision = async (req: Request, res: Response) => {
 		try {
@@ -37,6 +41,9 @@ class CompanyController {
 			if (profileBody.social_profile) this._setSocialProfile(profile, profileBody.social_profile);
 			if (profileBody.headquarter) await this._setHeadquarter(profile, profileBody.headquarter);
 			if (profileBody.generalinfo) this._setGeneralinfo(profile, profileBody.generalinfo);
+			if (req.files) {
+				if (req.files.avatar) await this._updateAvatar(profile, req.files.avatar as UploadedFile);
+			}
 			await profile.save();
 			const profileContent = await this._getProfileById(rootObjectId);
 			res.status(200).send({ content: profileContent });
@@ -48,7 +55,7 @@ class CompanyController {
 		try {
 			const { name = '', limit = 20, page } = req.query;
 			const count = await Developer.count();
-			const query = Developer.find({}, { summary: 1, userId: 1, status: 1, address: 1, skills: 1, createdAt: 1, updatedAt: 1 });
+			const query = Developer.find({}, { summary: 1, userId: 1, status: 1, address: 1, skills: 1, createdAt: 1, updatedAt: 1, avatar: 1 });
 			if (limit) {
 				const limitN = Number(limit);
 				query.limit(limitN);
@@ -86,6 +93,7 @@ class CompanyController {
 		company_division.forEach((division) => {
 			divisions.push({ name: division });
 		});
+		profile.company_division = divisions;
 	};
 
 	private _setSocialProfile = (profile: ICompany, social_profile: CompanyDto['social_profile']) => {
@@ -100,6 +108,11 @@ class CompanyController {
 		profile.generalinfo = generalinfo;
 	};
 
+	private _updateAvatar = async (profile: ICompany, file: UploadedFile) => {
+		const avatarPath = await storageService.moveFile(file);
+		profile.avatar = avatarPath;
+	};
+
 	private _getProfileById = async (userId: Types.ObjectId) => {
 		try {
 			const query = Company.findOne({ userId });
@@ -108,6 +121,10 @@ class CompanyController {
 		} catch {
 			return null;
 		}
+	};
+	private _updateAvatar = async (profile: ICompany, file: UploadedFile) => {
+		const avatarPath = await storageService.moveFile(file);
+		profile.avatar = avatarPath;
 	};
 }
 export default CompanyController;

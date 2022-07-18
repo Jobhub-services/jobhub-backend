@@ -11,10 +11,6 @@ const excludedRoutes = ['/api/users/auth/login', '/api/users/auth/register'];
 
 module.exports = {
 	name: 'auth',
-	schema: {
-		$id: 'http://express-gateway.io/schemas/policies/example-policy.json',
-		type: 'object',
-	},
 	policy: (actionParams) => {
 		return (req, res, next) => {
 			const pathUrl = req.baseUrl + req.path;
@@ -46,7 +42,7 @@ module.exports = {
 								});
 							req.headers['user_id'] = user._id;
 							req.headers['user'] = JSON.stringify(user);
-							next();
+							return next();
 						});
 					} catch (e) {
 						res.status(403).send('HTTP 403 Forbidden');
