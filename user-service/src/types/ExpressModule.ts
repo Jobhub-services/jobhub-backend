@@ -1,5 +1,5 @@
 import { IUser } from '@/interfaces/users.interface';
-import { Schema } from 'mongoose';
+import { Types } from 'mongoose';
 import express from 'express';
 express;
 

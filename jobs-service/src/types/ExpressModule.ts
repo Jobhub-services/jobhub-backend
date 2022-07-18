@@ -1,5 +1,5 @@
 import express from 'express';
-import { Schema } from 'mongoose';
+import { Types } from 'mongoose';
 import { IUser } from '@/interfaces/users.interface';
 express;
 

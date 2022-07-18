@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authRole, auth } from '@/middleware/auth.middleware';
+import { authRole } from '@/middleware/auth.middleware';
 import { UserType } from '@/interfaces/users.interface';
 import validationMiddleware from '@/middleware/validation.middleware';
 import { ApplicationDto } from '@/dtos/application.dto';
