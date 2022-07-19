@@ -174,9 +174,9 @@ class ApplicationController {
 					},
 					{
 						$lookup: {
-							from: User.collection.collectionName,
+							from: 'developers',
 							localField: 'userId',
-							foreignField: '_id',
+							foreignField: 'userId',
 							as: 'user',
 						},
 					},
@@ -187,7 +187,17 @@ class ApplicationController {
 							applications: {
 								$push: {
 									motivation: '$motivation',
-									user: '$user',
+									avatar: '$user.avatar',
+									firstName: '$user.firstName',
+									lastName: '$user.lastName',
+									role: {
+										primary_role: '$user.role.primary_role.name',
+										experience: '$user.role.experience',
+									},
+									skills: '$user.skills.name',
+									linkedIn: '$user.social_profile.linkedIn',
+									github: '$user.social_profile.github',
+									cv: '$user.social_profile.cv',
 									status: '$status',
 									userId: '$userId',
 									createdAt: '$createdAt',
@@ -213,7 +223,7 @@ class ApplicationController {
 							createdAt: '$job.createdAt',
 							updatedAt: '$job.updatedAt',
 							job_id: '$job._id',
-							category: '$job.category_name',
+							category: '$job.category.name',
 						},
 					},
 					{ $sort: { createdAt: -1 } },
