@@ -25,25 +25,7 @@ class TalentJobController {
 				hire_remotly: 1,
 				work_remotly: 1,
 			})
-				.populate({ path: 'category' })
-				.populate('currency')
-				.populate({
-					path: 'work_location',
-					populate: {
-						path: 'country',
-					},
-				})
-				.populate({
-					path: 'hire_location',
-					populate: {
-						path: 'country',
-					},
-				})
-				.populate({
-					path: 'createdBy',
-					select: 'companyInfo',
-				})
-				.sort({ updatedAt: -1 });
+			.sort({ updatedAt: -1 });
 			if (limit) {
 				const limitN = Number(limit);
 				query.limit(limitN);
@@ -64,28 +46,8 @@ class TalentJobController {
 		try {
 			const jobId = req.params.jobid;
 			if (!jobId || !isValidObjectId(jobId)) return res.status(406).send({ message: 'Job not found' });
-			const query = CompanyJob.findById(jobId)
-				.populate({ path: 'category', select: 'name' })
-				.populate('currency')
-				.populate('skills')
-				.populate('company_division')
-				.populate('questions')
-				.populate({
-					path: 'work_location',
-					populate: {
-						path: 'country',
-					},
-				})
-				.populate({
-					path: 'hire_location',
-					populate: {
-						path: 'country',
-					},
-				})
-				.populate({
-					path: 'createdBy',
-					select: 'companyInfo',
-				});
+			const query = CompanyJob.findById(jobId);
+
 			const job = await query;
 			if (!job) return res.status(406).send({ message: 'Job not found' });
 			const result = normalizetoJSON(job, true);
