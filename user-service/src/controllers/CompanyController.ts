@@ -15,7 +15,8 @@ class CompanyController {
 			const company = await this._getProfileById(rootObjectId);
 			const company_division = company.company_division;
 			res.status(200).send({ content: company_division, size: company_division.length });
-		} catch {
+		} catch (e: any) {
+			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};
@@ -24,7 +25,8 @@ class CompanyController {
 			const rootObjectId = req.rootObjectId;
 			const profileContent = await this._getProfileById(rootObjectId);
 			res.status(200).send({ content: profileContent });
-		} catch {
+		} catch (e: any) {
+			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};

@@ -22,7 +22,8 @@ export default class UserController {
 				userInfo.avatar = company.avatarUrl;
 			}
 			res.status(200).send({ message: 'Info fetched successfully', data: userInfo });
-		} catch {
+		} catch (e: any) {
+			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};

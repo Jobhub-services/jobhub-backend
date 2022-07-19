@@ -29,6 +29,7 @@ class ApplicationController {
 			const createdApplication = await Application.create(application);
 			res.status(200).send({ message: 'Application submited successfully', application: createdApplication });
 		} catch (e: any) {
+			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};
@@ -64,7 +65,8 @@ class ApplicationController {
 			const applications = await query;
 			const result = normalizetoJSONs(applications);
 			res.status(200).send({ content: result, count, size: applications.length, pages: Math.ceil(count / Number(limit)), currentPage: page });
-		} catch {
+		} catch (e) {
+			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};
@@ -147,7 +149,7 @@ class ApplicationController {
 			res.status(200).send({ content: application });
 		} catch (e) {
 			console.log(e);
-			res.status(500).send({ message: 'Something went wrong please try again', errors: e });
+			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};
 	/**

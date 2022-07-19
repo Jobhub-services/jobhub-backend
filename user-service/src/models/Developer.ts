@@ -136,7 +136,7 @@ export function populateDeveloperToJson(developer: IDeveloper) {
 	const result: any = {
 		...developer.toJSON(),
 	};
-	if (developer.address?.country) result.address.country = result.address.country.name;
+
 	if (Array.isArray(developer.languages))
 		result.languages = developer.languages.map((lang) => {
 			return {
@@ -152,6 +152,18 @@ export function populateDeveloperToJson(developer: IDeveloper) {
 		result.role.primary_role = developer.role.primary_role?.name;
 		if (Array.isArray(developer.role.other_roles)) result.role.other_roles = developer.role.other_roles.map((role) => role.name);
 	}
+	if (Array.isArray(developer.work_experience)) {
+		result.work_experience = developer.work_experience.map((experience) => {
+			return {
+				...experience,
+				location: experience.location?.name,
+			};
+		});
+	}
+	if (developer.address?.country) result.address.country = developer.address.country.name;
+	if (developer.currency) result.currency = developer.currency?.name;
+	if (Array.isArray(developer.desired_location)) result.desired_location = developer.desired_location.map((location) => location.name);
+
 	return result;
 }
 

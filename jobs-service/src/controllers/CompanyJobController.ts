@@ -91,7 +91,8 @@ class CompanyJobController {
 			const jobs = await query;
 			const result = normalizetoJSONs(jobs);
 			res.status(200).send({ content: result, count, size: jobs.length, pages: Math.ceil(count / Number(limit)), currentPage: page });
-		} catch {
+		} catch (e) {
+			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};
@@ -106,7 +107,8 @@ class CompanyJobController {
 			if (!job) return res.status(406).send({ message: 'Job not found' });
 			const result = normalizetoJSON(job);
 			res.status(200).send({ content: result });
-		} catch {
+		} catch (e) {
+			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};
@@ -126,7 +128,8 @@ class CompanyJobController {
 				}),
 			};
 			res.status(200).send({ content: result });
-		} catch {
+		} catch (e) {
+			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};
@@ -176,7 +179,8 @@ class CompanyJobController {
 			job.updatedBy = rootObjectId;
 			await job.save();
 			res.status(200).send({ message: 'Job updated successfully' });
-		} catch {
+		} catch (e) {
+			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};
@@ -189,7 +193,8 @@ class CompanyJobController {
 			const job = await CompanyJob.delete({ id: jobId, createdBy: rootObjectId });
 			if (!job) return res.status(406).send({ message: 'Job not found' });
 			res.status(200).send({ message: 'Job deleted successfully' });
-		} catch {
+		} catch (e) {
+			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};
@@ -203,7 +208,8 @@ class CompanyJobController {
 			if (!job) return res.status(406).send({ message: 'Job not found' });
 			await job.restore();
 			res.status(200).send({ message: 'Job restored successfully' });
-		} catch {
+		} catch (e) {
+			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};

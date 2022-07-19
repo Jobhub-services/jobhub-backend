@@ -23,7 +23,8 @@ class AuthController {
 				}
 			}
 			res.status(404).send({ message: 'Username/Email or password are invalid' });
-		} catch {
+		} catch (e) {
+			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};
@@ -42,7 +43,8 @@ class AuthController {
 			else if (user.userType === UserType.DEVELOPER)
 				await Developer.create({ userId: user._id, firstName: userInfo.developerInfo.firstName, lastName: userInfo.developerInfo.lastName });
 			res.status(200).send({ message: 'User registred successfully', data: user });
-		} catch {
+		} catch (e) {
+			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};

@@ -36,7 +36,7 @@ class DeveloperController {
 			await profile.save();
 			const profileContent = await this._getProfileById(rootObjectId);
 			res.status(200).send({ content: profileContent });
-		} catch (e) {
+		} catch (e: any) {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
@@ -46,7 +46,8 @@ class DeveloperController {
 			const rootObjectId = req.rootObjectId;
 			const profile = await this._getProfileById(rootObjectId);
 			res.status(200).send({ content: profile });
-		} catch (e) {
+		} catch (e: any) {
+			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};
@@ -56,7 +57,8 @@ class DeveloperController {
 			const query = Developer.findOne({ userId });
 			const profile = await query;
 			return profile;
-		} catch {
+		} catch (e: any) {
+			console.log(e);
 			return null;
 		}
 	};
