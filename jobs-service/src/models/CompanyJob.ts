@@ -4,6 +4,7 @@ import { softDeleteModel } from '@/helpers';
 import { ICompanyJob, JobTypes, JobDuration, SalaryType, JobStatus } from '@/interfaces/companyJob.interface';
 import User from '@/models/User';
 import { countrySchema, currencySchema, jobCategorySchema, skillSchema } from '@/models/MetadataSchema';
+import Company from '@/models/Company';
 
 const jobLocationSchema = new Schema({
 	country: countrySchema,
@@ -80,6 +81,8 @@ const companyJobSchema: Schema = new Schema(
 );
 
 companyJobSchema.plugin(MongooseDelete, { deletedAt: true, overrideMethods: true, deletedBy: true });
+
+companyJobSchema.virtual('company', { ref: Company, localField: 'createdBy', foreignField: 'userId', justOne: true });
 
 const CompanyJob = softDeleteModel<ICompanyJob>('CompanyJob', companyJobSchema);
 

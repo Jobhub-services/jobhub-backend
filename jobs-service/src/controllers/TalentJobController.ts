@@ -25,7 +25,8 @@ class TalentJobController {
 				hire_remotly: 1,
 				work_remotly: 1,
 			})
-			.sort({ updatedAt: -1 });
+				.populate({ path: 'company', select: 'companyName generalinfo.company_size' })
+				.sort({ updatedAt: -1 });
 			if (limit) {
 				const limitN = Number(limit);
 				query.limit(limitN);
@@ -46,7 +47,7 @@ class TalentJobController {
 		try {
 			const jobId = req.params.jobid;
 			if (!jobId || !isValidObjectId(jobId)) return res.status(406).send({ message: 'Job not found' });
-			const query = CompanyJob.findById(jobId);
+			const query = CompanyJob.findById(jobId).populate({ path: 'company', select: 'companyName generalinfo.company_size' });
 
 			const job = await query;
 			if (!job) return res.status(406).send({ message: 'Job not found' });
