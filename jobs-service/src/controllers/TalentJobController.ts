@@ -36,6 +36,7 @@ class TalentJobController {
 				}
 			}
 			const jobs = await query;
+			console.log(jobs);
 			const result = normalizetoJSONs(jobs);
 			res.status(200).send({ content: result, count, size: jobs.length, pages: Math.ceil(count / Number(limit)), currentPage: page });
 		} catch (e) {
@@ -51,6 +52,7 @@ class TalentJobController {
 
 			const job = await query;
 			if (!job) return res.status(406).send({ message: 'Job not found' });
+			console.log(job);
 			const result = normalizetoJSON(job, true);
 			res.status(200).send({ content: result });
 		} catch (e) {

@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
 import { ICountryData, ISkillData, ICurrencyData, IJobCategoryData } from '@/interfaces/metadata.interface';
-import { ICompanyDivision } from '@/interfaces/company.interface';
+import { ICompany, ICompanyDivision } from '@/interfaces/company.interface';
 
 export enum JobTypes {
 	FULL_TIME = 'Full time',
@@ -63,4 +63,5 @@ export interface ICompanyJob {
 	questions?: IJobQuestion[];
 	createdBy?: Types.ObjectId;
 	updatedBy?: Types.ObjectId;
+	company?: ICompany;
 }

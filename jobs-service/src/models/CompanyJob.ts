@@ -114,9 +114,6 @@ export const normalizetoJSON = (object: any, includeQuestion: boolean = false) =
 				city: location?.city,
 			};
 		}),
-		createdBy: {
-			companyName: job?.createdBy?.companyInfo?.companyName,
-		},
 	};
 };
 
