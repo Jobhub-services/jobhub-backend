@@ -179,6 +179,7 @@ class ApplicationController {
 								primary_role: '$user.role.primary_role.name',
 								experience: '$user.role.experience',
 							},
+							userStatus: '$user.status',
 							work_experience: '$user.work_experience',
 							skills: '$user.skills.name',
 							linkedIn: '$user.social_profile.linkedin',
@@ -201,7 +202,6 @@ class ApplicationController {
 					},
 				]);
 				application = application?.length! > 0 ? application[0] : null;
-				//if (application && !(await CompanyJob.exists({ _id: application.jobId, createdBy: user._id }))) application = null;
 			}
 
 			if (!application) return res.status(406).send({ message: 'Application not found' });
@@ -269,6 +269,7 @@ class ApplicationController {
 										primary_role: '$user.role.primary_role.name',
 										experience: '$user.role.experience',
 									},
+									userStatus: '$user.status',
 									skills: '$user.skills.name',
 									linkedIn: '$user.social_profile.linkedin',
 									git: '$user.social_profile.git',
@@ -345,6 +346,7 @@ class ApplicationController {
 								primary_role: '$user.role.primary_role.name',
 								experience: '$user.role.experience',
 							},
+							userStatus: '$user.status',
 							skills: '$user.skills.name',
 							linkedIn: '$user.social_profile.linkedin',
 							git: '$user.social_profile.git',
