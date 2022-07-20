@@ -141,9 +141,67 @@ class ApplicationController {
 					application = normalizeTalentDetailtoJSON(application, companyInfo);
 				}
 			} else {
-				application = await Application.findOne({ _id: applicationId });
-				// check job association
-				if (application && !(await CompanyJob.exists({ _id: application.jobId, createdBy: user._id }))) application = null;
+				application = await Application.aggregate([
+					{
+						$match: {
+							_id: new Types.ObjectId(applicationId as string),
+							companyId: user._id,
+						},
+					},
+					{
+						$lookup: {
+							from: 'developers',
+							localField: 'userId',
+							foreignField: 'userId',
+							as: 'user',
+						},
+					},
+					{ $unwind: '$user' },
+					{
+						$lookup: {
+							from: CompanyJob.collection.collectionName,
+							localField: 'jobId',
+							foreignField: '_id',
+							as: 'job',
+						},
+					},
+					{ $unwind: '$job' },
+					{
+						$project: {
+							_id: '$_id',
+							motivation: '$motivation',
+							start_working: '$start_working',
+							notice_period: '$notice_period',
+							avatar: '$user.avatar',
+							firstName: '$user.firstName',
+							lastName: '$user.lastName',
+							role: {
+								primary_role: '$user.role.primary_role.name',
+								experience: '$user.role.experience',
+							},
+							work_experience: '$user.work_experience',
+							skills: '$user.skills.name',
+							linkedIn: '$user.social_profile.linkedin',
+							website: '$user.social_profile.website',
+							git: '$user.social_profile.git',
+							cv: '$user.resume',
+							status: '$status',
+							userId: '$userId',
+							questions: '$responses',
+							createdAt: '$createdAt',
+							updatedAt: '$updatedAt',
+							job: {
+								title: '$job.title',
+								createdAt: '$job.createdAt',
+								updatedAt: '$job.updatedAt',
+								job_id: '$job._id',
+								category: '$job.category.name',
+							},
+						},
+					},
+				]);
+				application = application?.length! > 0 ? application[0] : null;
+				//if (application && !(await CompanyJob.exists({ _id: application.jobId, createdBy: user._id }))) application = null;
 			}
 
 			if (!application) return res.status(406).send({ message: 'Application not found' });
