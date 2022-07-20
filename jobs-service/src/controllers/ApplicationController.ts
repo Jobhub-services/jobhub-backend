@@ -39,6 +39,22 @@ class ApplicationController {
 		try {
 		} catch {}
 	};
+	updateApplicationStatus = async (req: Request, res: Response) => {
+		try {
+			const user = req.user;
+			const applicationId = req.params.applicationId;
+			if (!isValidObjectId(applicationId)) return res.status(406).send({ message: 'Application not found' });
+			const appBody = req.body;
+			if (!(appBody.status in ApplicationStatus)) return res.status(406).send({ message: 'Status value not valid' });
+			let application = await Application.findOne({ _id: applicationId, companyId: user._id });
+			application.status = appBody.status;
+			await application.save();
+			res.status(200).send({ status: appBody.status, updated: true });
+		} catch (e) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
 	getMyApplications = async (req: Request, res: Response) => {
 		try {
 			const rootObjectId = req.rootObjectId;
