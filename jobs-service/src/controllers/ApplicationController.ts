@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
+import { Types } from 'mongoose';
 import { normalizeTalentDetailtoJSON } from './../models/Application';
 import { ApplicationDto } from '@/dtos/application.dto';
 import { IApplication, ApplicationStatus } from '@/interfaces/application.interface';
 import { ICompanyJob } from '@/interfaces/companyJob.interface';
-import { isValidObjectId } from '@/helpers';
+import { IsObjectId, isValidObjectId } from '@/helpers';
 import { UserType } from '@/interfaces/users.interface';
 import Application, { normalizetoJSONs } from '@/models/Application';
 import CompanyJob from '@/models/CompanyJob';
@@ -161,12 +162,15 @@ class ApplicationController {
 	getCompanyJobApplications = async (req: Request, res: Response) => {
 		try {
 			const rootObjectId = req.rootObjectId;
+			//process queries
+
 			const { name = '', limit = 20, page } = req.query;
 			const query = req.query;
 			const byJob = query.byJob;
 			let status: ApplicationStatus = (query.status ?? ApplicationStatus.NEW) as ApplicationStatus;
 			let sort = parseInt((query.sort as string) ?? '-1') as 1 | -1;
 			let statusArray = [];
+
 			if (!(status in ApplicationStatus)) statusArray.push(ApplicationStatus.NEW);
 			else {
 				statusArray.push(status);
@@ -174,6 +178,7 @@ class ApplicationController {
 				if (status === ApplicationStatus.IN_PROGRESS) statusArray.push(ApplicationStatus.ACCEPTED);
 			}
 			if (!sort) sort = -1;
+
 			let result = null;
 			if (byJob === 'true') {
 				result = await Application.aggregate([
@@ -197,6 +202,7 @@ class ApplicationController {
 							_id: '$jobId',
 							applications: {
 								$push: {
+									_id: '$_id',
 									motivation: '$motivation',
 									avatar: '$user.avatar',
 									firstName: '$user.firstName',
@@ -206,9 +212,9 @@ class ApplicationController {
 										experience: '$user.role.experience',
 									},
 									skills: '$user.skills.name',
-									linkedIn: '$user.social_profile.linkedIn',
-									github: '$user.social_profile.github',
-									cv: '$user.social_profile.cv',
+									linkedIn: '$user.social_profile.linkedin',
+									git: '$user.social_profile.git',
+									cv: '$user.resume',
 									status: '$status',
 									userId: '$userId',
 									createdAt: '$createdAt',
@@ -240,6 +246,66 @@ class ApplicationController {
 					{ $sort: { createdAt: sort } },
 				]);
 			} else {
+				let matchDict: any = {
+					companyId: rootObjectId,
+					status: { $in: statusArray },
+				};
+				const jobId = query.jobId as string;
+				if (jobId) matchDict['jobId'] = new Types.ObjectId(jobId);
+				result = await Application.aggregate([
+					{
+						$match: {
+							...matchDict,
+						},
+					},
+					{
+						$lookup: {
+							from: 'developers',
+							localField: 'userId',
+							foreignField: 'userId',
+							as: 'user',
+						},
+					},
+					{ $unwind: '$user' },
+					{
+						$lookup: {
+							from: CompanyJob.collection.collectionName,
+							localField: 'jobId',
+							foreignField: '_id',
+							as: 'job',
+						},
+					},
+					{ $unwind: '$job' },
+					{
+						$project: {
+							_id: '$_id',
+							motivation: '$motivation',
+							avatar: '$user.avatar',
+							firstName: '$user.firstName',
+							lastName: '$user.lastName',
+							role: {
+								primary_role: '$user.role.primary_role.name',
+								experience: '$user.role.experience',
+							},
+							skills: '$user.skills.name',
+							linkedIn: '$user.social_profile.linkedin',
+							git: '$user.social_profile.git',
+							cv: '$user.resume',
+							status: '$status',
+							userId: '$userId',
+							createdAt: '$createdAt',
+							updatedAt: '$updatedAt',
+							job: {
+								title: '$job.title',
+								createdAt: '$job.createdAt',
+								updatedAt: '$job.updatedAt',
+								job_id: '$job._id',
+								category: '$job.category.name',
+							},
+						},
+					},
+					{ $sort: { createdAt: sort } },
+				]);
 			}
 			res
 				.status(200)

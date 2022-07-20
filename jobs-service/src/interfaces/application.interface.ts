@@ -9,7 +9,7 @@ export type UserResponse = {
 export enum ApplicationStatus {
 	NEW = 'NEW',
 	IN_PROGRESS = 'IN_PROGRESS',
-	REFUSED = 'REFUSED',
+	REFUSED = 'DECLINED',
 	ACCEPTED = 'ACCEPTED',
 	HIRED = 'HIRED',
 }
