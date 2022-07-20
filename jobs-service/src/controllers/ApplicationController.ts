@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { normalizeTalentDetailtoJSON } from './../models/Application';
 import { ApplicationDto } from '@/dtos/application.dto';
-import { IApplication } from '@/interfaces/application.interface';
+import { IApplication, ApplicationStatus } from '@/interfaces/application.interface';
 import { ICompanyJob } from '@/interfaces/companyJob.interface';
 import { isValidObjectId } from '@/helpers';
 import { UserType } from '@/interfaces/users.interface';
@@ -161,15 +161,26 @@ class ApplicationController {
 	getCompanyJobApplications = async (req: Request, res: Response) => {
 		try {
 			const rootObjectId = req.rootObjectId;
+			const { name = '', limit = 20, page } = req.query;
 			const query = req.query;
-			console.log(req.headers);
 			const byJob = query.byJob;
+			let status: ApplicationStatus = (query.status ?? ApplicationStatus.NEW) as ApplicationStatus;
+			let sort = parseInt((query.sort as string) ?? '-1') as 1 | -1;
+			let statusArray = [];
+			if (!(status in ApplicationStatus)) statusArray.push(ApplicationStatus.NEW);
+			else {
+				statusArray.push(status);
+				if (status === ApplicationStatus.ACCEPTED) statusArray.push(ApplicationStatus.IN_PROGRESS);
+				if (status === ApplicationStatus.IN_PROGRESS) statusArray.push(ApplicationStatus.ACCEPTED);
+			}
+			if (!sort) sort = -1;
 			let result = null;
 			if (byJob === 'true') {
 				result = await Application.aggregate([
 					{
 						$match: {
 							companyId: rootObjectId,
+							status: { $in: statusArray },
 						},
 					},
 					{
@@ -226,11 +237,13 @@ class ApplicationController {
 							category: '$job.category.name',
 						},
 					},
-					{ $sort: { createdAt: -1 } },
+					{ $sort: { createdAt: sort } },
 				]);
 			} else {
 			}
-			res.status(200).send({ content: result });
+			res
+				.status(200)
+				.send({ content: result, count: result.length, size: result.length, pages: Math.ceil(result.length / Number(limit)), currentPage: page });
 		} catch (e) {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });

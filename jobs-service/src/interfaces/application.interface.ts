@@ -11,6 +11,7 @@ export enum ApplicationStatus {
 	IN_PROGRESS = 'IN_PROGRESS',
 	REFUSED = 'REFUSED',
 	ACCEPTED = 'ACCEPTED',
+	HIRED = 'HIRED',
 }
 
 export interface IApplication {
