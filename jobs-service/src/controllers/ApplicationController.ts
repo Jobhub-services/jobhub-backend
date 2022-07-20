@@ -170,7 +170,7 @@ class ApplicationController {
 						$project: {
 							_id: '$_id',
 							motivation: '$motivation',
-							start_working: '$start_working',
+							start_date: '$start_date',
 							notice_period: '$notice_period',
 							avatar: '$user.avatar',
 							firstName: '$user.firstName',
