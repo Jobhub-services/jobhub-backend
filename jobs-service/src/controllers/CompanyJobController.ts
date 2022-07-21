@@ -93,48 +93,33 @@ class CompanyJobController {
 						localField: '_id',
 						foreignField: 'jobId',
 						as: 'applications',
-					},
-				},
-				{
-					$unwind: {
-						path: '$applications',
-						preserveNullAndEmptyArrays: true,
-					},
-				},
-				{
-					$lookup: {
-						from: 'developers',
-						localField: 'applications.userId',
-						foreignField: 'userId',
-						as: 'user',
-					},
-				},
-				{ $unwind: '$user' },
-				{
-					$group: {
-						_id: '$applications.jobId',
-						applicants: {
-							$push: {
-								avatar: '$user.avatar',
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$eq: ['$status', 'NEW'],
+											},
+										],
+									},
+								},
 							},
-						},
-						title: { $first: '$title' },
-						category: { $first: '$category' },
-						work_location: { $first: '$work_location' },
-						skills: { $first: '$skills' },
-						currency: { $first: '$currency' },
-						company_division: { $first: '$company_division' },
-						createdAt: { $first: '$createdAt' },
-						updatedAt: { $first: '$updatedAt' },
-
-						description: { $first: '$description' },
-						status: { $first: '$status' },
-						job_type: { $first: '$job_type' },
-						duration: { $first: '$duration' },
-						start_salary: { $first: '$start_salary' },
-						end_salary: { $first: '$end_salary' },
-						work_remotly: { $first: '$work_remotly' },
-						salary_type: { $first: '$salary_type' },
+							{
+								$lookup: {
+									from: 'developers',
+									localField: 'userId',
+									foreignField: 'userId',
+									as: 'user',
+								},
+							},
+							{ $unwind: '$user' },
+							{
+								$project: {
+									avatar: '$user.avatar',
+								},
+							},
+						],
 					},
 				},
 				{
@@ -165,7 +150,7 @@ class CompanyJobController {
 
 						createdAt: '$createdAt',
 						updatedAt: '$updatedAt',
-						applications: '$applicants.avatar',
+						applications: '$applications.avatar',
 					},
 				},
 				{ $sort: { createdAt: sort } },
