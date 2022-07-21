@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Types } from 'mongoose';
 import { ICompanyJob, JobLocation } from '@/interfaces/companyJob.interface';
 import { CompanyJobDto } from '@/dtos/jobs.dto';
 import Company from '@/models/Company';
@@ -188,12 +189,92 @@ class CompanyJobController {
 		try {
 			const rootObjectId = req.rootObjectId;
 			const jobId = req.params.jobid;
-			if (!jobId || !isValidObjectId(jobId)) return res.status(406).send({ message: 'Job not found' });
-			const query = CompanyJob.findOne({ _id: jobId, createdBy: rootObjectId });
-			const job = await query;
-			if (!job) return res.status(406).send({ message: 'Job not found' });
-			const result = normalizetoJSON(job);
-			res.status(200).send({ content: result });
+
+			const myJob = await CompanyJob.aggregate([
+				{
+					$match: {
+						createdBy: rootObjectId,
+						_id: new Types.ObjectId(jobId),
+					},
+				},
+				{
+					$lookup: {
+						from: Application.collection.collectionName,
+						localField: '_id',
+						foreignField: 'jobId',
+						as: 'applications',
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$eq: ['$status', 'NEW'],
+											},
+										],
+									},
+								},
+							},
+							{
+								$lookup: {
+									from: 'developers',
+									localField: 'userId',
+									foreignField: 'userId',
+									as: 'user',
+								},
+							},
+							{ $unwind: '$user' },
+							{
+								$project: {
+									avatar: '$user.avatar',
+								},
+							},
+						],
+					},
+				},
+				{
+					$project: {
+						_id: '$_id',
+						title: '$title',
+						category: '$category.name',
+						company_division: '$company_division.name',
+						currency: {
+							code: '$currency.code',
+							name: '$currency.name',
+						},
+						skills: '$skills.name',
+
+						work_location: {
+							country: '$work_location.country.name',
+							city: '$work_location.city',
+						},
+
+						description: '$description',
+						status: '$status',
+						job_type: '$job_type',
+						duration: '$duration',
+						start_salary: '$start_salary',
+						end_salary: '$end_salary',
+						work_remotly: '$work_remotly',
+						salary_type: '$salary_type',
+						responsabilities: '$responsabilities',
+						duration_range: '$duration_range',
+						hire_location: '$hire_location',
+						hire_remotly: '$hire_remotly',
+						visa_sponsorship: '$visa_sponsorship',
+						education: '$education',
+						certification: '$certification',
+						requirements: '$requirements',
+						benefits: '$benefits',
+						questions: '$questions.question',
+						createdAt: '$createdAt',
+						updatedAt: '$updatedAt',
+						applications: '$applications.avatar',
+					},
+				},
+			]);
+			if (myJob.length === 0) return res.status(406).send({ message: 'Job not found' });
+			res.status(200).send({ content: myJob[0] });
 		} catch (e) {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
