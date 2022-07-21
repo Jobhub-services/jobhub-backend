@@ -5,6 +5,7 @@ import Company from '@/models/Company';
 import CompanyJob, { normalizetoJSON, normalizetoJSONs } from '@/models/CompanyJob';
 import { isValidObjectId } from '@/helpers';
 import { metadataService } from '@/services/MetadataService';
+import Application from '@/models/Application';
 
 class CompanyJobController {
 	createJob = async (req: Request, res: Response) => {
@@ -74,12 +75,113 @@ class CompanyJobController {
 	getJobs = async (req: Request, res: Response) => {
 		try {
 			const rootObjectId = req.rootObjectId;
+			const query = req.query;
 			const { name = '', limit = 20, page } = req.query;
+			let sort = parseInt((query.sort as string) ?? '-1') as 1 | -1;
+			if (!sort) sort = -1;
+
 			const count = await CompanyJob.count({ createdBy: rootObjectId });
-			const query = CompanyJob.find(
+			const myJobs = await CompanyJob.aggregate([
+				{
+					$match: {
+						createdBy: rootObjectId,
+					},
+				},
+				{
+					$lookup: {
+						from: Application.collection.collectionName,
+						localField: '_id',
+						foreignField: 'jobId',
+						as: 'applications',
+					},
+				},
+				{
+					$unwind: {
+						path: '$applications',
+						preserveNullAndEmptyArrays: true,
+					},
+				},
+				{
+					$lookup: {
+						from: 'developers',
+						localField: 'applications.userId',
+						foreignField: 'userId',
+						as: 'user',
+					},
+				},
+				{ $unwind: '$user' },
+				{
+					$group: {
+						_id: '$applications.jobId',
+						applicants: {
+							$push: {
+								avatar: '$user.avatar',
+							},
+						},
+						title: { $first: '$title' },
+						category: { $first: '$category' },
+						work_location: { $first: '$work_location' },
+						skills: { $first: '$skills' },
+						currency: { $first: '$currency' },
+						company_division: { $first: '$company_division' },
+						createdAt: { $first: '$createdAt' },
+						updatedAt: { $first: '$updatedAt' },
+
+						description: { $first: '$description' },
+						status: { $first: '$status' },
+						job_type: { $first: '$job_type' },
+						duration: { $first: '$duration' },
+						start_salary: { $first: '$start_salary' },
+						end_salary: { $first: '$end_salary' },
+						work_remotly: { $first: '$work_remotly' },
+						salary_type: { $first: '$salary_type' },
+					},
+				},
+				{
+					$project: {
+						_id: '$_id',
+						title: '$title',
+						category: '$category.name',
+						company_division: '$company_division.name',
+						currency: {
+							code: '$currency.code',
+							name: '$currency.name',
+						},
+						skills: '$skills.name',
+
+						work_location: {
+							country: '$work_location.country.name',
+							city: '$work_location.city',
+						},
+
+						description: '$description',
+						status: '$status',
+						job_type: '$job_type',
+						duration: '$duration',
+						start_salary: '$start_salary',
+						end_salary: '$end_salary',
+						work_remotly: '$work_remotly',
+						salary_type: '$salary_type',
+
+						createdAt: '$createdAt',
+						updatedAt: '$updatedAt',
+						applications: '$applicants.avatar',
+					},
+				},
+				{ $sort: { createdAt: sort } },
+			]);
+
+			/*const query = CompanyJob.find(
 				{ createdBy: rootObjectId },
-				{ title: 1, description: 1, status: 1, job_type: 1, duration: 1, start_salary: 1, end_salary: 1, createdAt: 1, updatedAt: 1 }
-			).sort({ updatedAt: -1 });
+				{ title: 1, description: 1, status: 1, job_type: 1, duration: 1, start_salary: 1, end_salary: 1, createdAt: 1, updatedAt: 1, createdBy: 1 }
+			)
+				.populate({
+					path: 'applications',
+					populate: {
+						path: 'developer',
+					},
+				})
+				.sort({ updatedAt: -1 });
 			if (limit) {
 				const limitN = Number(limit);
 				query.limit(limitN);
@@ -87,10 +189,10 @@ class CompanyJobController {
 					const pageN = Number(page);
 					query.skip(pageN * limitN);
 				}
-			}
-			const jobs = await query;
-			const result = normalizetoJSONs(jobs);
-			res.status(200).send({ content: result, count, size: jobs.length, pages: Math.ceil(count / Number(limit)), currentPage: page });
+			}*/
+			//const jobs = await query;
+			//const result = normalizetoJSONs(jobs);
+			res.status(200).send({ content: myJobs, count, size: myJobs.length, pages: Math.ceil(count / Number(limit)), currentPage: page });
 		} catch (e) {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });

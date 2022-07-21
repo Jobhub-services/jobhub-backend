@@ -4,6 +4,7 @@ import { ApplicationStatus, IApplication } from '@/interfaces/application.interf
 import User from '@/models/User';
 import Company from '@/models/Company';
 import CompanyJob from '@/models/CompanyJob';
+import Developer from '@/models/Developer';
 
 const questionSchema: Schema = new Schema(
 	{
@@ -37,8 +38,11 @@ const applicationSchema: Schema = new Schema(
 	},
 	{
 		timestamps: true,
+		toJSON: { virtuals: true },
+		toObject: { virtuals: true },
 	}
 );
+applicationSchema.virtual('developer', { ref: Developer, localField: 'userId', foreignField: 'userId', justOne: true });
 
 const Application = softDeleteModel<IApplication & Document>('Application', applicationSchema);
 
