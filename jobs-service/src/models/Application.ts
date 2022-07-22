@@ -24,7 +24,7 @@ const responseSchema: Schema = new Schema({
 const applicationSchema: Schema = new Schema(
 	{
 		userId: { type: Types.ObjectId, ref: User },
-		companyId: { type: Types.ObjectId, ref: Company },
+		companyId: { type: Types.ObjectId, ref: User },
 		jobId: { type: Types.ObjectId, ref: CompanyJob },
 		motivation: String,
 		notice_period: String,
@@ -43,6 +43,7 @@ const applicationSchema: Schema = new Schema(
 	}
 );
 applicationSchema.virtual('developer', { ref: Developer, localField: 'userId', foreignField: 'userId', justOne: true });
+applicationSchema.virtual('company', { ref: Company, localField: 'companyId', foreignField: 'userId', justOne: true });
 
 const Application = softDeleteModel<IApplication & Document>('Application', applicationSchema);
 
@@ -55,8 +56,9 @@ export const normalizetoJSON = (object: any, includeQuestion: boolean = false) =
 			title: app.jobId?.title,
 		},
 		company: {
-			_id: app.jobId?.createdBy?._id,
-			name: app.jobId?.createdBy?.companyInfo?.companyName,
+			_id: app.company?._id,
+			companyName: app.company?.companyName,
+			avatar: app.company?.avatar,
 		},
 	};
 };
@@ -67,9 +69,8 @@ export const normalizetoJSONs = (objects: any[]) => {
 	});
 };
 
-export const normalizeTalentDetailtoJSON = (application: any, company: any) => {
+export const normalizeTalentDetailtoJSON = (application: any) => {
 	const app = application.toJSON();
-	const comp = company.toJSON();
 	let result = {
 		...app,
 		responses: app?.responses?.map((elem) => {
@@ -93,15 +94,6 @@ export const normalizeTalentDetailtoJSON = (application: any, company: any) => {
 					city: elem.city,
 				};
 			}),
-		},
-		company: {
-			...comp,
-			companyName: application.jobId?.createdBy?.companyInfo?.companyName,
-			headquarter: {
-				country: comp.headquarter?.country?.name,
-				city: comp?.headquarter?.city,
-				street: comp?.headquarter?.street,
-			},
 		},
 	};
 	delete result?.jobId?.applications;

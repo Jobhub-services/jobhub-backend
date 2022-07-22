@@ -63,11 +63,11 @@ class ApplicationController {
 			const count = await Application.count(queryConditions);
 			const query = Application.find(queryConditions)
 				.populate({
-					path: 'jobId',
-					select: ['title'],
+					path: 'company',
 				})
 				.populate({
-					path: 'companyId',
+					path: 'jobId',
+					select: ['title'],
 				})
 				.sort({ updatedAt: -1 });
 
@@ -154,7 +154,7 @@ class ApplicationController {
 						path: 'headquarter',
 						populate: { path: 'country', select: ['name'] },
 					});
-					application = normalizeTalentDetailtoJSON(application, companyInfo);
+					application = normalizeTalentDetailtoJSON(application);
 				}
 			} else {
 				application = await Application.aggregate([
