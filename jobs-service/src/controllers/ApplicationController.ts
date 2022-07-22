@@ -203,7 +203,7 @@ class ApplicationController {
 							git: '$user.social_profile.git',
 							cv: '$user.resume',
 							status: '$status',
-							userId: '$userId',
+							userId: '$user._id',
 							responses: { 'question.question': 1, response: 1 },
 							createdAt: '$createdAt',
 							updatedAt: '$updatedAt',
