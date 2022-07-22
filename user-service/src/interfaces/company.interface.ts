@@ -36,4 +36,6 @@ export interface ICompany {
 	generalinfo?: TGeneralInfo;
 	avatar?: string;
 	avatarUrl?: string;
+
+	toJSON(): ICompany;
 }

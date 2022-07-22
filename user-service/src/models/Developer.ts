@@ -132,6 +132,7 @@ export function populateDevelopersToJson(developers: IDeveloper[]) {
 	});
 	return result;
 }
+
 export function populateDeveloperToJson(developer: IDeveloper) {
 	const result: any = {
 		...developer.toJSON(),

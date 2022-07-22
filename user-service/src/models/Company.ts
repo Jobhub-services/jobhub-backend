@@ -59,12 +59,31 @@ companySchema.methods.toJSON = function () {
 	const company = this.toObject();
 	company.avatar = company.avatarUrl;
 	delete company.avatarUrl;
-	company.company_division = company.company_division.map((division) => division.name);
+	company.company_division = company?.company_division?.map((division) => division.name);
 	if (company.user) {
 		const jsonData = company.user;
 		company.user = { email: jsonData.email, username: jsonData.username };
 	}
 	return company;
+};
+
+export const populateCompaniesToJSON = (companies: ICompany[]) => {
+	const result = [];
+	companies.forEach((company) => {
+		result.push(companyToJSON(company));
+	});
+	return result;
+};
+
+export const companyToJSON = (company: ICompany) => {
+	const result: any = {
+		...company.toJSON(),
+	};
+	result.headquarter = {
+		...result.headquarter,
+		country: result?.headquarter?.name,
+	};
+	return result;
 };
 
 const Company = model<ICompany & Document>('Company', companySchema);
