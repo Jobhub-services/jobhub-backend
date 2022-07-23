@@ -6,7 +6,7 @@ import { DeveloperDto } from '@/dtos/developer.dto';
 import { UploadedFile } from 'express-fileupload';
 import { storageService } from '@/services/StorageService';
 import { metadataService } from '@/services/MetadataService';
-import Company, { populateCompaniesToJSON } from '@/models/Company';
+import Company, { companyToJSON, populateCompaniesToJSON } from '@/models/Company';
 class DeveloperController {
 	updateProfile = async (req: Request, res: Response) => {
 		try {
@@ -66,13 +66,17 @@ class DeveloperController {
 					tmpQuery.skip(pageN * limitN);
 				}
 			}
+
 			tmpQuery.projection({
 				description: 1,
 				avatar: 1,
 				companyName: 1,
 				headquarter: 1,
 				generalinfo: 1,
+				userId: 1,
 			});
+
+			tmpQuery.populate('number_job');
 			const companies = await tmpQuery;
 			const companyList = populateCompaniesToJSON(companies);
 			res.status(200).send({ content: companyList, count, size: companies.length, pages: Math.ceil(count / Number(limit)), currentPage: page });
@@ -81,7 +85,44 @@ class DeveloperController {
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};
-	getCompanyDetail = async (req: Request, res: Response) => {};
+	getCompanyDetail = async (req: Request, res: Response) => {
+		try {
+			const companyId = req.params.companyId;
+			const company = await Company.findById(companyId).populate({
+				path: 'jobs',
+				select: {
+					_id: 1,
+					title: 1,
+					category: '$category.name',
+					company_division: '$company_division.name',
+					currency: {
+						code: '$currency.code',
+						name: '$currency.name',
+					},
+					work_location: {
+						country: '$work_location.country.name',
+						city: '$work_location.city',
+					},
+					description: 1,
+					status: 1,
+					job_type: 1,
+					duration: 1,
+					start_salary: 1,
+					end_salary: 1,
+					work_remotly: 1,
+					salary_type: 1,
+					createdAt: 1,
+					updatedAt: 1,
+				},
+			});
+			if (!company) return res.status(406).send({ message: 'Company not found' });
+			const result = companyToJSON(company);
+			res.status(200).send({ content: result });
+		} catch (e) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
 
 	private _getProfileById = async (userId: Types.ObjectId) => {
 		try {

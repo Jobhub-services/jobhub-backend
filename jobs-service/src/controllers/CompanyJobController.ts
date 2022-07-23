@@ -133,13 +133,10 @@ class CompanyJobController {
 							code: '$currency.code',
 							name: '$currency.name',
 						},
-						skills: '$skills.name',
-
 						work_location: {
 							country: '$work_location.country.name',
 							city: '$work_location.city',
 						},
-
 						description: '$description',
 						status: '$status',
 						job_type: '$job_type',
@@ -148,7 +145,6 @@ class CompanyJobController {
 						end_salary: '$end_salary',
 						work_remotly: '$work_remotly',
 						salary_type: '$salary_type',
-
 						createdAt: '$createdAt',
 						updatedAt: '$updatedAt',
 						applications: '$applications.avatar',
@@ -156,28 +152,6 @@ class CompanyJobController {
 				},
 				{ $sort: { createdAt: sort } },
 			]);
-
-			/*const query = CompanyJob.find(
-				{ createdBy: rootObjectId },
-				{ title: 1, description: 1, status: 1, job_type: 1, duration: 1, start_salary: 1, end_salary: 1, createdAt: 1, updatedAt: 1, createdBy: 1 }
-			)
-				.populate({
-					path: 'applications',
-					populate: {
-						path: 'developer',
-					},
-				})
-				.sort({ updatedAt: -1 });
-			if (limit) {
-				const limitN = Number(limit);
-				query.limit(limitN);
-				if (page) {
-					const pageN = Number(page);
-					query.skip(pageN * limitN);
-				}
-			}*/
-			//const jobs = await query;
-			//const result = normalizetoJSONs(jobs);
 			res.status(200).send({ content: myJobs, count, size: myJobs.length, pages: Math.ceil(count / Number(limit)), currentPage: page });
 		} catch (e) {
 			console.log(e);

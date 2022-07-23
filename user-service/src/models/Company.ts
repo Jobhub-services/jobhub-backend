@@ -2,6 +2,7 @@ import { model, Schema, Types, Document } from 'mongoose';
 import { ICompany } from '@/interfaces/company.interface';
 import User from '@/models/User';
 import { countrySchema } from '@/models/MetadataSchema';
+import CompanyJob from '@/models/CompanyJob';
 import { storageService } from '@/services/StorageService';
 
 const headquarterSchema: Schema = new Schema({
@@ -48,6 +49,8 @@ const companySchema: Schema = new Schema(
 );
 
 companySchema.virtual('user', { ref: User, localField: 'userId', foreignField: '_id', justOne: true });
+companySchema.virtual('jobs', { ref: CompanyJob, localField: 'userId', foreignField: 'createdBy' });
+companySchema.virtual('number_job', { ref: CompanyJob, localField: 'userId', foreignField: 'createdBy', count: true });
 
 companySchema.virtual('avatarUrl').get(function () {
 	const avatar = this.avatar;
