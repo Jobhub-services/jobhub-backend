@@ -9,8 +9,9 @@ export type UserResponse = {
 export enum ApplicationStatus {
 	NEW = 'NEW',
 	IN_PROGRESS = 'IN_PROGRESS',
-	REFUSED = 'REFUSED',
+	DECLINED = 'DECLINED',
 	ACCEPTED = 'ACCEPTED',
+	HIRED = 'HIRED',
 }
 
 export interface IApplication {

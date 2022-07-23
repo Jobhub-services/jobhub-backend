@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
+import { Types } from 'mongoose';
 import { normalizeTalentDetailtoJSON } from './../models/Application';
 import { ApplicationDto } from '@/dtos/application.dto';
-import { IApplication } from '@/interfaces/application.interface';
+import { IApplication, ApplicationStatus } from '@/interfaces/application.interface';
 import { ICompanyJob } from '@/interfaces/companyJob.interface';
-import { isValidObjectId } from '@/helpers';
+import { IsObjectId, isValidObjectId } from '@/helpers';
 import { UserType } from '@/interfaces/users.interface';
 import Application, { normalizetoJSONs } from '@/models/Application';
 import CompanyJob from '@/models/CompanyJob';
@@ -38,6 +39,22 @@ class ApplicationController {
 		try {
 		} catch {}
 	};
+	updateApplicationStatus = async (req: Request, res: Response) => {
+		try {
+			const user = req.user;
+			const applicationId = req.params.applicationId;
+			if (!isValidObjectId(applicationId)) return res.status(406).send({ message: 'Application not found' });
+			const appBody = req.body;
+			if (!(appBody.status in ApplicationStatus)) return res.status(406).send({ message: 'Status value not valid' });
+			let application = await Application.findOne({ _id: applicationId, companyId: user._id });
+			application.status = appBody.status;
+			await application.save();
+			res.status(200).send({ status: appBody.status, updated: true });
+		} catch (e) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
 	getMyApplications = async (req: Request, res: Response) => {
 		try {
 			const rootObjectId = req.rootObjectId;
@@ -46,11 +63,11 @@ class ApplicationController {
 			const count = await Application.count(queryConditions);
 			const query = Application.find(queryConditions)
 				.populate({
-					path: 'jobId',
-					select: ['title'],
+					path: 'company',
 				})
 				.populate({
-					path: 'companyId',
+					path: 'jobId',
+					select: ['title'],
 				})
 				.sort({ updatedAt: -1 });
 
@@ -137,12 +154,70 @@ class ApplicationController {
 						path: 'headquarter',
 						populate: { path: 'country', select: ['name'] },
 					});
-					application = normalizeTalentDetailtoJSON(application, companyInfo);
+					application = normalizeTalentDetailtoJSON(application);
 				}
 			} else {
-				application = await Application.findOne({ _id: applicationId });
-				// check job association
-				if (application && !(await CompanyJob.exists({ _id: application.jobId, createdBy: user._id }))) application = null;
+				application = await Application.aggregate([
+					{
+						$match: {
+							_id: new Types.ObjectId(applicationId as string),
+							companyId: user._id,
+						},
+					},
+					{
+						$lookup: {
+							from: 'developers',
+							localField: 'userId',
+							foreignField: 'userId',
+							as: 'user',
+						},
+					},
+					{ $unwind: '$user' },
+					{
+						$lookup: {
+							from: CompanyJob.collection.collectionName,
+							localField: 'jobId',
+							foreignField: '_id',
+							as: 'job',
+						},
+					},
+					{ $unwind: '$job' },
+					{
+						$project: {
+							_id: '$_id',
+							motivation: '$motivation',
+							start_date: '$start_date',
+							notice_period: '$notice_period',
+							avatar: '$user.avatar',
+							firstName: '$user.firstName',
+							lastName: '$user.lastName',
+							role: {
+								primary_role: '$user.role.primary_role.name',
+								experience: '$user.role.experience',
+							},
+							userStatus: '$user.status',
+							work_experience: '$user.work_experience',
+							skills: '$user.skills.name',
+							linkedIn: '$user.social_profile.linkedin',
+							website: '$user.social_profile.website',
+							git: '$user.social_profile.git',
+							cv: '$user.resume',
+							status: '$status',
+							userId: '$user._id',
+							responses: { 'question.question': 1, response: 1 },
+							createdAt: '$createdAt',
+							updatedAt: '$updatedAt',
+							job: {
+								title: '$job.title',
+								createdAt: '$job.createdAt',
+								updatedAt: '$job.updatedAt',
+								job_id: '$job._id',
+								category: '$job.category.name',
+							},
+						},
+					},
+				]);
+				application = application?.length! > 0 ? application[0] : null;
 			}
 
 			if (!application) return res.status(406).send({ message: 'Application not found' });
@@ -161,22 +236,37 @@ class ApplicationController {
 	getCompanyJobApplications = async (req: Request, res: Response) => {
 		try {
 			const rootObjectId = req.rootObjectId;
+			//process queries
+
+			const { name = '', limit = 20, page } = req.query;
 			const query = req.query;
-			console.log(req.headers);
 			const byJob = query.byJob;
+			let status: ApplicationStatus = (query.status ?? ApplicationStatus.NEW) as ApplicationStatus;
+			let sort = parseInt((query.sort as string) ?? '-1') as 1 | -1;
+			let statusArray = [];
+
+			if (!(status in ApplicationStatus)) statusArray.push(ApplicationStatus.NEW);
+			else {
+				statusArray.push(status);
+				if (status === ApplicationStatus.ACCEPTED) statusArray.push(ApplicationStatus.IN_PROGRESS);
+				if (status === ApplicationStatus.IN_PROGRESS) statusArray.push(ApplicationStatus.ACCEPTED);
+			}
+			if (!sort) sort = -1;
+
 			let result = null;
 			if (byJob === 'true') {
 				result = await Application.aggregate([
 					{
 						$match: {
 							companyId: rootObjectId,
+							status: { $in: statusArray },
 						},
 					},
 					{
 						$lookup: {
-							from: User.collection.collectionName,
+							from: 'developers',
 							localField: 'userId',
-							foreignField: '_id',
+							foreignField: 'userId',
 							as: 'user',
 						},
 					},
@@ -186,8 +276,20 @@ class ApplicationController {
 							_id: '$jobId',
 							applications: {
 								$push: {
+									_id: '$_id',
 									motivation: '$motivation',
-									user: '$user',
+									avatar: '$user.avatar',
+									firstName: '$user.firstName',
+									lastName: '$user.lastName',
+									role: {
+										primary_role: '$user.role.primary_role.name',
+										experience: '$user.role.experience',
+									},
+									userStatus: '$user.status',
+									skills: '$user.skills.name',
+									linkedIn: '$user.social_profile.linkedin',
+									git: '$user.social_profile.git',
+									cv: '$user.resume',
 									status: '$status',
 									userId: '$userId',
 									createdAt: '$createdAt',
@@ -213,14 +315,77 @@ class ApplicationController {
 							createdAt: '$job.createdAt',
 							updatedAt: '$job.updatedAt',
 							job_id: '$job._id',
-							category: '$job.category_name',
+							category: '$job.category.name',
 						},
 					},
-					{ $sort: { createdAt: -1 } },
+					{ $sort: { createdAt: sort } },
 				]);
 			} else {
+				let matchDict: any = {
+					companyId: rootObjectId,
+					status: { $in: statusArray },
+				};
+				const jobId = query.jobId as string;
+				if (jobId) matchDict['jobId'] = new Types.ObjectId(jobId);
+				result = await Application.aggregate([
+					{
+						$match: {
+							...matchDict,
+						},
+					},
+					{
+						$lookup: {
+							from: 'developers',
+							localField: 'userId',
+							foreignField: 'userId',
+							as: 'user',
+						},
+					},
+					{ $unwind: '$user' },
+					{
+						$lookup: {
+							from: CompanyJob.collection.collectionName,
+							localField: 'jobId',
+							foreignField: '_id',
+							as: 'job',
+						},
+					},
+					{ $unwind: '$job' },
+					{
+						$project: {
+							_id: '$_id',
+							motivation: '$motivation',
+							avatar: '$user.avatar',
+							firstName: '$user.firstName',
+							lastName: '$user.lastName',
+							role: {
+								primary_role: '$user.role.primary_role.name',
+								experience: '$user.role.experience',
+							},
+							userStatus: '$user.status',
+							skills: '$user.skills.name',
+							linkedIn: '$user.social_profile.linkedin',
+							git: '$user.social_profile.git',
+							cv: '$user.resume',
+							status: '$status',
+							userId: '$userId',
+							createdAt: '$createdAt',
+							updatedAt: '$updatedAt',
+							job: {
+								title: '$job.title',
+								createdAt: '$job.createdAt',
+								updatedAt: '$job.updatedAt',
+								job_id: '$job._id',
+								category: '$job.category.name',
+							},
+						},
+					},
+					{ $sort: { createdAt: sort } },
+				]);
 			}
-			res.status(200).send({ content: result });
+			res
+				.status(200)
+				.send({ content: result, count: result.length, size: result.length, pages: Math.ceil(result.length / Number(limit)), currentPage: page });
 		} catch (e) {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });

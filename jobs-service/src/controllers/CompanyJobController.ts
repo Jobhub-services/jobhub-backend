@@ -1,10 +1,12 @@
 import { Request, Response } from 'express';
+import { Types } from 'mongoose';
 import { ICompanyJob, JobLocation } from '@/interfaces/companyJob.interface';
 import { CompanyJobDto } from '@/dtos/jobs.dto';
 import Company from '@/models/Company';
 import CompanyJob, { normalizetoJSON, normalizetoJSONs } from '@/models/CompanyJob';
 import { isValidObjectId } from '@/helpers';
 import { metadataService } from '@/services/MetadataService';
+import Application from '@/models/Application';
 
 class CompanyJobController {
 	createJob = async (req: Request, res: Response) => {
@@ -74,12 +76,98 @@ class CompanyJobController {
 	getJobs = async (req: Request, res: Response) => {
 		try {
 			const rootObjectId = req.rootObjectId;
+			const query = req.query;
 			const { name = '', limit = 20, page } = req.query;
+			let sort = parseInt((query.sort as string) ?? '-1') as 1 | -1;
+			if (!sort) sort = -1;
+
 			const count = await CompanyJob.count({ createdBy: rootObjectId });
-			const query = CompanyJob.find(
+			const myJobs = await CompanyJob.aggregate([
+				{
+					$match: {
+						createdBy: rootObjectId,
+					},
+				},
+				{
+					$lookup: {
+						from: Application.collection.collectionName,
+						localField: '_id',
+						foreignField: 'jobId',
+						as: 'applications',
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$eq: ['$status', 'NEW'],
+											},
+										],
+									},
+								},
+							},
+							{
+								$lookup: {
+									from: 'developers',
+									localField: 'userId',
+									foreignField: 'userId',
+									as: 'user',
+								},
+							},
+							{ $unwind: '$user' },
+							{
+								$project: {
+									avatar: '$user.avatar',
+								},
+							},
+						],
+					},
+				},
+				{
+					$project: {
+						_id: '$_id',
+						title: '$title',
+						category: '$category.name',
+						company_division: '$company_division.name',
+						currency: {
+							code: '$currency.code',
+							name: '$currency.name',
+						},
+						skills: '$skills.name',
+
+						work_location: {
+							country: '$work_location.country.name',
+							city: '$work_location.city',
+						},
+
+						description: '$description',
+						status: '$status',
+						job_type: '$job_type',
+						duration: '$duration',
+						start_salary: '$start_salary',
+						end_salary: '$end_salary',
+						work_remotly: '$work_remotly',
+						salary_type: '$salary_type',
+
+						createdAt: '$createdAt',
+						updatedAt: '$updatedAt',
+						applications: '$applications.avatar',
+					},
+				},
+				{ $sort: { createdAt: sort } },
+			]);
+
+			/*const query = CompanyJob.find(
 				{ createdBy: rootObjectId },
-				{ title: 1, description: 1, status: 1, job_type: 1, duration: 1, start_salary: 1, end_salary: 1, createdAt: 1, updatedAt: 1 }
-			).sort({ updatedAt: -1 });
+				{ title: 1, description: 1, status: 1, job_type: 1, duration: 1, start_salary: 1, end_salary: 1, createdAt: 1, updatedAt: 1, createdBy: 1 }
+			)
+				.populate({
+					path: 'applications',
+					populate: {
+						path: 'developer',
+					},
+				})
+				.sort({ updatedAt: -1 });
 			if (limit) {
 				const limitN = Number(limit);
 				query.limit(limitN);
@@ -87,10 +175,10 @@ class CompanyJobController {
 					const pageN = Number(page);
 					query.skip(pageN * limitN);
 				}
-			}
-			const jobs = await query;
-			const result = normalizetoJSONs(jobs);
-			res.status(200).send({ content: result, count, size: jobs.length, pages: Math.ceil(count / Number(limit)), currentPage: page });
+			}*/
+			//const jobs = await query;
+			//const result = normalizetoJSONs(jobs);
+			res.status(200).send({ content: myJobs, count, size: myJobs.length, pages: Math.ceil(count / Number(limit)), currentPage: page });
 		} catch (e) {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
@@ -101,12 +189,92 @@ class CompanyJobController {
 		try {
 			const rootObjectId = req.rootObjectId;
 			const jobId = req.params.jobid;
-			if (!jobId || !isValidObjectId(jobId)) return res.status(406).send({ message: 'Job not found' });
-			const query = CompanyJob.findOne({ _id: jobId, createdBy: rootObjectId });
-			const job = await query;
-			if (!job) return res.status(406).send({ message: 'Job not found' });
-			const result = normalizetoJSON(job);
-			res.status(200).send({ content: result });
+
+			const myJob = await CompanyJob.aggregate([
+				{
+					$match: {
+						createdBy: rootObjectId,
+						_id: new Types.ObjectId(jobId),
+					},
+				},
+				{
+					$lookup: {
+						from: Application.collection.collectionName,
+						localField: '_id',
+						foreignField: 'jobId',
+						as: 'applications',
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$eq: ['$status', 'NEW'],
+											},
+										],
+									},
+								},
+							},
+							{
+								$lookup: {
+									from: 'developers',
+									localField: 'userId',
+									foreignField: 'userId',
+									as: 'user',
+								},
+							},
+							{ $unwind: '$user' },
+							{
+								$project: {
+									avatar: '$user.avatar',
+								},
+							},
+						],
+					},
+				},
+				{
+					$project: {
+						_id: '$_id',
+						title: '$title',
+						category: '$category.name',
+						company_division: '$company_division.name',
+						currency: {
+							code: '$currency.code',
+							name: '$currency.name',
+						},
+						skills: '$skills.name',
+
+						work_location: {
+							country: '$work_location.country.name',
+							city: '$work_location.city',
+						},
+
+						description: '$description',
+						status: '$status',
+						job_type: '$job_type',
+						duration: '$duration',
+						start_salary: '$start_salary',
+						end_salary: '$end_salary',
+						work_remotly: '$work_remotly',
+						salary_type: '$salary_type',
+						responsabilities: '$responsabilities',
+						duration_range: '$duration_range',
+						hire_location: '$hire_location',
+						hire_remotly: '$hire_remotly',
+						visa_sponsorship: '$visa_sponsorship',
+						education: '$education',
+						certification: '$certification',
+						requirements: '$requirements',
+						benefits: '$benefits',
+						questions: '$questions.question',
+						createdAt: '$createdAt',
+						updatedAt: '$updatedAt',
+						applications: '$applications.avatar',
+					},
+				},
+			]);
+			if (myJob.length === 0) return res.status(406).send({ message: 'Job not found' });
+			res.status(200).send({ content: myJob[0] });
 		} catch (e) {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });

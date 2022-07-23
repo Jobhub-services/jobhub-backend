@@ -11,4 +11,7 @@ router.use('/', authRole(UserType.DEVELOPER));
 router.put('/profile', validationMiddleware(DeveloperDto), developerController.updateProfile);
 router.get('/profile', validationMiddleware(DeveloperDto), developerController.getProfile);
 
+router.get('/companies', developerController.getCompanies);
+router.get('/companies/:companyId', developerController.getCompanyDetail);
+
 export { router as developerRouter };

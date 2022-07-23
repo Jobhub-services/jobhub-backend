@@ -10,6 +10,7 @@ const applicationController = new ApplicationController();
 const router = Router();
 router.post('/', authRole(UserType.DEVELOPER), validationMiddleware(ApplicationDto), applicationController.createApp);
 router.put('/:applicationId', authRole(UserType.DEVELOPER), applicationController.updateApplication);
+router.put('/status/:applicationId', authRole(UserType.COMPANY), applicationController.updateApplicationStatus);
 
 router.get('/my', authRole(UserType.DEVELOPER), applicationController.getMyApplications);
 router.get('/company', authRole(UserType.COMPANY), applicationController.getCompanyJobApplications);

@@ -83,6 +83,7 @@ const companyJobSchema: Schema = new Schema(
 companyJobSchema.plugin(MongooseDelete, { deletedAt: true, overrideMethods: true, deletedBy: true });
 
 companyJobSchema.virtual('company', { ref: Company, localField: 'createdBy', foreignField: 'userId', justOne: true });
+companyJobSchema.virtual('applications', { ref: 'Application', localField: '_id', foreignField: 'jobId' });
 
 const CompanyJob = softDeleteModel<ICompanyJob>('CompanyJob', companyJobSchema);
 

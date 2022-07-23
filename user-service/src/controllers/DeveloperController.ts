@@ -6,6 +6,7 @@ import { DeveloperDto } from '@/dtos/developer.dto';
 import { UploadedFile } from 'express-fileupload';
 import { storageService } from '@/services/StorageService';
 import { metadataService } from '@/services/MetadataService';
+import Company, { populateCompaniesToJSON } from '@/models/Company';
 class DeveloperController {
 	updateProfile = async (req: Request, res: Response) => {
 		try {
@@ -51,6 +52,36 @@ class DeveloperController {
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};
+
+	getCompanies = async (req: Request, res: Response) => {
+		try {
+			const { name = '', limit = 20, page } = req.query;
+			const count = await Company.count();
+			const tmpQuery = Company.find();
+			if (limit) {
+				const limitN = Number(limit);
+				tmpQuery.limit(limitN);
+				if (page) {
+					const pageN = Number(page);
+					tmpQuery.skip(pageN * limitN);
+				}
+			}
+			tmpQuery.projection({
+				description: 1,
+				avatar: 1,
+				companyName: 1,
+				headquarter: 1,
+				generalinfo: 1,
+			});
+			const companies = await tmpQuery;
+			const companyList = populateCompaniesToJSON(companies);
+			res.status(200).send({ content: companyList, count, size: companies.length, pages: Math.ceil(count / Number(limit)), currentPage: page });
+		} catch (e: any) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
+	getCompanyDetail = async (req: Request, res: Response) => {};
 
 	private _getProfileById = async (userId: Types.ObjectId) => {
 		try {

@@ -132,6 +132,7 @@ export function populateDevelopersToJson(developers: IDeveloper[]) {
 	});
 	return result;
 }
+
 export function populateDeveloperToJson(developer: IDeveloper) {
 	const result: any = {
 		...developer.toJSON(),
@@ -155,7 +156,12 @@ export function populateDeveloperToJson(developer: IDeveloper) {
 	if (Array.isArray(developer.work_experience)) {
 		result.work_experience = developer.work_experience.map((experience) => {
 			return {
-				...experience,
+				title: experience.title,
+				company_name: experience.company_name,
+				job_type: experience.job_type,
+				startDate: experience.startDate,
+				endDate: experience.endDate,
+				description: experience.description,
 				location: experience.location?.name,
 			};
 		});
