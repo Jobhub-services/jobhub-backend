@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
 import { normalizeTalentDetailtoJSON } from './../models/Application';
-import { ApplicationDto } from '@/dtos/application.dto';
+import { ApplicationDto, InterviewDto } from '@/dtos/application.dto';
 import { IApplication, ApplicationStatus } from '@/interfaces/application.interface';
 import { ICompanyJob } from '@/interfaces/companyJob.interface';
 import { IsObjectId, isValidObjectId } from '@/helpers';
@@ -92,86 +92,7 @@ class ApplicationController {
 		try {
 			const user = req.user;
 			const applicationId = req.params.applicationId;
-			if (!isValidObjectId(applicationId)) return res.status(406).send({ message: 'Application not found' });
-
-			let application = await Application.aggregate([
-				{
-					$match: {
-						_id: new Types.ObjectId(applicationId as string),
-						userId: user._id,
-					},
-				},
-				{
-					$lookup: {
-						from: 'developers',
-						localField: 'userId',
-						foreignField: 'userId',
-						as: 'user',
-					},
-				},
-				{ $unwind: '$user' },
-				{
-					$lookup: {
-						from: CompanyJob.collection.collectionName,
-						localField: 'jobId',
-						foreignField: '_id',
-						as: 'job',
-					},
-				},
-				{ $unwind: '$job' },
-				{
-					$lookup: {
-						from: Company.collection.collectionName,
-						localField: 'companyId',
-						foreignField: 'userId',
-						as: 'company',
-					},
-				},
-				{ $unwind: '$company' },
-				{
-					$project: {
-						_id: '$_id',
-						motivation: '$motivation',
-						start_date: '$start_date',
-						notice_period: '$notice_period',
-						avatar: '$user.avatar',
-						firstName: '$user.firstName',
-						lastName: '$user.lastName',
-						role: {
-							primary_role: '$user.role.primary_role.name',
-							experience: '$user.role.experience',
-						},
-						userStatus: '$user.status',
-						work_experience: '$user.work_experience',
-						skills: '$user.skills.name',
-						linkedIn: '$user.social_profile.linkedin',
-						website: '$user.social_profile.website',
-						git: '$user.social_profile.git',
-						cv: '$user.resume',
-						status: '$status',
-						userId: '$user._id',
-						responses: { 'question.question': 1, response: 1 },
-						createdAt: '$createdAt',
-						updatedAt: '$updatedAt',
-						job: {
-							title: '$job.title',
-							createdAt: '$job.createdAt',
-							updatedAt: '$job.updatedAt',
-							job_id: '$job._id',
-							category: '$job.category.name',
-						},
-						company: {
-							description: '$company.description',
-							social_profile: '$company.social_profile',
-							keywords: '$company.keywords',
-							companyName: '$company.companyName',
-							avatar: '$company.avatar',
-							company_division: '$company.company_division.name',
-						},
-					},
-				},
-			]);
-			application = application[0];
+			const application = await this._getApplicationDetail(applicationId, user._id, user.userType);
 			if (!application) return res.status(406).send({ message: 'Application not found' });
 			res.status(200).send({ content: application });
 		} catch (e) {
@@ -182,6 +103,13 @@ class ApplicationController {
 
 	getApplicationForCompany = async (req: Request, res: Response) => {
 		try {
+			const user = req.user;
+			const applicationId = req.params.applicationId;
+			const application = await this._getApplicationDetail(applicationId, user._id, user.userType);
+			if (!application) return res.status(406).send({ message: 'Application not found' });
+			res.status(200).send({ content: application });
+			if (!application) return res.status(406).send({ message: 'Application not found' });
+			res.status(200).send({ content: application });
 		} catch (e) {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
@@ -354,7 +282,62 @@ class ApplicationController {
 
 	createInterview = async (req: Request, res: Response) => {
 		try {
-		} catch {}
+			const rootObjectId = req.rootObjectId;
+			const applicationId = new Types.ObjectId(req.params.applicationId);
+			const application = await Application.findOne({ _id: applicationId, companyId: rootObjectId });
+			if (!application) return res.status(404).send({ message: 'Application not found' });
+			const interviewBody: InterviewDto = req.body;
+			const interviewsList = application.interviews || [];
+			interviewsList.push(interviewBody);
+			application.interviews = interviewsList;
+			await application.save();
+			res.status(200).send({ content: interviewBody });
+		} catch (e) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
+
+	updateInterview = async (req: Request, res: Response) => {
+		try {
+			const rootObjectId = req.rootObjectId;
+			const applicationId = new Types.ObjectId(req.params.applicationId);
+			const application = await Application.findOne({ _id: applicationId, companyId: rootObjectId });
+			if (!application) return res.status(404).send({ message: 'Application not found' });
+			const interviewId = String(req.params.interviewId);
+			const interviewBody: InterviewDto = req.body;
+			const interviewsList = (application.interviews || []).map((interview) => {
+				if (String(interview._id) == interviewId)
+					return {
+						...interview,
+						...interviewBody,
+					};
+				return interview;
+			});
+			application.interviews = interviewsList;
+			await application.save();
+			res.status(200).send({ content: 'Interview updated' });
+		} catch (e) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
+
+	deleteInterview = async (req: Request, res: Response) => {
+		try {
+			const rootObjectId = req.rootObjectId;
+			const applicationId = new Types.ObjectId(req.params.applicationId);
+			const application = await Application.findOne({ _id: applicationId, companyId: rootObjectId });
+			if (!application) return res.status(404).send({ message: 'Application not found' });
+			const interviewId = String(req.params.interviewId);
+			const interviewsList = (application.interviews || []).filter((interview) => String(interview._id) != interviewId);
+			application.interviews = interviewsList;
+			await application.save();
+			res.status(200).send({ content: 'Interview deleted' });
+		} catch (e) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
 	};
 
 	private async _populateResponses(questions: ICompanyJob['questions'], responses: ApplicationDto['responses']): Promise<IApplication['responses']> {
@@ -370,6 +353,100 @@ class ApplicationController {
 		return resultResponses;
 	}
 
-	private async _talentApplication() {}
+	private async _getApplicationDetail(applicationId: string, userId: Types.ObjectId, userType: UserType) {
+		if (!isValidObjectId(applicationId)) return null;
+
+		const mathFilter: any = { _id: new Types.ObjectId(applicationId as string) };
+		const pipeline = [];
+		const project: any = {
+			_id: '$_id',
+			motivation: '$motivation',
+			start_date: '$start_date',
+			notice_period: '$notice_period',
+			avatar: '$user.avatar',
+			firstName: '$user.firstName',
+			lastName: '$user.lastName',
+			role: {
+				primary_role: '$user.role.primary_role.name',
+				experience: '$user.role.experience',
+			},
+			userStatus: '$user.status',
+			work_experience: '$user.work_experience',
+			skills: '$user.skills.name',
+			linkedIn: '$user.social_profile.linkedin',
+			website: '$user.social_profile.website',
+			git: '$user.social_profile.git',
+			cv: '$user.resume',
+			status: '$status',
+			userId: '$user._id',
+			responses: {
+				$map: {
+					input: '$responses',
+					in: { response: '$$this.response', question: '$$this.question.question' },
+				},
+			},
+			createdAt: '$createdAt',
+			updatedAt: '$updatedAt',
+			job: {
+				title: '$job.title',
+				createdAt: '$job.createdAt',
+				updatedAt: '$job.updatedAt',
+				job_id: '$job._id',
+				category: '$job.category.name',
+			},
+		};
+		if (userType === UserType.DEVELOPER) {
+			mathFilter.userId = userId;
+			pipeline.push({
+				$lookup: {
+					from: Company.collection.collectionName,
+					localField: 'companyId',
+					foreignField: 'userId',
+					as: 'company',
+				},
+			});
+			pipeline.push({ $unwind: '$company' });
+			project.company = {
+				description: '$company.description',
+				social_profile: '$company.social_profile',
+				keywords: '$company.keywords',
+				companyName: '$company.companyName',
+				avatar: '$company.avatar',
+				company_division: '$company.company_division.name',
+			};
+		} else if (userType === UserType.COMPANY) {
+			mathFilter.companyId = userId;
+			project.interviews = '$interviews';
+		}
+		let application = await Application.aggregate([
+			{
+				$match: mathFilter,
+			},
+			{
+				$lookup: {
+					from: 'developers',
+					localField: 'userId',
+					foreignField: 'userId',
+					as: 'user',
+				},
+			},
+			{ $unwind: '$user' },
+			{
+				$lookup: {
+					from: CompanyJob.collection.collectionName,
+					localField: 'jobId',
+					foreignField: '_id',
+					as: 'job',
+				},
+			},
+			{ $unwind: '$job' },
+			...pipeline,
+			{
+				$project: project,
+			},
+		]);
+		application = application[0];
+		return application;
+	}
 }
 export default ApplicationController;

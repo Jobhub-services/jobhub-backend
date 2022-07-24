@@ -1,6 +1,6 @@
 import { Schema, Document, Types } from 'mongoose';
 import { softDeleteModel } from '@/helpers';
-import { ApplicationStatus, IApplication } from '@/interfaces/application.interface';
+import { ApplicationStatus, IApplication, InterviewStatus } from '@/interfaces/application.interface';
 import User from '@/models/User';
 import Company from '@/models/Company';
 import CompanyJob from '@/models/CompanyJob';
@@ -21,6 +21,20 @@ const responseSchema: Schema = new Schema({
 	response: { type: String },
 });
 
+const interviewSchema: Schema = new Schema({
+	title: String,
+	startDate: String,
+	endDate: String,
+	note: String,
+	link: String,
+	location: String,
+	status: {
+		type: String,
+		default: InterviewStatus.PENDING,
+		enum: InterviewStatus,
+	},
+});
+
 const applicationSchema: Schema = new Schema(
 	{
 		userId: { type: Types.ObjectId, ref: User },
@@ -29,12 +43,13 @@ const applicationSchema: Schema = new Schema(
 		motivation: String,
 		notice_period: String,
 		start_date: String,
-		responses: [responseSchema],
 		status: {
 			type: String,
 			default: ApplicationStatus.NEW,
 			enum: ApplicationStatus,
 		},
+		responses: [responseSchema],
+		interviews: [interviewSchema],
 	},
 	{
 		timestamps: true,

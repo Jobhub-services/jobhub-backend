@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { ArrayNotEmpty, IsArray, IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { JobTypes, JobDuration, SalaryType } from '@/interfaces/companyJob.interface';
 import { isEmptyMessage, isStringMessage, isEnumMessage } from '@/config/dto.config';
 import { Expose, Type } from 'class-transformer';

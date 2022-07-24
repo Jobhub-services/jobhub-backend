@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { authRole } from '@/middleware/auth.middleware';
 import { UserType } from '@/interfaces/users.interface';
 import validationMiddleware from '@/middleware/validation.middleware';
-import { ApplicationDto } from '@/dtos/application.dto';
+import { ApplicationDto, InterviewDto } from '@/dtos/application.dto';
 import ApplicationController from '@/controllers/ApplicationController';
 
 const applicationController = new ApplicationController();
@@ -17,6 +17,13 @@ router.get('/company', authRole(UserType.COMPANY), applicationController.getComp
 router.get('/developer/:applicationId', authRole(UserType.DEVELOPER), applicationController.getApplicationForDeveloper);
 router.get('/company/:applicationId', authRole(UserType.COMPANY), applicationController.getApplicationForCompany);
 
-router.post('/:applicationId/interview', authRole(UserType.COMPANY), applicationController.createInterview);
+router.post('/:applicationId/interview', authRole(UserType.COMPANY), validationMiddleware(InterviewDto), applicationController.createInterview);
+router.put(
+	'/:applicationId/interview/:interviewId',
+	authRole(UserType.COMPANY),
+	validationMiddleware(InterviewDto),
+	applicationController.updateInterview
+);
+router.delete('/:applicationId/interview/:interviewId', authRole(UserType.COMPANY), applicationController.deleteInterview);
 
 export { router as applicationRouter };

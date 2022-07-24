@@ -1,9 +1,11 @@
 import { Types } from 'mongoose';
-import { isEmptyMessage, isStringMessage } from '@/config/dto.config';
+import { Expose, Type } from 'class-transformer';
+import { IsArray, IsNotEmpty, IsOptional, IsString, ValidateNested, IsEnum } from 'class-validator';
+import { isEmptyMessage, isStringMessage, isEnumMessage } from '@/config/dto.config';
 import { IsExists, IsObjectId } from '@/helpers';
 import CompanyJob from '@/models/CompanyJob';
-import { Expose, Type } from 'class-transformer';
-import { IsArray, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+
+import { InterviewStatus } from '@/interfaces/application.interface';
 
 class ResponseDto {
 	@Expose()
@@ -42,4 +44,39 @@ export class ApplicationDto {
 	@IsOptional()
 	@IsString()
 	start_date: string;
+}
+
+export class InterviewDto {
+	@Expose()
+	@IsOptional()
+	@IsString({ message: isStringMessage('Title') })
+	title: string;
+
+	@Expose()
+	@IsOptional()
+	startDate: string;
+
+	@Expose()
+	@IsOptional()
+	endDate: string;
+
+	@Expose()
+	@IsOptional()
+	@IsString({ message: isStringMessage('Note') })
+	note: string;
+
+	@Expose()
+	@IsOptional()
+	@IsString({ message: isStringMessage('Link') })
+	link: string;
+
+	@Expose()
+	@IsOptional()
+	@IsString({ message: isStringMessage('Location') })
+	location: string;
+
+	@Expose()
+	@IsOptional()
+	@IsEnum(InterviewStatus, { message: isEnumMessage('Status', InterviewStatus) })
+	status: InterviewStatus;
 }
