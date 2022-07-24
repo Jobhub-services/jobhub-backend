@@ -61,43 +61,17 @@ class ApplicationController {
 			const { name = '', limit = 20, page } = req.query;
 			const queryConditions = { userId: rootObjectId };
 			const count = await Application.count(queryConditions);
-			const query = Application.find(queryConditions)
+			const query = Application.find(queryConditions, { companyId: 1, jobId: 1, motivation: 1, status: 1, updatedAt: 1, createdAt: 1 })
 				.populate({
 					path: 'company',
+					select: { companyName: 1 },
 				})
 				.populate({
 					path: 'jobId',
-					select: ['title'],
+					select: { title: 1 },
 				})
 				.sort({ updatedAt: -1 });
 
-			if (limit) {
-				const limitN = Number(limit);
-				query.limit(limitN);
-				if (page) {
-					const pageN = Number(page);
-					query.skip(pageN * limitN);
-				}
-			}
-			const applications = await query;
-			const result = normalizetoJSONs(applications);
-			res.status(200).send({ content: result, count, size: applications.length, pages: Math.ceil(count / Number(limit)), currentPage: page });
-		} catch (e) {
-			console.log(e);
-			res.status(500).send({ message: 'Something went wrong please try again' });
-		}
-	};
-
-	getJobApplications = async (req: Request, res: Response) => {
-		try {
-			const rootObjectId = req.rootObjectId;
-			const jobId = req.params.jobId;
-			if (!isValidObjectId(jobId) || !(await CompanyJob.exists({ _id: jobId, createdBy: rootObjectId })))
-				return res.status(406).send({ message: 'Access to job not allowed' });
-			const { name = '', limit = 20, page } = req.query;
-			const queryConditions = { jobId };
-			const count = await Application.count({ queryConditions });
-			const query = Application.find(queryConditions);
 			if (limit) {
 				const limitN = Number(limit);
 				query.limit(limitN);
@@ -114,114 +88,100 @@ class ApplicationController {
 		}
 	};
 
-	getJobApplication = async (req: Request, res: Response) => {
+	getApplicationForDeveloper = async (req: Request, res: Response) => {
 		try {
 			const user = req.user;
 			const applicationId = req.params.applicationId;
 			if (!isValidObjectId(applicationId)) return res.status(406).send({ message: 'Application not found' });
-			let application;
 
-			if (user.userType === UserType.DEVELOPER) {
-				application = await Application.findOne({ _id: applicationId, userId: user._id })
-					.populate({
-						path: 'jobId',
-						populate: [
-							{
-								path: 'createdBy',
-								select: ['_id'],
-								populate: {
-									path: 'companyInfo',
-									select: ['companyName'],
-								},
-							},
-							{ path: 'category' },
-							{ path: 'currency' },
-							{ path: 'work_location', populate: { path: 'country' } },
-							{ path: 'hire_location', populate: { path: 'country' } },
-							{ path: 'skills' },
-						],
-					})
-					.populate({
-						path: 'responses',
-						populate: {
-							path: 'question',
-							model: 'JobQuestion',
+			let application = await Application.aggregate([
+				{
+					$match: {
+						_id: new Types.ObjectId(applicationId as string),
+						userId: user._id,
+					},
+				},
+				{
+					$lookup: {
+						from: 'developers',
+						localField: 'userId',
+						foreignField: 'userId',
+						as: 'user',
+					},
+				},
+				{ $unwind: '$user' },
+				{
+					$lookup: {
+						from: CompanyJob.collection.collectionName,
+						localField: 'jobId',
+						foreignField: '_id',
+						as: 'job',
+					},
+				},
+				{ $unwind: '$job' },
+				{
+					$lookup: {
+						from: Company.collection.collectionName,
+						localField: 'companyId',
+						foreignField: 'userId',
+						as: 'company',
+					},
+				},
+				{ $unwind: '$company' },
+				{
+					$project: {
+						_id: '$_id',
+						motivation: '$motivation',
+						start_date: '$start_date',
+						notice_period: '$notice_period',
+						avatar: '$user.avatar',
+						firstName: '$user.firstName',
+						lastName: '$user.lastName',
+						role: {
+							primary_role: '$user.role.primary_role.name',
+							experience: '$user.role.experience',
 						},
-					});
-				if (application) {
-					const companyId = application.jobId.createdBy._id;
-					let companyInfo = await Company.findOne({ userId: companyId }).populate({
-						path: 'headquarter',
-						populate: { path: 'country', select: ['name'] },
-					});
-					application = normalizeTalentDetailtoJSON(application);
-				}
-			} else {
-				application = await Application.aggregate([
-					{
-						$match: {
-							_id: new Types.ObjectId(applicationId as string),
-							companyId: user._id,
+						userStatus: '$user.status',
+						work_experience: '$user.work_experience',
+						skills: '$user.skills.name',
+						linkedIn: '$user.social_profile.linkedin',
+						website: '$user.social_profile.website',
+						git: '$user.social_profile.git',
+						cv: '$user.resume',
+						status: '$status',
+						userId: '$user._id',
+						responses: { 'question.question': 1, response: 1 },
+						createdAt: '$createdAt',
+						updatedAt: '$updatedAt',
+						job: {
+							title: '$job.title',
+							createdAt: '$job.createdAt',
+							updatedAt: '$job.updatedAt',
+							job_id: '$job._id',
+							category: '$job.category.name',
+						},
+						company: {
+							description: '$company.description',
+							social_profile: '$company.social_profile',
+							keywords: '$company.keywords',
+							companyName: '$company.companyName',
+							avatar: '$company.avatar',
+							company_division: '$company.company_division.name',
 						},
 					},
-					{
-						$lookup: {
-							from: 'developers',
-							localField: 'userId',
-							foreignField: 'userId',
-							as: 'user',
-						},
-					},
-					{ $unwind: '$user' },
-					{
-						$lookup: {
-							from: CompanyJob.collection.collectionName,
-							localField: 'jobId',
-							foreignField: '_id',
-							as: 'job',
-						},
-					},
-					{ $unwind: '$job' },
-					{
-						$project: {
-							_id: '$_id',
-							motivation: '$motivation',
-							start_date: '$start_date',
-							notice_period: '$notice_period',
-							avatar: '$user.avatar',
-							firstName: '$user.firstName',
-							lastName: '$user.lastName',
-							role: {
-								primary_role: '$user.role.primary_role.name',
-								experience: '$user.role.experience',
-							},
-							userStatus: '$user.status',
-							work_experience: '$user.work_experience',
-							skills: '$user.skills.name',
-							linkedIn: '$user.social_profile.linkedin',
-							website: '$user.social_profile.website',
-							git: '$user.social_profile.git',
-							cv: '$user.resume',
-							status: '$status',
-							userId: '$user._id',
-							responses: { 'question.question': 1, response: 1 },
-							createdAt: '$createdAt',
-							updatedAt: '$updatedAt',
-							job: {
-								title: '$job.title',
-								createdAt: '$job.createdAt',
-								updatedAt: '$job.updatedAt',
-								job_id: '$job._id',
-								category: '$job.category.name',
-							},
-						},
-					},
-				]);
-				application = application?.length! > 0 ? application[0] : null;
-			}
-
+				},
+			]);
+			application = application[0];
 			if (!application) return res.status(406).send({ message: 'Application not found' });
 			res.status(200).send({ content: application });
+		} catch (e) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
+
+	getApplicationForCompany = async (req: Request, res: Response) => {
+		try {
 		} catch (e) {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });

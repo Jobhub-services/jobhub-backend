@@ -14,8 +14,8 @@ router.put('/status/:applicationId', authRole(UserType.COMPANY), applicationCont
 
 router.get('/my', authRole(UserType.DEVELOPER), applicationController.getMyApplications);
 router.get('/company', authRole(UserType.COMPANY), applicationController.getCompanyJobApplications);
-router.get('/job/:jobId', authRole(UserType.COMPANY), applicationController.getJobApplications);
-router.get('/show/:applicationId', applicationController.getJobApplication);
+router.get('/developer/:applicationId', applicationController.getApplicationForDeveloper);
+router.get('/company/:applicationId', applicationController.getApplicationForCompany);
 
 router.post('/:applicationId/interview', applicationController.createInterview);
 

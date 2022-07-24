@@ -84,7 +84,7 @@ export const companyToJSON = (company: ICompany) => {
 	};
 	result.headquarter = {
 		...result.headquarter,
-		country: result?.headquarter?.name,
+		country: result?.headquarter?.country.name,
 	};
 	return result;
 };

@@ -75,7 +75,6 @@ class DeveloperController {
 				generalinfo: 1,
 				userId: 1,
 			});
-
 			tmpQuery.populate('number_job');
 			const companies = await tmpQuery;
 			const companyList = populateCompaniesToJSON(companies);
