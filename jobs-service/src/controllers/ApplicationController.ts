@@ -393,6 +393,21 @@ class ApplicationController {
 				updatedAt: '$job.updatedAt',
 				job_id: '$job._id',
 				category: '$job.category.name',
+				description: '$job.description',
+				responsabilities: '$job.responsabilities',
+				benefits: '$job.benefits',
+				currency: { name: '$job.currency.name', code: '$job.currency.code' },
+				certification: '$job.certification',
+				education: '$job.education',
+				requirements: '$job.requirements',
+				visa_sponsorship: '$job.visa_sponsorship',
+				work_location: {
+					country: '$job.work_location.country.name',
+					city: '$job.work_location.city',
+				},
+				company_division: '$job.company_division.name',
+				job_type: '$job.job_type',
+				skills: '$job.skills.name',
 			},
 		};
 		if (userType === UserType.DEVELOPER) {
@@ -413,6 +428,12 @@ class ApplicationController {
 				companyName: '$company.companyName',
 				avatar: '$company.avatar',
 				company_division: '$company.company_division.name',
+				generalinfo: '$company.generalinfo',
+				headquarter: {
+					country: '$company.headquarter.country.name',
+					city: '$company.headquarter.city',
+					street: '$company.headquarter.street',
+				},
 			};
 		} else if (userType === UserType.COMPANY) {
 			mathFilter.companyId = userId;
