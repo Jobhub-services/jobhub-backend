@@ -98,7 +98,7 @@ async function populateFiles(docs, next) {
 			if (Object.keys(applicationsIds).length > 0) applicationUrls = await messagingService.presigneUserMedia(applicationsIds);
 
 			docs.forEach((doc) => {
-				if (doc.company) doc.company.avatar = fileUrls[doc.company.avatar];
+				if (doc.company && fileUrls[doc.company.avatar]) doc.company.avatar = fileUrls[doc.company.avatar];
 				if (doc.applications) doc.applications = applicationUrls[doc._id] || [];
 			});
 		}

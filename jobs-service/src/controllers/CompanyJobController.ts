@@ -3,7 +3,7 @@ import { Types } from 'mongoose';
 import { ICompanyJob, JobLocation } from '@/interfaces/companyJob.interface';
 import { CompanyJobDto } from '@/dtos/jobs.dto';
 import Company from '@/models/Company';
-import CompanyJob, { normalizetoJSON, normalizetoJSONs } from '@/models/CompanyJob';
+import CompanyJob from '@/models/CompanyJob';
 import { isValidObjectId } from '@/helpers';
 import { metadataService } from '@/services/MetadataService';
 import Application from '@/models/Application';

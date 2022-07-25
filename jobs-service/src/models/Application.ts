@@ -5,6 +5,7 @@ import User from '@/models/User';
 import Company from '@/models/Company';
 import CompanyJob from '@/models/CompanyJob';
 import Developer from '@/models/Developer';
+import messagingService from '@/services/MessagingService';
 
 const questionSchema: Schema = new Schema(
 	{
@@ -60,69 +61,37 @@ const applicationSchema: Schema = new Schema(
 applicationSchema.virtual('developer', { ref: Developer, localField: 'userId', foreignField: 'userId', justOne: true });
 applicationSchema.virtual('company', { ref: Company, localField: 'companyId', foreignField: 'userId', justOne: true });
 
-applicationSchema.post('aggregate', function (doc, next) {
-	setTimeout(function () {
-		console.log('post1');
-		// Kick off the second post hook
+async function populateFiles(docs, next) {
+	try {
+		if (Array.isArray(docs) && docs.length > 0) {
+			const fileIds = [];
+			docs.forEach((doc) => {
+				if (doc.company && doc.company.avatar && fileIds.indexOf(doc.company.avatar) === -1) fileIds.push(doc.company.avatar);
+				if (doc.avatar && fileIds.indexOf(doc.avatar) === -1) fileIds.push(doc.avatar);
+				if (Array.isArray(doc.applications))
+					doc.applications.forEach((application) => {
+						if (fileIds.indexOf(application.avatar) === -1) fileIds.push(application.avatar);
+					});
+			});
+			let fileUrls = {};
+			if (fileIds.length > 0) fileUrls = await messagingService.presigneUserMedia(fileIds);
+			docs.forEach((doc) => {
+				if (doc.company && doc.company.avatar && fileUrls[doc.company.avatar]) doc.company.avatar = fileUrls[doc.company.avatar];
+				if (doc.avatar && fileUrls[doc.avatar]) doc.avatar = fileUrls[doc.avatar];
+				if (Array.isArray(doc.applications))
+					doc.applications.forEach((application) => {
+						if (fileUrls[application.avatar]) application.avatar = fileUrls[application.avatar];
+					});
+			});
+		}
+	} finally {
 		next();
-	}, 5000);
-});
-applicationSchema.post('find', (doc) => {
-	console.log(doc);
-});
+	}
+}
+
+applicationSchema.post('aggregate', populateFiles);
+applicationSchema.post('find', populateFiles);
 
 const Application = softDeleteModel<IApplication & Document>('Application', applicationSchema);
 
-export const normalizetoJSON = (object: any, includeQuestion: boolean = false) => {
-	const app = object.toJSON();
-	return {
-		...app,
-		jobId: {
-			_id: app.jobId?._id,
-			title: app.jobId?.title,
-		},
-		company: {
-			_id: app.company?._id,
-			companyName: app.company?.companyName,
-			avatar: app.company?.avatar,
-		},
-	};
-};
-
-export const normalizetoJSONs = (objects: any[]) => {
-	return objects.map((job) => {
-		return normalizetoJSON(job);
-	});
-};
-
-export const normalizeTalentDetailtoJSON = (application: any) => {
-	const app = application.toJSON();
-	let result = {
-		...app,
-		responses: app?.responses?.map((elem) => {
-			return {
-				question: elem?.question.question,
-				response: elem?.response,
-			};
-		}),
-		jobId: {
-			...app?.jobId,
-			category: app?.jobId?.category.name,
-			currency: app?.jobId?.currency.code,
-			skills: app?.jobId?.skills.map((elem) => elem.name),
-			work_location: {
-				country: app?.jobId?.work_location?.country.name,
-				city: app?.jobId?.work_location?.city,
-			},
-			hire_location: app?.jobId?.hire_location?.map((elem) => {
-				return {
-					country: elem.country.name,
-					city: elem.city,
-				};
-			}),
-		},
-	};
-	delete result?.jobId?.applications;
-	return result;
-};
 export default Application;
