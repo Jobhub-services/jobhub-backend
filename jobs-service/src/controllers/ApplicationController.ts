@@ -397,6 +397,9 @@ class ApplicationController {
 				responsabilities: '$job.responsabilities',
 				benefits: '$job.benefits',
 				currency: { name: '$job.currency.name', code: '$job.currency.code' },
+				start_salary: '$job.start_salary',
+				end_salary: '$job.end_salary',
+				salary_type: '$job.salary_type',
 				certification: '$job.certification',
 				education: '$job.education',
 				requirements: '$job.requirements',
@@ -405,9 +408,18 @@ class ApplicationController {
 					country: '$job.work_location.country.name',
 					city: '$job.work_location.city',
 				},
+				hire_location: {
+					$map: {
+						input: '$job.hire_location',
+						in: { city: '$$this.city', country: '$$this.country.name' },
+					},
+				},
+				work_remotly: '$job.work_remotly',
+				hire_remotly: '$job.hire_remotly',
 				company_division: '$job.company_division.name',
 				job_type: '$job.job_type',
 				skills: '$job.skills.name',
+				duration: '$job.duration',
 			},
 		};
 		if (userType === UserType.DEVELOPER) {
