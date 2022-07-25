@@ -60,6 +60,17 @@ const applicationSchema: Schema = new Schema(
 applicationSchema.virtual('developer', { ref: Developer, localField: 'userId', foreignField: 'userId', justOne: true });
 applicationSchema.virtual('company', { ref: Company, localField: 'companyId', foreignField: 'userId', justOne: true });
 
+applicationSchema.post('aggregate', function (doc, next) {
+	setTimeout(function () {
+		console.log('post1');
+		// Kick off the second post hook
+		next();
+	}, 5000);
+});
+applicationSchema.post('find', (doc) => {
+	console.log(doc);
+});
+
 const Application = softDeleteModel<IApplication & Document>('Application', applicationSchema);
 
 export const normalizetoJSON = (object: any, includeQuestion: boolean = false) => {

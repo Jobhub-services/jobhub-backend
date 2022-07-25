@@ -35,7 +35,6 @@ export interface ICompany {
 	headquarter?: THeadQuarter;
 	generalinfo?: TGeneralInfo;
 	avatar?: string;
-	avatarUrl?: string;
 
 	toJSON(): ICompany;
 }

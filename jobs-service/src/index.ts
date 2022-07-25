@@ -3,7 +3,7 @@ import { config as dotenvConfig } from 'dotenv';
 const NODE_ENV = process.env.NODE_ENV || 'development';
 dotenvConfig({ path: `.env.${NODE_ENV}` });
 
-import { connect, set, Types, Schema } from 'mongoose';
+import { connect, set, Types } from 'mongoose';
 import express, { json, Request, Response } from 'express';
 import cors from 'cors';
 import '@/types';

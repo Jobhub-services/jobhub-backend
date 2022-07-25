@@ -6,10 +6,15 @@ class StorageController {
 	resolveFile = async (req: Request, res: Response) => {
 		try {
 			const fileToken = req.params.token;
-			const [fileName, fileData] = await storageService.readFileFromUrl(fileToken);
-			const contentType = mime.lookup(fileName) as string;
-			res.setHeader('content-type', contentType);
-			res.send(fileData);
+			const fileInfo: {
+				data: any;
+				mimeType: any;
+				fileName: any;
+			} = await storageService.readFileFromUrl(fileToken);
+			if (!fileInfo) res.status(404).send({ message: 'File not found' });
+			res.setHeader('content-type', fileInfo.mimeType);
+			res.setHeader('Content-Disposition', 'attachment;filename=' + fileInfo.fileName);
+			res.send(fileInfo.data);
 		} catch (e) {
 			console.log(e);
 			res.status(404).send({ message: 'File not found' });

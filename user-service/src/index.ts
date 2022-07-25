@@ -10,8 +10,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import '@/types';
 import { dbConnection } from '@/config/db.config';
-import { SERVICE_API_PATH, STORAGE_API_PATH } from '@/constants/app.constants';
-import { storageRouter } from '@/routes/storage.routes';
+import { SERVICE_API_PATH } from '@/constants/app.constants';
 import Router from '@/routes';
 
 const app = express();
@@ -30,7 +29,6 @@ app.use('/', (req: Request, res: Response, next) => {
 	}
 	next();
 });
-app.use(STORAGE_API_PATH, storageRouter);
 app.use(`/api/${SERVICE_API_PATH}`, Router);
 
 if (NODE_ENV !== 'production') set('debug', true);

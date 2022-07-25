@@ -15,11 +15,11 @@ export default class UserController {
 				const developer = await Developer.findOne({ userId: userData._id });
 				userInfo.firstName = developer.firstName;
 				userInfo.lastName = developer.lastName;
-				userInfo.avatar = developer.avatarUrl;
+				userInfo.avatar = developer.avatar;
 			} else if (userData.userType === UserType.COMPANY) {
 				const company = await Company.findOne({ userId: userData._id });
 				userInfo.companyName = company.companyName;
-				userInfo.avatar = company.avatarUrl;
+				userInfo.avatar = company.avatar;
 			}
 			res.status(200).send({ message: 'Info fetched successfully', data: userInfo });
 		} catch (e: any) {

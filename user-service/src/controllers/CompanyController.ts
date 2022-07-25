@@ -4,10 +4,11 @@ import { CompanyDto } from '@/dtos/company.dto';
 import Company from '@/models/Company';
 import { ICompany } from '@/interfaces/company.interface';
 import { UploadedFile } from 'express-fileupload';
-import { storageService } from '@/services/StorageService';
 import Developer, { populateDevelopersToJson, populateDeveloperToJson } from '@/models/Developer';
 import { isValidObjectId } from '@/helpers';
 import { metadataService } from '@/services/MetadataService';
+import messagingService from '@/services/MessagingService';
+
 class CompanyController {
 	getDivision = async (req: Request, res: Response) => {
 		try {
@@ -131,7 +132,7 @@ class CompanyController {
 	};
 
 	private _updateAvatar = async (profile: ICompany, file: UploadedFile) => {
-		const avatarPath = await storageService.moveFile(file);
+		const avatarPath = await messagingService.uploadUserMedia(profile.userId, file);
 		profile.avatar = avatarPath;
 	};
 

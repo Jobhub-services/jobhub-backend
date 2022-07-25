@@ -1,8 +1,8 @@
 import { model, Schema, Types, Document } from 'mongoose';
 import { AvailabilityStatus, IDeveloper } from '@/interfaces/developer.interface';
-import { storageService } from '@/services/StorageService';
 import { langSchema, jobRoleSchema, countrySchema, skillSchema, currencySchema } from '@/models/MetadataSchema';
 import User from '@/models/User';
+import messagingService from '@/services/MessagingService';
 
 const languageSchema = new Schema({
 	language: langSchema,
@@ -97,25 +97,42 @@ developerSchema.virtual('fullName').get(function () {
 
 developerSchema.virtual('user', { ref: User, localField: 'userId', foreignField: '_id', justOne: true });
 
-developerSchema.virtual('avatarUrl').get(function () {
-	const avatar = this.avatar;
-	if (avatar) return storageService.createFileURL(avatar);
-	return null;
-});
-
 const autoPopulate = function (next) {
 	this.populate('user');
 	next();
 };
 
+async function populateFiles(doc, next) {
+	try {
+		if (Array.isArray(doc) && doc.length > 0) {
+			const fileIds = [];
+			doc.forEach((developer) => {
+				fileIds.push(developer.avatar);
+				fileIds.push(developer.resume);
+			});
+			const fileUrls = (await messagingService.presigneUserMedia(fileIds)) || {};
+			doc.forEach((developer) => {
+				developer.avatar = fileUrls[developer.avatar];
+				developer.resume = fileUrls[developer.resume];
+			});
+		} else if (doc) {
+			const fileUrls = (await messagingService.presigneUserMedia([doc.avatar, doc.resume])) || {};
+			doc.avatar = fileUrls[doc.avatar];
+			doc.resume = fileUrls[doc.resume];
+		}
+	} finally {
+		next();
+	}
+}
+
 developerSchema.pre('findOne', autoPopulate);
 developerSchema.pre('find', autoPopulate);
 
+developerSchema.post('findOne', populateFiles);
+developerSchema.post('find', populateFiles);
+
 developerSchema.methods.toJSON = function () {
 	const developer: IDeveloper = this.toObject();
-	if (developer.resume) developer.resume = storageService.createFileURL(developer.resume);
-	developer.avatar = developer.avatarUrl;
-	delete developer.avatarUrl;
 	if (developer.user) {
 		const jsonData = developer.user;
 		developer.user = { email: jsonData.email, username: jsonData.username };

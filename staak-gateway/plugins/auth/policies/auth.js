@@ -8,7 +8,7 @@ const {
 } = require('mongoose');
 
 const excludedRoutes = ['/api/users/auth/login', '/api/users/auth/register'];
-const excludedRoutePaths = ['/cdn/*'];
+const excludedRoutePaths = [];
 
 module.exports = {
 	name: 'auth',

@@ -80,7 +80,6 @@ export interface IDeveloper {
 	wants?: string;
 	status?: AvailabilityStatus;
 	avatar?: string;
-	avatarUrl?: string;
 	resume?: string;
 
 	toJSON(): IDeveloper;

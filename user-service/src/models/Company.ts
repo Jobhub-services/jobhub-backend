@@ -3,7 +3,7 @@ import { ICompany } from '@/interfaces/company.interface';
 import User from '@/models/User';
 import { countrySchema } from '@/models/MetadataSchema';
 import CompanyJob from '@/models/CompanyJob';
-import { storageService } from '@/services/StorageService';
+import messagingService from '@/services/MessagingService';
 
 const headquarterSchema: Schema = new Schema({
 	country: countrySchema,
@@ -48,20 +48,31 @@ const companySchema: Schema = new Schema(
 	}
 );
 
+async function populateFiles(doc, next) {
+	try {
+		if (Array.isArray(doc) && doc.length > 0) {
+			const fileIds = doc.map((doc) => doc.avatar);
+			const fileUrls = await messagingService.presigneUserMedia(fileIds);
+			doc.forEach((company) => {
+				company.avatar = fileUrls[company.avatar];
+			});
+		} else if (doc) {
+			doc.avatar = await messagingService.presigneUserMedia(doc.avatar);
+		}
+	} finally {
+		next();
+	}
+}
+
 companySchema.virtual('user', { ref: User, localField: 'userId', foreignField: '_id', justOne: true });
 companySchema.virtual('jobs', { ref: CompanyJob, localField: 'userId', foreignField: 'createdBy' });
 companySchema.virtual('number_job', { ref: CompanyJob, localField: 'userId', foreignField: 'createdBy', count: true });
 
-companySchema.virtual('avatarUrl').get(function () {
-	const avatar = this.avatar;
-	if (avatar) return storageService.createFileURL(avatar);
-	return null;
-});
+companySchema.post('findOne', populateFiles);
+companySchema.post('find', populateFiles);
 
 companySchema.methods.toJSON = function () {
 	const company = this.toObject();
-	company.avatar = company.avatarUrl;
-	delete company.avatarUrl;
 	company.company_division = company?.company_division?.map((division) => division.name);
 	if (company.user) {
 		const jsonData = company.user;

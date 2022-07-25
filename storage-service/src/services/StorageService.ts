@@ -1,10 +1,8 @@
 import { Storage } from 'megajs';
-import { STORAGE_API_PATH, STORAGE_PATH } from '@/constants/app.constants';
-import { UploadedFile } from 'express-fileupload';
-import path from 'path';
-import fs from 'fs';
+import { STORAGE_API_PATH } from '@/constants/app.constants';
 import { v4 as uuidv4 } from 'uuid';
-import { tokenService } from './HashService';
+import { tokenService } from '@/services/HashService';
+import UserMedia from '@/models/UserMedia';
 
 class StorageService {
 	appUrl = process.env.APP_URL;
@@ -14,8 +12,8 @@ class StorageService {
 			password: '123456789zino',
 		}).ready;
 	}
-	async moveFile(file: UploadedFile) {
-		const fileName = `${authUser._id}_${uuidv4()}_${file.name}`;
+	async moveFile(file) {
+		const fileName = `${uuidv4()}_${file.name}`;
 		const storage = await this.storage;
 		await storage.upload(fileName, file.data).complete;
 		return fileName;
@@ -27,22 +25,31 @@ class StorageService {
 		await file.mv(filePath);
 		return fileName;*/
 	}
-	createFileURL = (fileName: string, expiresIn = 60 * 60 * 24) => {
+	createFileURL = (fileId: string, expiresIn = 60 * 60 * 24) => {
 		const appUrl = this.appUrl;
-		const token = tokenService.hashToken({ fileName }, expiresIn);
+		const token = tokenService.hashToken({ fileId }, expiresIn);
 		const fileURL = `${appUrl}${STORAGE_API_PATH}/${token}`;
 		return fileURL;
 	};
 	readFileFromUrl = async (token: string) => {
-		const payload = tokenService.verifyToken(token);
-		const fileName = payload.fileName;
-		const storage = await this.storage;
-		const file = storage.root.children.find((item) => item.name === fileName);
-		//@ts-ignore
-		const data = await file.downloadBuffer();
-		return [fileName, data];
-		/*const filePath = path.resolve(__dirname, '..', '..', STORAGE_PATH, fileName);
-		return filePath;*/
+		try {
+			const payload = tokenService.verifyToken(token);
+			const fileId = payload.fileId;
+
+			const storage = await this.storage;
+			const media = await UserMedia.findById(fileId);
+
+			const file = storage.root.children.find((item) => item.name === media.fileStorageKey);
+			const data = await file?.downloadBuffer({});
+			if (!data) return null;
+			return {
+				data,
+				mimeType: media.mimeType,
+				fileName: media.fileName,
+			};
+		} catch {
+			return null;
+		}
 	};
 }
 export const storageService = new StorageService();

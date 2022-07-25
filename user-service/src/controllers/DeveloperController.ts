@@ -4,9 +4,9 @@ import Developer from '@/models/Developer';
 import { IDeveloper } from '@/interfaces/developer.interface';
 import { DeveloperDto } from '@/dtos/developer.dto';
 import { UploadedFile } from 'express-fileupload';
-import { storageService } from '@/services/StorageService';
 import { metadataService } from '@/services/MetadataService';
 import Company, { companyToJSON, populateCompaniesToJSON } from '@/models/Company';
+import messagingService from '@/services/MessagingService';
 class DeveloperController {
 	updateProfile = async (req: Request, res: Response) => {
 		try {
@@ -224,12 +224,12 @@ class DeveloperController {
 	};
 
 	private _updateAvatar = async (profile: IDeveloper, file: UploadedFile) => {
-		const avatarPath = await storageService.moveFile(file);
+		const avatarPath = await messagingService.uploadUserMedia(profile.userId, file);
 		profile.avatar = avatarPath;
 	};
 
 	private _updateResume = async (profile: IDeveloper, file: UploadedFile) => {
-		const resumePath = await storageService.moveFile(file);
+		const resumePath = await messagingService.uploadUserMedia(profile.userId, file);
 		profile.resume = resumePath;
 	};
 }

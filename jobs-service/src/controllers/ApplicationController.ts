@@ -64,7 +64,7 @@ class ApplicationController {
 			const query = Application.find(queryConditions, { companyId: 1, jobId: 1, motivation: 1, status: 1, updatedAt: 1, createdAt: 1 })
 				.populate({
 					path: 'company',
-					select: { companyName: 1 },
+					select: { companyName: 1, avatar: 1 },
 				})
 				.populate({
 					path: 'jobId',
@@ -363,6 +363,15 @@ class ApplicationController {
 			motivation: '$motivation',
 			start_date: '$start_date',
 			notice_period: '$notice_period',
+			status: '$status',
+			createdAt: '$createdAt',
+			updatedAt: '$updatedAt',
+			responses: {
+				$map: {
+					input: '$responses',
+					in: { response: '$$this.response', question: '$$this.question.question' },
+				},
+			},
 			avatar: '$user.avatar',
 			firstName: '$user.firstName',
 			lastName: '$user.lastName',
@@ -377,16 +386,7 @@ class ApplicationController {
 			website: '$user.social_profile.website',
 			git: '$user.social_profile.git',
 			cv: '$user.resume',
-			status: '$status',
 			userId: '$user._id',
-			responses: {
-				$map: {
-					input: '$responses',
-					in: { response: '$$this.response', question: '$$this.question.question' },
-				},
-			},
-			createdAt: '$createdAt',
-			updatedAt: '$updatedAt',
 			job: {
 				title: '$job.title',
 				createdAt: '$job.createdAt',
