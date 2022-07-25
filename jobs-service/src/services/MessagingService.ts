@@ -7,7 +7,7 @@ class MessagingService {
 		this.storageService = new HttpClient(STORAGE_SERVICE);
 	}
 
-	presigneUserMedia = async (fileIds: string | string[]) => {
+	presigneUserMedia = async (fileIds: any) => {
 		if (!fileIds) return;
 		try {
 			const response = await this.storageService.post(

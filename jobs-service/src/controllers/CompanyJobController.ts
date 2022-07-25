@@ -164,7 +164,7 @@ class CompanyJobController {
 			const rootObjectId = req.rootObjectId;
 			const jobId = req.params.jobid;
 
-			const myJob = await CompanyJob.aggregate([
+			let job = await CompanyJob.aggregate([
 				{
 					$match: {
 						createdBy: rootObjectId,
@@ -247,8 +247,9 @@ class CompanyJobController {
 					},
 				},
 			]);
-			if (myJob.length === 0) return res.status(406).send({ message: 'Job not found' });
-			res.status(200).send({ content: myJob[0] });
+			job = job[0];
+			if (!job) return res.status(406).send({ message: 'Job not found' });
+			res.status(200).send({ content: job });
 		} catch (e) {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });

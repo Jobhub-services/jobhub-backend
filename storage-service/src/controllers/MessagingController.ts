@@ -29,8 +29,17 @@ class MessagingController {
 				fileIds.forEach((fileId) => {
 					fileUrls[fileId] = storageService.createFileURL(fileId);
 				});
-			} else {
+			} else if (typeof fileIds === 'string') {
 				fileUrls = fileIds ? storageService.createFileURL(fileIds) : null;
+			} else {
+				fileUrls = {};
+				for (const fileId in fileIds) {
+					const ids = [];
+					fileIds[fileId].forEach((id) => {
+						ids.push(storageService.createFileURL(fileId));
+					});
+					fileUrls[fileId] = ids;
+				}
 			}
 			res.send({ fileUrls });
 		} catch (e) {

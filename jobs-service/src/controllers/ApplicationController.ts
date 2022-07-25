@@ -1,15 +1,13 @@
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
-import { normalizeTalentDetailtoJSON } from './../models/Application';
 import { ApplicationDto, InterviewDto } from '@/dtos/application.dto';
 import { IApplication, ApplicationStatus } from '@/interfaces/application.interface';
 import { ICompanyJob } from '@/interfaces/companyJob.interface';
-import { IsObjectId, isValidObjectId } from '@/helpers';
+import { isValidObjectId } from '@/helpers';
 import { UserType } from '@/interfaces/users.interface';
-import Application, { normalizetoJSONs } from '@/models/Application';
+import Application from '@/models/Application';
 import CompanyJob from '@/models/CompanyJob';
 import Company from '@/models/Company';
-import User from '@/models/User';
 
 class ApplicationController {
 	createApp = async (req: Request, res: Response) => {

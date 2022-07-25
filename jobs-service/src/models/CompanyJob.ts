@@ -5,6 +5,7 @@ import { ICompanyJob, JobTypes, JobDuration, SalaryType, JobStatus } from '@/int
 import User from '@/models/User';
 import { countrySchema, currencySchema, jobCategorySchema, skillSchema } from '@/models/MetadataSchema';
 import Company from '@/models/Company';
+import messagingService from '@/services/MessagingService';
 
 const jobLocationSchema = new Schema({
 	country: countrySchema,
@@ -82,14 +83,38 @@ const companyJobSchema: Schema = new Schema(
 
 companyJobSchema.plugin(MongooseDelete, { deletedAt: true, overrideMethods: true, deletedBy: true });
 
+async function populateFiles(docs, next) {
+	try {
+		if (Array.isArray(docs) && docs.length > 0) {
+			const fileIds = [];
+			const applicationsIds = {};
+			docs.forEach((doc) => {
+				if (doc.company && doc.company.avatar) fileIds.push(doc.company.avatar);
+				if (doc.applications?.length > 0) applicationsIds[doc._id] = doc.applications;
+			});
+			let fileUrls = {},
+				applicationUrls = {};
+			if (fileIds.length > 0) fileUrls = await messagingService.presigneUserMedia(fileIds);
+			if (Object.keys(applicationsIds).length > 0) applicationUrls = await messagingService.presigneUserMedia(applicationsIds);
+
+			docs.forEach((doc) => {
+				if (doc.company) doc.company.avatar = fileUrls[doc.company.avatar];
+				if (doc.applications) doc.applications = applicationUrls[doc._id] || [];
+			});
+		}
+	} finally {
+		next();
+	}
+}
+
 companyJobSchema.virtual('company', { ref: Company, localField: 'createdBy', foreignField: 'userId', justOne: true });
 companyJobSchema.virtual('applications', { ref: 'Application', localField: '_id', foreignField: 'jobId' });
 
-companyJobSchema.post('aggregate', (doc) => {
-	console.log(doc);
-});
-companyJobSchema.post('find', (doc) => {
-	console.log(doc);
+companyJobSchema.post('aggregate', populateFiles);
+companyJobSchema.post('find', populateFiles);
+companyJobSchema.post('findOne', function (doc, next) {
+	if (doc) populateFiles([doc], next);
+	else next();
 });
 
 const CompanyJob = softDeleteModel<ICompanyJob>('CompanyJob', companyJobSchema);

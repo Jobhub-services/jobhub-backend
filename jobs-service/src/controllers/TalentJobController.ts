@@ -59,6 +59,7 @@ class TalentJobController {
 						},
 						company: {
 							companyName: 1,
+							avatar: 1,
 							company_size: '$company.generalinfo.company_size',
 						},
 					},
@@ -76,7 +77,10 @@ class TalentJobController {
 		try {
 			const jobId = req.params.jobid;
 			if (!jobId || !isValidObjectId(jobId)) return res.status(406).send({ message: 'Job not found' });
-			const query = CompanyJob.findById(jobId).populate({ path: 'company', select: { companyName: 1, company_size: '$generalinfo.company_size' } });
+			const query = CompanyJob.findById(jobId).populate({
+				path: 'company',
+				select: { companyName: 1, company_size: '$generalinfo.company_size', avatar: 1 },
+			});
 			const job = await query;
 			if (!job) return res.status(406).send({ message: 'Job not found' });
 			const result = normalizetoJSON(job, true);
