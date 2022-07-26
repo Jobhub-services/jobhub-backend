@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { IsObjectId } from '@/helpers';
+import { IsExists, IsObjectId } from '@/helpers';
 import { Expose, Type } from 'class-transformer';
 import { IsArray, IsOptional, IsString, ValidateNested } from 'class-validator';
 

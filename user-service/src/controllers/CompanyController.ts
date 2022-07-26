@@ -37,7 +37,8 @@ class CompanyController {
 		try {
 			const profileBody: any = req.body;
 			const rootObjectId = req.rootObjectId;
-			const profile = await Company.findOne({ userId: rootObjectId });
+
+			const profile = await Company.findOneAndUpdate({ userId: rootObjectId }, {});
 			const user = await User.findOne({ _id: rootObjectId });
 			profile.companyName = profileBody.companyName;
 			user.email = profileBody.email;
