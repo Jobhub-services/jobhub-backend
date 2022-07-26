@@ -8,10 +8,11 @@ class MessagingController {
 			const body = req.body;
 			const file = req.files?.file;
 			if (!file) res.status(500).send({ message: 'File not found' });
-			const fileKey = await storageService.moveFile(file);
+			const fileName = body.name;
+			const fileKey = await storageService.moveFile(file, fileName);
 			const avatar = await UserMedia.create({
 				fileStorageKey: fileKey,
-				fileName: body.name,
+				fileName,
 				mimeType: body.mimetype,
 			});
 			res.send({ fileId: avatar._id });
