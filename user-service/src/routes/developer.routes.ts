@@ -13,5 +13,6 @@ router.get('/profile', validationMiddleware(DeveloperDto), developerController.g
 
 router.get('/companies', developerController.getCompanies);
 router.get('/companies/:companyId', developerController.getCompanyDetail);
+router.put('/settings/account', developerController.updateAccountSettings);
 
 export { router as developerRouter };

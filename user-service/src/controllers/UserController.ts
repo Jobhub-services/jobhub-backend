@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { IUser, UserType } from '@/interfaces/users.interface';
 import Developer from '@/models/Developer';
 import Company from '@/models/Company';
+import { tokenService } from '@/services/HashService';
+import User from '@/models/User';
 
 export default class UserController {
 	public userInfo = async (req: Request, res: Response) => {
@@ -24,6 +26,28 @@ export default class UserController {
 			res.status(200).send({ message: 'Info fetched successfully', data: userInfo });
 		} catch (e: any) {
 			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
+
+	updateSecuritySettings = async (req: Request, res: Response) => {
+		try {
+			const profileBody: any = req.body;
+			const rootObjectId = req.rootObjectId;
+			if (profileBody.newPassword !== profileBody.confirmPassword) res.status(404).send({ message: 'Please confirm your password' });
+			const user = await User.findOne({ _id: rootObjectId });
+			if (user) {
+				const checkPassword = await tokenService.check(profileBody.currentPassword, user.password);
+				if (checkPassword) {
+					user.password = await tokenService.hash(profileBody.newPassword);
+					await user.save();
+					res.status(200).send({ message: 'Password changed successfully' });
+					return;
+				}
+				res.status(404).send({ message: 'Invalid current password' });
+			}
+			res.status(404).send({ message: 'Invalid user' });
+		} catch {
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};

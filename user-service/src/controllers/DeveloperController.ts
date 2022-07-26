@@ -7,6 +7,8 @@ import { UploadedFile } from 'express-fileupload';
 import { metadataService } from '@/services/MetadataService';
 import Company, { companyToJSON, populateCompaniesToJSON } from '@/models/Company';
 import messagingService from '@/services/MessagingService';
+import User from '@/models/User';
+
 class DeveloperController {
 	updateProfile = async (req: Request, res: Response) => {
 		try {
@@ -42,6 +44,26 @@ class DeveloperController {
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};
+
+	updateAccountSettings = async (req: Request, res: Response) => {
+		try {
+			const profileBody: any = req.body;
+			const rootObjectId = req.rootObjectId;
+			const profile = await Developer.findOne({ userId: rootObjectId });
+			const user = await User.findOne({ _id: rootObjectId });
+			profile.lastName = profileBody.lastName;
+			profile.firstName = profileBody.firstName;
+			user.email = profileBody.email;
+			user.username = profileBody.username;
+			await profile.save();
+			await user.save();
+			res.status(200).send({ content: { message: 'informations updated' } });
+		} catch (e: any) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
+
 	getProfile = async (req: Request, res: Response) => {
 		try {
 			const rootObjectId = req.rootObjectId;

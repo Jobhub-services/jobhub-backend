@@ -17,4 +17,6 @@ router.put('/profile', companyController.updateProfile);
 router.get('/talents', companyController.getTalents);
 router.get('/talents/:talentId', companyController.getTalentDetails);
 
+router.put('/settings/account', companyController.updateAccountSettings);
+
 export { router as companyRouter };

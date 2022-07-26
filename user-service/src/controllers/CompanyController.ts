@@ -8,6 +8,7 @@ import Developer, { populateDevelopersToJson, populateDeveloperToJson } from '@/
 import { isValidObjectId } from '@/helpers';
 import { metadataService } from '@/services/MetadataService';
 import messagingService from '@/services/MessagingService';
+import User from '@/models/User';
 
 class CompanyController {
 	getDivision = async (req: Request, res: Response) => {
@@ -26,6 +27,24 @@ class CompanyController {
 			const rootObjectId = req.rootObjectId;
 			const profileContent = await this._getProfileById(rootObjectId);
 			res.status(200).send({ content: profileContent });
+		} catch (e: any) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
+
+	updateAccountSettings = async (req: Request, res: Response) => {
+		try {
+			const profileBody: any = req.body;
+			const rootObjectId = req.rootObjectId;
+			const profile = await Company.findOne({ userId: rootObjectId });
+			const user = await User.findOne({ _id: rootObjectId });
+			profile.companyName = profileBody.companyName;
+			user.email = profileBody.email;
+			user.username = profileBody.username;
+			await profile.save();
+			await user.save();
+			res.status(200).send({ message: 'informations updated' });
 		} catch (e: any) {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });

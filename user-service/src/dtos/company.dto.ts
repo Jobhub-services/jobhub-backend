@@ -66,6 +66,11 @@ export class CompanyDto {
 
 	@Expose()
 	@IsOptional()
+	@IsString()
+	companyName?: string;
+
+	@Expose()
+	@IsOptional()
 	@ValidateNested()
 	@Type(() => SocialsDto)
 	social_profile?: SocialsDto;
