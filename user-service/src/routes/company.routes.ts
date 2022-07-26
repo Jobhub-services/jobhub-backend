@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { authRole } from '@/middleware/auth.middleware';
 import { UserType } from '@/interfaces/users.interface';
 import CompanyController from '@/controllers/CompanyController';
+import validationMiddleware from '@/middleware/validation.middleware';
+import { UpdateCompanyDto } from '@/dtos/company.dto';
 
 const companyController = new CompanyController();
 
@@ -17,6 +19,6 @@ router.put('/profile', companyController.updateProfile);
 router.get('/talents', companyController.getTalents);
 router.get('/talents/:talentId', companyController.getTalentDetails);
 
-router.put('/settings/account', companyController.updateAccountSettings);
+router.put('/settings/account', validationMiddleware(UpdateCompanyDto), companyController.updateAccountSettings);
 
 export { router as companyRouter };
