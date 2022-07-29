@@ -1,7 +1,8 @@
 import { Types } from 'mongoose';
-import { IsObjectId } from '@/helpers';
+import { IsUnique, IsObjectId } from '@/helpers';
 import { Expose, Type } from 'class-transformer';
 import { IsArray, IsOptional, IsString, ValidateNested } from 'class-validator';
+import User from '@/models/User';
 
 class SocialsDto {
 	@Expose()
@@ -96,4 +97,21 @@ export class CompanyDto {
 	@IsOptional()
 	@IsArray()
 	company_division?: string[];
+}
+
+export class UpdateCompanyDto {
+	@Expose()
+	@IsOptional()
+	@IsString()
+	companyName?: string;
+
+	@Expose()
+	@IsOptional()
+	@IsUnique(User, {}, 'email')
+	email?: string;
+
+	@Expose()
+	@IsOptional()
+	@IsUnique(User, {}, 'username')
+	username?: string;
 }

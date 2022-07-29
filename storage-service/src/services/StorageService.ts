@@ -12,8 +12,8 @@ class StorageService {
 			password: '123456789zino',
 		}).ready;
 	}
-	async moveFile(file) {
-		const fileName = `${uuidv4()}_${file.name}`;
+	async moveFile(file, name) {
+		const fileName = `${uuidv4()}_${name}`;
 		const storage = await this.storage;
 		await storage.upload(fileName, file.data).complete;
 		return fileName;

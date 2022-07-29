@@ -37,13 +37,16 @@ class CompanyController {
 		try {
 			const profileBody: any = req.body;
 			const rootObjectId = req.rootObjectId;
-			const profile = await Company.findOne({ userId: rootObjectId });
-			const user = await User.findOne({ _id: rootObjectId });
-			profile.companyName = profileBody.companyName;
-			user.email = profileBody.email;
-			user.username = profileBody.username;
-			await profile.save();
-			await user.save();
+			const companyInfo: any = {};
+			const userInfo: any = {};
+			if (profileBody.companyName) companyInfo.companyName = profileBody.companyName;
+
+			if (profileBody.email) userInfo.email = profileBody.email;
+			if (profileBody.username) userInfo.username = profileBody.username;
+
+			if (Object.keys(companyInfo).length > 0) await Company.updateOne({ userId: rootObjectId }, companyInfo);
+			if (Object.keys(userInfo).length > 0) await User.updateOne({ _id: rootObjectId }, userInfo);
+
 			res.status(200).send({ message: 'informations updated' });
 		} catch (e: any) {
 			console.log(e);

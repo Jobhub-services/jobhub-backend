@@ -51,3 +51,27 @@ export function IsExists(modal: Model<Document>, validationOptions?: ValidationO
 		});
 	};
 }
+
+@ValidatorConstraint({ async: true })
+export class IsUniqueConstraint implements ValidatorConstraintInterface {
+	validate(value: any, args: ValidationArguments) {
+		const [modal, fieldName] = args.constraints;
+		if (fieldName === idFieldName && !isValidObjectId(value)) return false;
+		return modal.findOne({ [fieldName]: value }).then((result) => {
+			if (!result) return true;
+			return false;
+		});
+	}
+}
+
+export function IsUnique(modal: Model<Document>, validationOptions?: ValidationOptions, fieldName = idFieldName) {
+	return function (object: Object, propertyName: string) {
+		registerDecorator({
+			target: object.constructor,
+			propertyName: propertyName,
+			options: { message: propertyName + ' already exists please select valid item', ...validationOptions },
+			constraints: [modal, fieldName],
+			validator: IsUniqueConstraint,
+		});
+	};
+}
