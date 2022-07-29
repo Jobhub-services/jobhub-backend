@@ -78,8 +78,9 @@ class DeveloperController {
 	getCompanies = async (req: Request, res: Response) => {
 		try {
 			const { name = '', limit = 20, page } = req.query;
-			const count = await Company.count();
-			const tmpQuery = Company.find();
+			let companyQuery = this._buildCompaniesQuery(req);
+			const count = await Company.count(companyQuery);
+			const tmpQuery = Company.find(companyQuery);
 			if (limit) {
 				const limitN = Number(limit);
 				tmpQuery.limit(limitN);
@@ -254,5 +255,23 @@ class DeveloperController {
 		const resumePath = await messagingService.uploadUserMedia(profile.userId, file);
 		profile.resume = resumePath;
 	};
+	private _buildCompaniesQuery(req: Request) {
+		let tmp: any = {};
+		let { headquarters, company_size, industry, keywords } = req.query;
+
+		if (company_size && !Array.isArray(company_size)) company_size = [company_size as string];
+		if (company_size?.length > 0) tmp = { 'generalinfo.company_size': { $in: company_size }, ...tmp };
+
+		if (headquarters && !Array.isArray(headquarters)) headquarters = [headquarters as string];
+		if (headquarters?.length > 0) tmp = { 'headquarter.country._id': { $in: headquarters }, ...tmp };
+
+		if (industry && !Array.isArray(industry)) industry = [industry as string];
+		if (industry?.length > 0) tmp = { 'generalinfo.industry': { $in: (industry as string[]).map((elem) => new RegExp(elem)) }, ...tmp };
+
+		if (keywords && !Array.isArray(keywords)) keywords = [keywords as string];
+		if (keywords?.length > 0) tmp = { keywords: { $in: (keywords as string[])?.map((elem) => new RegExp(elem)) }, ...tmp };
+
+		return tmp;
+	}
 }
 export default DeveloperController;

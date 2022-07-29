@@ -333,7 +333,7 @@ class CompanyJobController {
 			const rootObjectId = req.rootObjectId;
 			const jobId = req.params.jobid;
 			if (!jobId || !isValidObjectId(jobId)) return res.status(406).send({ message: 'Job not found' });
-			const job = await CompanyJob.delete({ id: jobId, createdBy: rootObjectId });
+			const job = await CompanyJob.delete({ _id: jobId, createdBy: rootObjectId });
 			if (!job) return res.status(406).send({ message: 'Job not found' });
 			res.status(200).send({ message: 'Job deleted successfully' });
 		} catch (e) {
@@ -347,7 +347,7 @@ class CompanyJobController {
 			const rootObjectId = req.rootObjectId;
 			const jobId = req.params.jobid;
 			if (!jobId || !isValidObjectId(jobId)) return res.status(406).send({ message: 'Job not found' });
-			const job = await CompanyJob.findOneDeleted({ id: jobId, createdBy: rootObjectId });
+			const job = await CompanyJob.findOneDeleted({ _id: jobId, createdBy: rootObjectId });
 			if (!job) return res.status(406).send({ message: 'Job not found' });
 			await job.restore();
 			res.status(200).send({ message: 'Job restored successfully' });

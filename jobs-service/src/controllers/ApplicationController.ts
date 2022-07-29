@@ -211,6 +211,8 @@ class ApplicationController {
 					companyId: rootObjectId,
 					status: { $in: statusArray },
 				};
+				let userQuery = this._buildApplicationQuery(req, matchDict);
+				let jobQuery = this._buildJobQuery(req);
 				const jobId = query.jobId as string;
 				if (jobId) matchDict['jobId'] = new Types.ObjectId(jobId);
 				result = await Application.aggregate([
@@ -225,6 +227,15 @@ class ApplicationController {
 							localField: 'userId',
 							foreignField: 'userId',
 							as: 'user',
+							pipeline: [
+								{
+									$match: {
+										$expr: {
+											$and: [...userQuery],
+										},
+									},
+								},
+							],
 						},
 					},
 					{ $unwind: '$user' },
@@ -234,6 +245,15 @@ class ApplicationController {
 							localField: 'jobId',
 							foreignField: '_id',
 							as: 'job',
+							pipeline: [
+								{
+									$match: {
+										$expr: {
+											$and: [...jobQuery],
+										},
+									},
+								},
+							],
 						},
 					},
 					{ $unwind: '$job' },
@@ -478,6 +498,34 @@ class ApplicationController {
 		]);
 		application = application[0];
 		return application;
+	}
+	private _buildApplicationQuery(req: Request, query: any) {
+		let tmp: any = [];
+		let { applicantRole, country, skills, jobType } = req.query;
+
+		console.log(jobType);
+		if (jobType && !Array.isArray(jobType)) jobType = [jobType as string];
+		if (jobType?.length! > 0) tmp = [{ $or: [{ $in: ['$job_type', jobType] }, { $setIsSubset: ['$other_job_type', jobType] }] }, ...tmp];
+
+		if (applicantRole && !Array.isArray(applicantRole)) applicantRole = [applicantRole as string];
+		if (applicantRole?.length > 0)
+			tmp = [{ $in: ['$role.primary_role._id', (applicantRole as string[]).map((elem) => new Types.ObjectId(elem))] }, ...tmp];
+
+		if (country && !Array.isArray(country)) country = [country as string];
+		if (country?.length > 0) tmp = [{ $in: ['$address.country._id', (country as string[]).map((elem) => new Types.ObjectId(elem))] }, ...tmp];
+
+		if (skills && !Array.isArray(skills)) skills = [skills as string];
+		if (skills?.length > 0) tmp = [{ $setIsSubset: ['$skills._id', (skills as string[]).map((elem) => new Types.ObjectId(elem))] }, ...tmp];
+
+		return tmp;
+	}
+	private _buildJobQuery(req) {
+		let tmp: any = [];
+		const { jobTitle } = req.query;
+		if (jobTitle) {
+			tmp = [{ $regexMatch: { input: '$title', regex: new RegExp(jobTitle), options: 'i' } }, ...tmp];
+		}
+		return tmp;
 	}
 }
 export default ApplicationController;
