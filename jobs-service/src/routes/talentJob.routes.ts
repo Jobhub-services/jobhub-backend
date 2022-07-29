@@ -12,5 +12,6 @@ const router = Router();
 router.use('/', authRole(UserType.DEVELOPER));
 router.get('/', talentJobController.getJobs);
 router.get('/:jobid', talentJobController.getJob);
+router.put('/save', talentJobController.saveJob);
 
 export { router as talentJobRouter };

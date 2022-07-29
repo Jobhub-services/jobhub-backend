@@ -75,8 +75,9 @@ class CompanyController {
 	getTalents = async (req: Request, res: Response) => {
 		try {
 			const { name = '', limit = 20, page } = req.query;
-			const count = await Developer.count();
-			const query = Developer.find();
+			const talentQuery = this._buildTalentQuery(req);
+			const count = await Developer.count(talentQuery);
+			const query = Developer.find(talentQuery);
 			if (limit) {
 				const limitN = Number(limit);
 				query.limit(limitN);
@@ -164,5 +165,29 @@ class CompanyController {
 			return null;
 		}
 	};
+	private _buildTalentQuery(req: Request) {
+		let tmp: any = {};
+		let { skills, country, roles, experienceYear, status, jobType } = req.query;
+
+		if (skills && !Array.isArray(skills)) skills = [skills as string];
+		if (skills?.length! > 0) tmp = { 'skills._id': { $in: skills }, ...tmp };
+
+		if (jobType && !Array.isArray(jobType)) jobType = [jobType as string];
+		if (jobType?.length! > 0) tmp = { $or: [{ job_type: { $in: jobType } }, { other_job_type: { $in: jobType } }], ...tmp };
+
+		if (roles && !Array.isArray(roles)) roles = [roles as string];
+		if (roles?.length > 0) tmp = { 'role.primary_role._id': { $in: (roles as string[]).map((elem) => new Types.ObjectId(elem)) }, ...tmp };
+
+		if (country && !Array.isArray(country)) country = [country as string];
+		if (country?.length > 0) tmp = { 'address.country._id': { $in: (country as string[]).map((elem) => new Types.ObjectId(elem)) }, ...tmp };
+
+		if (status && !Array.isArray(status)) status = [status as string];
+		if (status?.length > 0) tmp = { status: { $in: status }, ...tmp };
+
+		if (experienceYear && !Array.isArray(experienceYear)) experienceYear = [experienceYear as string];
+		if (experienceYear?.length! > 0) tmp = { 'role.experience': { $in: experienceYear }, ...tmp };
+
+		return tmp;
+	}
 }
 export default CompanyController;
