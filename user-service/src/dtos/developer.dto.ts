@@ -3,8 +3,9 @@ import { IsArray, IsEnum, IsOptional, IsString, ValidateNested } from 'class-val
 import { JobTypes } from '@/interfaces/companyJob.interface';
 import { isStringMessage, isEnumMessage } from '@/config/dto.config';
 import { Expose, Type } from 'class-transformer';
-import { IsObjectId } from '@/helpers';
+import { IsObjectId, IsUnique } from '@/helpers';
 import { AvailabilityStatus } from '@/interfaces/developer.interface';
+import User from '@/models/User';
 
 class LanguagesDto {
 	@Expose()
@@ -258,4 +259,26 @@ export class DeveloperDto {
 	@IsOptional()
 	@IsEnum(AvailabilityStatus)
 	status?: AvailabilityStatus;
+}
+
+export class UpdateDeveloperDto {
+	@Expose()
+	@IsOptional()
+	@IsString()
+	firstName?: string;
+
+	@Expose()
+	@IsOptional()
+	@IsString()
+	lastName?: string;
+
+	@Expose()
+	@IsOptional()
+	@IsUnique(User, {}, 'email')
+	email?: string;
+
+	@Expose()
+	@IsOptional()
+	@IsUnique(User, {}, 'username')
+	username?: string;
 }

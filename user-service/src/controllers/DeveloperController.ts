@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { Types } from 'mongoose';
 import Developer from '@/models/Developer';
 import { IDeveloper } from '@/interfaces/developer.interface';
-import { DeveloperDto } from '@/dtos/developer.dto';
+import { DeveloperDto, UpdateDeveloperDto } from '@/dtos/developer.dto';
 import { UploadedFile } from 'express-fileupload';
 import { metadataService } from '@/services/MetadataService';
 import Company, { companyToJSON, populateCompaniesToJSON } from '@/models/Company';
@@ -14,7 +14,7 @@ class DeveloperController {
 		try {
 			const profileBody: DeveloperDto = req.body;
 			const rootObjectId = req.rootObjectId;
-			const profile = await Developer.findOne({ userId: rootObjectId });
+			const profile: any = {};
 			if (profileBody.summary) this._setSummary(profile, profileBody.summary);
 			if (profileBody.languages) await this._setLanguages(profile, profileBody.languages);
 			if (profileBody.skills) await this._setSkills(profile, profileBody.skills);
@@ -35,8 +35,7 @@ class DeveloperController {
 				if (req.files.avatar) await this._updateAvatar(profile, req.files.avatar as UploadedFile);
 				if (req.files.resume) await this._updateResume(profile, req.files.resume as UploadedFile);
 			}
-
-			await profile.save();
+			await Developer.updateOne({ userId: rootObjectId }, profile);
 			const profileContent = await this._getProfileById(rootObjectId);
 			res.status(200).send({ content: profileContent });
 		} catch (e: any) {
@@ -47,16 +46,21 @@ class DeveloperController {
 
 	updateAccountSettings = async (req: Request, res: Response) => {
 		try {
-			const profileBody: any = req.body;
+			const profileBody: UpdateDeveloperDto = req.body;
 			const rootObjectId = req.rootObjectId;
-			const profile = await Developer.findOne({ userId: rootObjectId });
-			const user = await User.findOne({ _id: rootObjectId });
-			profile.lastName = profileBody.lastName;
-			profile.firstName = profileBody.firstName;
-			user.email = profileBody.email;
-			user.username = profileBody.username;
-			await profile.save();
-			await user.save();
+
+			const developerInfo: any = {};
+			const userInfo: any = {};
+
+			if (profileBody.firstName) developerInfo.firstName = profileBody.firstName;
+			if (profileBody.lastName) developerInfo.lastName = profileBody.lastName;
+
+			if (profileBody.email) userInfo.email = profileBody.email;
+			if (profileBody.username) userInfo.username = profileBody.username;
+
+			if (Object.keys(developerInfo).length > 0) await Developer.updateOne({ userId: rootObjectId }, developerInfo);
+			if (Object.keys(userInfo).length > 0) await User.updateOne({ _id: rootObjectId }, userInfo);
+
 			res.status(200).send({ content: { message: 'informations updated' } });
 		} catch (e: any) {
 			console.log(e);

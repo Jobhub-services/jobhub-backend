@@ -57,7 +57,7 @@ class CompanyController {
 		try {
 			const profileBody: CompanyDto = req.body;
 			const rootObjectId = req.rootObjectId;
-			const profile = await Company.findOne({ userId: rootObjectId });
+			const profile: any = {};
 			if (profileBody.description) this._setDescription(profile, profileBody.description);
 			if (profileBody.keywords) this._setKeywords(profile, profileBody.keywords);
 			if (profileBody.company_division) await this._setCompanyDivision(profile, profileBody.company_division);
@@ -67,7 +67,7 @@ class CompanyController {
 			if (req.files) {
 				if (req.files.avatar) await this._updateAvatar(profile, req.files.avatar as UploadedFile);
 			}
-			await profile.save();
+			await Company.updateOne({ userId: rootObjectId }, profile);
 			const profileContent = await this._getProfileById(rootObjectId);
 			res.status(200).send({ content: profileContent });
 		} catch (e: any) {
