@@ -37,7 +37,7 @@ class MessagingController {
 				for (const fileId in fileIds) {
 					const ids = [];
 					fileIds[fileId].forEach((id) => {
-						ids.push(storageService.createFileURL(fileId));
+						ids.push(storageService.createFileURL(id));
 					});
 					fileUrls[fileId] = ids;
 				}
