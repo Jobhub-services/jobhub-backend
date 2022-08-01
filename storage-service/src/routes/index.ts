@@ -5,7 +5,7 @@ const router = Router();
 
 const storageController = new StorageController();
 
-router.use('/cdn/:fileid', authStorage);
+//router.use('/cdn/:fileid', authStorage);
 router.get('/cdn/:fileid', storageController.resolveFile);
 
 export default router;

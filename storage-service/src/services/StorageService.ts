@@ -35,7 +35,7 @@ class StorageService {
 		try {
 			/*const payload = tokenService.verifyToken(fileId);
 			const fileId = payload.fileId;*/
-
+			console.log(fileId);
 			const storage = await this.storage;
 			const media = await UserMedia.findById(fileId);
 
