@@ -80,13 +80,12 @@ class CompanyJobController {
 			const { name = '', limit = 20, page } = req.query;
 			let sort = parseInt((query.sort as string) ?? '-1') as 1 | -1;
 			if (!sort) sort = -1;
-
-			const count = await CompanyJob.count({ createdBy: rootObjectId });
+			let jobQuery = this._buildJobQuery(req);
+			jobQuery = { createdBy: rootObjectId, ...jobQuery };
+			const count = await CompanyJob.count(jobQuery);
 			const myJobs = await CompanyJob.aggregate([
 				{
-					$match: {
-						createdBy: rootObjectId,
-					},
+					$match: jobQuery,
 				},
 				{
 					$lookup: {
@@ -378,6 +377,21 @@ class CompanyJobController {
 		});
 
 		return qsts;
+	};
+
+	private _buildJobQuery = (req: Request) => {
+		let { category, createdAt, job_type } = req.query;
+		let tmp: any = {};
+
+		if (category && !Array.isArray(category)) category = [category as string];
+		if (category?.length! > 0) tmp = { 'category._id': { $in: (category as string[]).map((elem) => new Types.ObjectId(elem)) }, ...tmp };
+
+		if (job_type && !Array.isArray(job_type)) job_type = [job_type as string];
+		if (job_type?.length! > 0) tmp = { $or: [{ job_type: { $in: job_type } }, { duration: { $in: job_type } }], ...tmp };
+
+		if (createdAt?.length! > 1) tmp = { createdAt: { $gte: new Date(createdAt[0]), $lte: new Date(createdAt[1]) }, ...tmp };
+
+		return tmp;
 	};
 }
 export default CompanyJobController;

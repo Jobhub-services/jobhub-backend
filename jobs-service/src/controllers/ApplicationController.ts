@@ -503,7 +503,6 @@ class ApplicationController {
 		let tmp: any = [];
 		let { applicantRole, country, skills, jobType } = req.query;
 
-		console.log(jobType);
 		if (jobType && !Array.isArray(jobType)) jobType = [jobType as string];
 		if (jobType?.length! > 0) tmp = [{ $or: [{ $in: ['$job_type', jobType] }, { $setIsSubset: ['$other_job_type', jobType] }] }, ...tmp];
 
