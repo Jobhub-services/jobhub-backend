@@ -5,12 +5,12 @@ import { Request, Response } from 'express';
 class StorageController {
 	resolveFile = async (req: Request, res: Response) => {
 		try {
-			const fileToken = req.params.token;
+			const fileid = req.params.fileid;
 			const fileInfo: {
 				data: any;
 				mimeType: any;
 				fileName: any;
-			} = await storageService.readFileFromUrl(fileToken);
+			} = await storageService.readFileFromUrl(fileid);
 			if (!fileInfo) res.status(404).send({ message: 'File not found' });
 			res.setHeader('content-type', fileInfo.mimeType);
 			res.setHeader('Content-Disposition', 'attachment;filename=' + fileInfo.fileName);
