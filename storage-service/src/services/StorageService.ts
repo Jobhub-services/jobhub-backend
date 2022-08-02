@@ -27,15 +27,15 @@ class StorageService {
 	}
 	createFileURL = (fileId: string, expiresIn = 60 * 60 * 24) => {
 		const appUrl = this.appUrl;
-		const token = tokenService.hashToken({ fileId }, expiresIn);
-		const fileURL = `${appUrl}${STORAGE_API_PATH}/${token}`;
+		//const token = tokenService.hashToken({ fileId }, expiresIn);
+		const fileURL = `${appUrl}${STORAGE_API_PATH}/${fileId}`;
 		return fileURL;
 	};
-	readFileFromUrl = async (token: string) => {
+	readFileFromUrl = async (fileId: string) => {
 		try {
-			const payload = tokenService.verifyToken(token);
-			const fileId = payload.fileId;
-
+			/*const payload = tokenService.verifyToken(fileId);
+			const fileId = payload.fileId;*/
+			console.log(fileId);
 			const storage = await this.storage;
 			const media = await UserMedia.findById(fileId);
 
