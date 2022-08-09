@@ -31,7 +31,7 @@ export class CompanyJobDto {
 
 	@Expose()
 	@IsOptional()
-	@IsNotEmpty({ message: isEmptyMessage('Job responsabilities') })
+	//@IsNotEmpty({ message: isEmptyMessage('Job responsabilities') })
 	@IsString({ message: isStringMessage('Job responsabilities') })
 	responsabilities: string;
 
@@ -54,7 +54,7 @@ export class CompanyJobDto {
 
 	@Expose()
 	@IsOptional()
-	@IsNotEmpty({ message: isEmptyMessage('Job duration') })
+	//@IsNotEmpty({ message: isEmptyMessage('Job duration') })
 	@IsEnum(JobDuration, { message: isEnumMessage('Job duration', JobDuration) })
 	duration: JobDuration;
 
@@ -66,7 +66,7 @@ export class CompanyJobDto {
 
 	@Expose()
 	@IsOptional()
-	@IsNotEmpty({ message: isEmptyMessage('Job salary type') })
+	//@IsNotEmpty({ message: isEmptyMessage('Job salary type') })
 	@IsEnum(SalaryType, { message: isEnumMessage('Job salary type', SalaryType) })
 	salary_type: SalaryType;
 
