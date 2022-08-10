@@ -24,7 +24,7 @@ class CompanyJobController {
 			const category = await metadataService.getJobCategory(jobBody.category);
 			const questions = this._populateQuestions(jobBody.questions);
 			const company_division = company.company_division.find((division) => division._id == jobBody.company_division);
-
+			if (!work_remotly && work_location.length === 0) return res.status(406).send({ message: 'Select work location' });
 			const createJobInstance = async (location?: ICompanyJob['work_location']) => {
 				const companyJob: ICompanyJob = {
 					title: jobBody.title,
