@@ -278,7 +278,7 @@ class CompanyJobController {
 			const jobId = req.params.jobid;
 			const jobBody: CompanyJobDto = req.body;
 			if (!jobId || !isValidObjectId(jobId)) return res.status(406).send({ message: 'Job not found' });
-			const job = await CompanyJob.findOne({ id: jobId, createdBy: rootObjectId });
+			const job = await CompanyJob.findOne({ _id: jobId, createdBy: rootObjectId });
 			if (!job) return res.status(406).send({ message: 'Job not found' });
 
 			// update properties
