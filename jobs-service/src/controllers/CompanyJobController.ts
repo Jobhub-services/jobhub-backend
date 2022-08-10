@@ -215,13 +215,9 @@ class CompanyJobController {
 							code: '$currency.code',
 							name: '$currency.name',
 						},
-						skills: '$skills.name',
+						skills: '$skills',
 
-						work_location: {
-							country: '$work_location.country.name',
-							city: '$work_location.city',
-						},
-
+						work_location: '$work_location',
 						description: '$description',
 						status: '$status',
 						job_type: '$job_type',
