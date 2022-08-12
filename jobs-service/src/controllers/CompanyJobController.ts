@@ -314,6 +314,7 @@ class CompanyJobController {
 			if (jobBody.certification) job.certification = jobBody.certification;
 			if (jobBody.skills) job.skills = await metadataService.getSkills(jobBody.skills);
 			if (jobBody.requirements) job.requirements = jobBody.requirements;
+			if (jobBody.status) job.status = jobBody.status;
 			job.updatedBy = rootObjectId;
 			await job.save();
 			res.status(200).send({ message: 'Job updated successfully' });
