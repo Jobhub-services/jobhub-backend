@@ -114,6 +114,8 @@ class DeveloperController {
 	getCompanyDetail = async (req: Request, res: Response) => {
 		try {
 			const companyId = req.params.companyId;
+			const rootObjectId = req.rootObjectId;
+			const developer: any = await Developer.findOne({ userId: rootObjectId });
 			const company = await Company.findById(companyId).populate({
 				path: 'jobs',
 				select: {
@@ -139,6 +141,7 @@ class DeveloperController {
 					salary_type: 1,
 					createdAt: 1,
 					updatedAt: 1,
+					saved: { $in: ['$_id', developer.savedJobs ?? []] },
 				},
 			});
 			if (!company) return res.status(406).send({ message: 'Company not found' });
