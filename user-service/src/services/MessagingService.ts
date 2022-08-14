@@ -10,6 +10,8 @@ class MessagingService {
 		this.storageService = new HttpClient(STORAGE_SERVICE);
 	}
 
+	sendPasswordConfirmationEmail = async (payload: any) => {};
+
 	uploadUserMedia = async (userId: Types.ObjectId, file: UploadedFile) => {
 		try {
 			const data = this._buildFileFormData(userId, file);

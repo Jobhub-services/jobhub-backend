@@ -2,6 +2,7 @@ import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, ValidateNested } fro
 import { UserType } from '@/interfaces/users.interface';
 import { isEmptyMessage, isStringMessage } from '@/config/dto.config';
 import { Expose, Type } from 'class-transformer';
+import { Match } from '@/helpers';
 
 /*** login dtos */
 export class LoginDto {
@@ -67,4 +68,23 @@ export class RegisterDto {
 	@ValidateNested()
 	@Type(() => CompanyInfoDto)
 	companyInfo?: CompanyInfoDto;
+}
+
+export class ResetPasswordDto {
+	@Expose()
+	email: string;
+
+	@Expose()
+	@IsNotEmpty({ message: isEmptyMessage('Token') })
+	@IsString({ message: isStringMessage('Token') })
+	token: string;
+
+	@Expose()
+	@IsNotEmpty({ message: isEmptyMessage('Password') })
+	@IsString({ message: isStringMessage('Password') })
+	newPassword: string;
+
+	@Expose()
+	@Match('newPassword')
+	confirmationPassword: string;
 }

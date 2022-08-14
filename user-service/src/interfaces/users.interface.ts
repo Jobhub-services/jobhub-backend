@@ -7,6 +7,11 @@ export enum UserType {
 	ADMIN = 'admin',
 }
 
+export interface IPasswordToken {
+	userId: Types.ObjectId;
+	passCode: string;
+}
+
 export interface IUser {
 	_id: Types.ObjectId;
 	fullName?: string;

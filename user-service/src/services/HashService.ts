@@ -47,6 +47,24 @@ export default class TokenService {
 			return null;
 		}
 	};
+	stringToBase64 = (text: string) => {
+		try {
+			const buff = Buffer.from(text);
+			const base64data = buff.toString('base64');
+			return base64data;
+		} catch {
+			return null;
+		}
+	};
+	base64ToString = (base64: string) => {
+		try {
+			let buff = Buffer.from(base64, 'base64');
+			let text = buff.toString('ascii');
+			return text;
+		} catch {
+			return null;
+		}
+	};
 }
 
 export const tokenService = new TokenService();

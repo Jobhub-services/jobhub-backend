@@ -5,6 +5,10 @@ import { tokenService } from '@/services/HashService';
 import User from '@/models/User';
 import Company from '@/models/Company';
 import Developer from '@/models/Developer';
+import { rendomString } from '@/helpers';
+import { RESET_PASSWORD_TOKEN_EXPIRATION } from '@/constants/app.constants';
+import PasswordToken from '@/models/PasswordToken';
+import messagingService from '@/services/MessagingService';
 
 class AuthController {
 	public login = async (req: Request, res: Response) => {
@@ -43,6 +47,55 @@ class AuthController {
 			else if (user.userType === UserType.DEVELOPER)
 				await Developer.create({ userId: user._id, firstName: userInfo.developerInfo.firstName, lastName: userInfo.developerInfo.lastName });
 			res.status(200).send({ message: 'User registred successfully', data: user });
+		} catch (e) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
+
+	public forgetPassword = async (req: Request, res: Response) => {
+		try {
+			const email = req.body.email;
+			const user = await User.findOne({ email });
+			if (user) {
+				const passCode = rendomString();
+				const payload: any = {
+					userId: user._id,
+					passCode,
+				};
+				const passToken = await PasswordToken.create(payload);
+				payload.tokenId = passToken._id;
+				let token = tokenService.hashToken(payload, RESET_PASSWORD_TOKEN_EXPIRATION);
+				token = tokenService.stringToBase64(token);
+				messagingService.sendPasswordConfirmationEmail({
+					token,
+					user,
+				});
+			}
+			res.status(200).send({ message: 'Email to reset your password is sent' });
+		} catch (e) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
+
+	public resetPassword = async (req: Request, res: Response) => {
+		try {
+			const { email, token, newPassword } = req.body;
+			const user = await User.findOne({ email });
+			if (!user) return res.status(403).send({ message: 'Something went wrong please try again' });
+			const tokenString = tokenService.base64ToString(token);
+			const payload = tokenService.verifyToken(tokenString);
+			if (!payload) return res.status(403).send({ message: 'Something went wrong please try again' });
+			const passToken = await PasswordToken.findById(payload.tokenId);
+			if (!passToken) return res.status(403).send({ message: 'Something went wrong please try again' });
+			if (passToken.userId.toString() == user._id.toString() && passToken.passCode == payload.passCode) {
+				user.password = await tokenService.hash(newPassword);
+				await passToken.delete();
+				await user.save();
+				return res.status(200).send({ message: 'Password reset successfully' });
+			}
+			res.status(403).send({ message: 'Something went wrong please try again' });
 		} catch (e) {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });

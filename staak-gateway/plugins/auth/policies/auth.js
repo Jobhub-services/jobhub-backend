@@ -7,7 +7,7 @@ const {
 	Types: { ObjectId },
 } = require('mongoose');
 
-const excludedRoutes = ['/api/users/auth/login', '/api/users/auth/register'];
+const excludedRoutes = ['/api/users/auth/login', '/api/users/auth/register', '/api/users/auth/forget-password', '/api/users/auth/reset-password'];
 const excludedRoutePaths = [];
 
 module.exports = {
