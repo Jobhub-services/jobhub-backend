@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
 import { IsArray, IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
-import { JobTypes, JobDuration, SalaryType } from '@/interfaces/companyJob.interface';
+import { JobTypes, JobDuration, SalaryType, JobStatus } from '@/interfaces/companyJob.interface';
 import { isEmptyMessage, isStringMessage, isEnumMessage } from '@/config/dto.config';
 import { Expose, Type } from 'class-transformer';
 import { IsObjectId } from '@/helpers';
@@ -31,7 +31,7 @@ export class CompanyJobDto {
 
 	@Expose()
 	@IsOptional()
-	@IsNotEmpty({ message: isEmptyMessage('Job responsabilities') })
+	//@IsNotEmpty({ message: isEmptyMessage('Job responsabilities') })
 	@IsString({ message: isStringMessage('Job responsabilities') })
 	responsabilities: string;
 
@@ -54,7 +54,7 @@ export class CompanyJobDto {
 
 	@Expose()
 	@IsOptional()
-	@IsNotEmpty({ message: isEmptyMessage('Job duration') })
+	//@IsNotEmpty({ message: isEmptyMessage('Job duration') })
 	@IsEnum(JobDuration, { message: isEnumMessage('Job duration', JobDuration) })
 	duration: JobDuration;
 
@@ -66,9 +66,14 @@ export class CompanyJobDto {
 
 	@Expose()
 	@IsOptional()
-	@IsNotEmpty({ message: isEmptyMessage('Job salary type') })
+	//@IsNotEmpty({ message: isEmptyMessage('Job salary type') })
 	@IsEnum(SalaryType, { message: isEnumMessage('Job salary type', SalaryType) })
 	salary_type: SalaryType;
+
+	@Expose()
+	@IsOptional()
+	@IsEnum(JobStatus, { message: isEnumMessage('Job status', JobStatus) })
+	status: JobStatus;
 
 	@Expose()
 	@IsOptional()

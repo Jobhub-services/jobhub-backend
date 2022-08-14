@@ -24,7 +24,7 @@ class CompanyJobController {
 			const category = await metadataService.getJobCategory(jobBody.category);
 			const questions = this._populateQuestions(jobBody.questions);
 			const company_division = company.company_division.find((division) => division._id == jobBody.company_division);
-
+			if (!work_remotly && work_location.length === 0) return res.status(406).send({ message: 'Select work location' });
 			const createJobInstance = async (location?: ICompanyJob['work_location']) => {
 				const companyJob: ICompanyJob = {
 					title: jobBody.title,
@@ -215,13 +215,9 @@ class CompanyJobController {
 							code: '$currency.code',
 							name: '$currency.name',
 						},
-						skills: '$skills.name',
+						skills: '$skills',
 
-						work_location: {
-							country: '$work_location.country.name',
-							city: '$work_location.city',
-						},
-
+						work_location: '$work_location',
 						description: '$description',
 						status: '$status',
 						job_type: '$job_type',
@@ -282,7 +278,7 @@ class CompanyJobController {
 			const jobId = req.params.jobid;
 			const jobBody: CompanyJobDto = req.body;
 			if (!jobId || !isValidObjectId(jobId)) return res.status(406).send({ message: 'Job not found' });
-			const job = await CompanyJob.findOne({ id: jobId, createdBy: rootObjectId });
+			const job = await CompanyJob.findOne({ _id: jobId, createdBy: rootObjectId });
 			if (!job) return res.status(406).send({ message: 'Job not found' });
 
 			// update properties
@@ -318,6 +314,7 @@ class CompanyJobController {
 			if (jobBody.certification) job.certification = jobBody.certification;
 			if (jobBody.skills) job.skills = await metadataService.getSkills(jobBody.skills);
 			if (jobBody.requirements) job.requirements = jobBody.requirements;
+			if (jobBody.status) job.status = jobBody.status;
 			job.updatedBy = rootObjectId;
 			await job.save();
 			res.status(200).send({ message: 'Job updated successfully' });

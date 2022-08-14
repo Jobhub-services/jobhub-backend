@@ -3,6 +3,7 @@ import { AvailabilityStatus, IDeveloper } from '@/interfaces/developer.interface
 import { langSchema, jobRoleSchema, countrySchema, skillSchema, currencySchema } from '@/models/MetadataSchema';
 import User from '@/models/User';
 import messagingService from '@/services/MessagingService';
+import CompanyJob from '@/models/CompanyJob';
 
 const languageSchema = new Schema({
 	language: langSchema,
@@ -82,6 +83,12 @@ const developerSchema: Schema = new Schema(
 			enum: AvailabilityStatus,
 			default: AvailabilityStatus.OPEN,
 		},
+		savedJobs: [
+			{
+				type: Types.ObjectId,
+				ref: CompanyJob,
+			},
+		],
 	},
 	{
 		timestamps: true,

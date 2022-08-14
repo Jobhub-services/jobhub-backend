@@ -5,6 +5,8 @@ import { ICompany, ICompanyDivision } from '@/interfaces/company.interface';
 export enum JobTypes {
 	FULL_TIME = 'Full time',
 	PART_TIME = 'Part time',
+	CONTRACT = 'Contract',
+	INTERNSHIP = 'Internship',
 }
 
 export enum SalaryType {
