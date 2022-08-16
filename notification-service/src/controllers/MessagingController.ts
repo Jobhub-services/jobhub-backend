@@ -14,6 +14,7 @@ class MessagingController {
 				layout: 'emails.layout',
 				data: payload,
 			});
+			console.log(emailHTMLContent);
 			mailService.sendAuthEmail(user.email, emailHTMLContent, subject);
 			res.status(200).send({ message: 'Reset password email sent' });
 		} catch (e) {

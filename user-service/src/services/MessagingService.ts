@@ -15,7 +15,7 @@ class MessagingService {
 	sendPasswordConfirmationEmail = async (payload: any) => {
 		try {
 			const response = await this.notificationService.post('reset-password', payload);
-			console.log(response);
+			console.log(response.data);
 		} catch (e) {
 			console.log(e);
 		}
