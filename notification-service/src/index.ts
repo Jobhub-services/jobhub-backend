@@ -3,20 +3,32 @@ import { config as dotenvConfig } from 'dotenv';
 const NODE_ENV = process.env.NODE_ENV || 'development';
 dotenvConfig({ path: `.env.${NODE_ENV}` });
 
-import express, { json } from 'express';
-import { connect, set } from 'mongoose';
+import { connect, set, Types } from 'mongoose';
+import express, { json, Request, Response } from 'express';
 import cors from 'cors';
-import Router from '@/routes';
+import '@/types';
 import { dbConnection } from '@/config/db.config';
+import { SERVICE_API_PATH } from '@/constants/app.constants';
+import Router from '@/routes';
 import MessagingService from '@/services/MessagingService';
 
 new MessagingService();
 
 const app = express();
+
 app.use(json());
 app.use(cors());
-app.use(`/cdn/public`, express.static('public'));
-app.use(`/`, Router);
+app.use('/', (req: Request, res: Response, next) => {
+	if (req.headers['user_id'] && req.headers['user']) {
+		req.user = JSON.parse(req.headers['user'] as string);
+		const userId = new Types.ObjectId(String(req.headers['user_id']));
+		req.user._id = userId;
+		global.authUser = req.user;
+		req.rootObjectId = userId;
+	}
+	next();
+});
+app.use(`/api/${SERVICE_API_PATH}`, Router);
 
 if (NODE_ENV !== 'production') set('debug', true);
 

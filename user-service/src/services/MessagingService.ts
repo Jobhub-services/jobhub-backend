@@ -5,12 +5,21 @@ import HttpClient from '@/services/HttpClient';
 
 class MessagingService {
 	storageService: HttpClient;
+	notificationService: HttpClient;
 	constructor() {
-		const STORAGE_SERVICE = process.env.STORAGE_SERVICE;
+		const { STORAGE_SERVICE, NOTIFICATION_SERVICE } = process.env;
 		this.storageService = new HttpClient(STORAGE_SERVICE);
+		this.notificationService = new HttpClient(NOTIFICATION_SERVICE);
 	}
 
-	sendPasswordConfirmationEmail = async (payload: any) => {};
+	sendPasswordConfirmationEmail = async (payload: any) => {
+		try {
+			const response = await this.notificationService.post('reset-password', payload);
+			console.log(response);
+		} catch (e) {
+			console.log(e);
+		}
+	};
 
 	uploadUserMedia = async (userId: Types.ObjectId, file: UploadedFile) => {
 		try {

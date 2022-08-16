@@ -4,16 +4,19 @@ http:
 apiEndpoints:
   users:
     host: '*'
-    paths: ['/api/users/*']
+    paths: ['/api/users', '/api/users/*']
   jobs:
     host: '*'
-    paths: ['/api/jobs/*']
+    paths: ['/api/jobs', '/api/jobs/*']
   metadata:
     host: '*'
-    paths: ['/api/metadata/*']
+    paths: ['/api/metadata', '/api/metadata/*']
   cdn:
     host: '*'
     paths: ['/cdn/*']
+  notifications:
+    host: '*'
+    paths: ['/api/notifications', '/api/notifications/*']
 serviceEndpoints:
   jobs:
     url: 'http://localhost:3001'
@@ -23,6 +26,8 @@ serviceEndpoints:
     url: 'http://localhost:3003'
   cdn:
     url: 'http://localhost:3004'
+  notifications:
+    url: 'http://localhost:3006'
 policies:
   - basic-auth
   - cors
@@ -43,6 +48,17 @@ pipelines:
       - proxy:
           - action:
               serviceEndpoint: cdn
+              changeOrigin: true
+  notifications:
+    apiEndpoints:
+      - notifications
+    policies:
+      - cors:
+          - action:
+              origin: '*'
+      - proxy:
+          - action:
+              serviceEndpoint: notifications
               changeOrigin: true
   users:
     apiEndpoints:
