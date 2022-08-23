@@ -17,6 +17,9 @@ apiEndpoints:
   notifications:
     host: '*'
     paths: ['/api/notifications', '/api/notifications/*']
+  payments:
+    host: '*'
+    paths: ['/api/payments', '/api/payments/*']
 serviceEndpoints:
   jobs:
     url: 'http://localhost:3001'
@@ -28,6 +31,8 @@ serviceEndpoints:
     url: 'http://localhost:3004'
   notifications:
     url: 'http://localhost:3006'
+  payments:
+    url: 'http://localhost:3008'
 policies:
   - basic-auth
   - cors
@@ -95,4 +100,16 @@ pipelines:
       - proxy:
           - action:
               serviceEndpoint: metadata
+              changeOrigin: true
+  payments:
+    apiEndpoints:
+      - payments
+    policies:
+      - cors:
+          - action:
+              origin: '*'
+      - auth:
+      - proxy:
+          - action:
+              serviceEndpoint: payments
               changeOrigin: true
