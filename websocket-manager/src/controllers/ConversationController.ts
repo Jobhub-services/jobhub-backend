@@ -87,39 +87,6 @@ class ConversationController {
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};
-	getMessages = async (req: Request, res: Response) => {
-		try {
-			const rootObjectId = req.rootObjectId;
-			const chatId = req.params.chatId;
-			if (!chatId || !isValidObjectId(chatId)) return res.status(406).send({ message: 'Conversation not found' });
-			const conv = await Conversation.findOne({ _id: chatId });
-			if (!conv) return res.status(406).send({ message: 'Conversation not found' });
-			res.status(200).send({ content: conv });
-		} catch (e: any) {
-			console.log(e);
-			res.status(500).send({ message: 'Something went wrong please try again' });
-		}
-	};
-	addMessage = async (req: Request, res: Response) => {
-		try {
-			const rootObjectId = req.rootObjectId;
-			const convData = req.body;
-			if (!convData.chatId || !isValidObjectId(convData.chatId)) return res.status(406).send({ message: 'Conversation not found' });
-			if (!convData.content || convData.content === '') return res.status(406).send({ message: 'Message content must be not empty' });
-			let conv = await Conversation.findOne({ _id: convData.chatId });
-			const message = {
-				content: convData.content as string,
-				sender: rootObjectId,
-				createdAt: convData.createdAt,
-			};
-			conv.messages.push(message);
-			await conv.save();
-			res.status(200).send({ message: 'Message added', data: convData.content });
-		} catch (e: any) {
-			console.log(e);
-			res.status(500).send({ message: 'Something went wrong please try again' });
-		}
-	};
 }
 
 export default ConversationController;

@@ -14,7 +14,5 @@ router.use('/', authRole(UserType.COMPANY));
 router.get('/', conversationController.getConversations);
 router.post('/', validationMiddleware(ConversationDto), conversationController.createConversation);
 router.delete('/:chatId', conversationController.deleteConversation);
-router.get('/message/:chatId', conversationController.getMessages);
-router.put('/message', conversationController.addMessage);
 
 export { router as conversationRouter };
