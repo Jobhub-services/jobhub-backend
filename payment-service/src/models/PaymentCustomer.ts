@@ -9,10 +9,7 @@ const paymentCustomerSchema: Schema = new Schema(
 		customer_id: String,
 		currency: currencySchema,
 		title: String,
-		live_mode: Boolean,
-		object: String,
 		metadata: Schema.Types.Mixed,
-		api_version: String,
 	},
 	{
 		timestamps: true,

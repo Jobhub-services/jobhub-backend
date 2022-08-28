@@ -6,3 +6,10 @@ export const currencySchema = metadataSchema({
 	code: String,
 	name: String,
 });
+
+export const timezoneSchema = metadataSchema({
+	_id: Types.ObjectId,
+	code: String,
+	name: String,
+	utc: String,
+});

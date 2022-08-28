@@ -7,7 +7,7 @@ export enum FeatureType {
 	CONTACTS_NUMBER = 'contacts-number',
 }
 
-type FeatureDetail = {
+export type FeatureDetail = {
 	slug: FeatureType;
 	description: string;
 	value: number;

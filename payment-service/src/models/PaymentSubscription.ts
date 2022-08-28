@@ -2,6 +2,9 @@ import { model, Schema, Document, Types } from 'mongoose';
 import { IPSubscription, SubscriptionStatus, SubscriptionType } from '@/interfaces/pSubscriptions.interface';
 import User from '@/models/User';
 import Subscription from '@/models/Subscription';
+import PaymentMethod from '@/models/PaymentMethod';
+import Promotion from '@/models/Promotion';
+import { currencySchema, timezoneSchema } from '@/models/MetadataSchema';
 
 const featureSchema: Schema = new Schema({
 	feature_id: Types.ObjectId,
@@ -13,11 +16,20 @@ const paymentSubscriptionSchema: Schema = new Schema(
 	{
 		userId: { type: Types.ObjectId, ref: User },
 		subscriptionId: { type: Types.ObjectId, ref: Subscription },
-		renew_type: SubscriptionType,
-		payed_amount: Number,
+		payment_method: { type: Types.ObjectId, ref: PaymentMethod },
+		promotion_id: { type: Types.ObjectId, ref: Promotion },
+		interval: SubscriptionType,
+		amount: Number,
 		auto_renew: Boolean,
-		status: SubscriptionStatus,
+		status: {
+			type: String,
+			enum: SubscriptionStatus,
+		},
+		description: String,
+		metadata: Schema.Types.Mixed,
 		features: [featureSchema],
+		timezone: timezoneSchema,
+		currency: currencySchema,
 	},
 	{
 		timestamps: true,

@@ -1,5 +1,5 @@
 import { connection, Types } from 'mongoose';
-import { ILangData, IJobRoleData, ICountryData, ISkillData, ICurrencyData, IJobCategoryData } from '@/interfaces/metadata.interface';
+import { ILangData, IJobRoleData, ICountryData, ISkillData, ICurrencyData, IJobCategoryData, ITimezoneData } from '@/interfaces/metadata.interface';
 class MetadataService {
 	_connection = connection;
 
@@ -50,6 +50,19 @@ class MetadataService {
 		const selectedItems = await this._selectItems(dataIds, collectionName);
 		return selectedItems;
 	}
+
+	/*** Timezones */
+	async getTimezone(dataId: any): Promise<ITimezoneData> {
+		const collectionName = 'timezones';
+		const selectedItem = await this._selectItem(dataId, collectionName);
+		return selectedItem;
+	}
+	async getTimezones(dataIds: any[]): Promise<ITimezoneData[]> {
+		const collectionName = 'timezones';
+		const selectedItems = await this._selectItems(dataIds, collectionName);
+		return selectedItems;
+	}
+
 	/**** */
 
 	async getJobCategory(dataId: any): Promise<IJobCategoryData> {

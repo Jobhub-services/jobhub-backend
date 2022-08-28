@@ -5,3 +5,10 @@ export interface ICurrencyData {
 	code: string;
 	name: string;
 }
+
+export interface ITimezoneData {
+	_id: Types.ObjectId;
+	code: string;
+	name: string;
+	utc: string;
+}

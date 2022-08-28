@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { ICountryData } from '@/interfaces/metadata.interface';
+import { ICountryData, ITimezoneData, ICurrencyData } from '@/interfaces/metadata.interface';
 
 export type TSocialProfile = {
 	linkedin?: String;
@@ -35,6 +35,8 @@ export interface ICompany {
 	headquarter?: THeadQuarter;
 	generalinfo?: TGeneralInfo;
 	avatar?: string;
+	currency?: ICurrencyData;
+	timezone?: ITimezoneData;
 
 	toJSON(): ICompany;
 }

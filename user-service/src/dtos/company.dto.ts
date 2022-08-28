@@ -97,6 +97,16 @@ export class CompanyDto {
 	@IsOptional()
 	@IsArray()
 	company_division?: string[];
+
+	@Expose()
+	@IsOptional()
+	@IsObjectId()
+	currency?: Types.ObjectId;
+
+	@Expose()
+	@IsOptional()
+	@IsObjectId()
+	timezone?: Types.ObjectId;
 }
 
 export class UpdateCompanyDto {

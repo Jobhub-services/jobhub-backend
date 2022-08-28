@@ -19,7 +19,8 @@
 		"dotenv": "^16.0.0",
 		"express": "^4.17.3",
 		"mongoose": "6.2.10",
-		"reflect-metadata": "^0.1.13"
+		"reflect-metadata": "^0.1.13",
+		"unique-string": "^3.0.0"
 	},
 	"devDependencies": {
 		"@types/express": "^4.17.13",

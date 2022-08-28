@@ -1,8 +1,18 @@
-import { model, Schema, Document } from 'mongoose';
+import { model, Schema, Document, Types } from 'mongoose';
+import User from '@/models/User';
+import PaymentMethod from '@/models/PaymentMethod';
+import Promotion from '@/models/Promotion';
 import { IPCharge } from '@/interfaces/pCharges.interface';
 
 const paymentChargeSchema: Schema = new Schema(
-	{},
+	{
+		userId: { type: Types.ObjectId, ref: User },
+		payment_method: { type: Types.ObjectId, ref: PaymentMethod },
+		promotion_id: { type: Types.ObjectId, ref: Promotion },
+		amout: Number,
+		description: String,
+		metadata: Schema.Types.Mixed,
+	},
 	{
 		timestamps: true,
 	}
