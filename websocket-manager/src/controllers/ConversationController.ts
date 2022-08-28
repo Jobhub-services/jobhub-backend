@@ -43,7 +43,6 @@ class ConversationController {
 			const { name = '', limit = 20, page } = req.query;
 			const count = await Conversation.count({ createdBy: rootObjectId });
 			let queryConditions: any = { createdBy: rootObjectId };
-			console.log(rootObjectId);
 			const query = Conversation.aggregate([
 				{ $match: queryConditions },
 				{
