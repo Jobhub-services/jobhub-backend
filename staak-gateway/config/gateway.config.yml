@@ -17,6 +17,9 @@ apiEndpoints:
   notifications:
     host: '*'
     paths: ['/api/notifications', '/api/notifications/*']
+  websockets:
+    host: '*'
+    paths: ['/api/websocket', '/api/websocket/*']
   payments:
     host: '*'
     paths: ['/api/payments', '/api/payments/*']
@@ -31,6 +34,8 @@ serviceEndpoints:
     url: 'http://localhost:3004'
   notifications:
     url: 'http://localhost:3006'
+  websockets:
+    url: 'http://localhost:3008'
   payments:
     url: 'http://localhost:3008'
 policies:
@@ -100,6 +105,18 @@ pipelines:
       - proxy:
           - action:
               serviceEndpoint: metadata
+              changeOrigin: true
+  websockets:
+    apiEndpoints:
+      - websockets
+    policies:
+      - cors:
+          - action:
+              origin: '*'
+      - auth:
+      - proxy:
+          - action:
+              serviceEndpoint: websockets
               changeOrigin: true
   payments:
     apiEndpoints:

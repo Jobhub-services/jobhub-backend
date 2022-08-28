@@ -6,7 +6,8 @@
 		"format": "prettier --write .",
 		"start:app": "npm start --prefix staak-gateway",
 		"start:dev": "npm run start:dev --prefix staak-gateway",
-		"start:local": "./scripts/run-serve.sh"
+		"start:local": "./scripts/run-serve.sh",
+		"install:modules": "./scripts/install-scripts.sh"
 	},
 	"author": "",
 	"license": "ISC",
