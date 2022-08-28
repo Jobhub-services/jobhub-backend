@@ -38,13 +38,11 @@ async function populateFiles(docs, next) {
 			const fileIds = [];
 			docs.forEach((doc) => {
 				if (doc.userInfo && doc.userInfo.avatar && fileIds.indexOf(doc.userInfo.avatar) === -1) fileIds.push(doc.userInfo.avatar);
-				//if (doc.talent && doc.talent.avatar && fileIds.indexOf(doc.talent.avatar) === -1) fileIds.push(doc.talent.avatar);
 			});
 			let fileUrls = {};
 			if (fileIds.length > 0) fileUrls = await messagingService.presigneUserMedia(fileIds);
 			docs.forEach((doc) => {
 				if (fileUrls && doc.userInfo && doc.userInfo.avatar && fileUrls[doc.userInfo.avatar]) doc.userInfo.avatar = fileUrls[doc.userInfo.avatar];
-				//if (doc.talent && doc.talent.avatar && fileUrls[doc.talent.avatar]) doc.talent.avatar = fileUrls[doc.talent.avatar];
 			});
 		}
 	} finally {
