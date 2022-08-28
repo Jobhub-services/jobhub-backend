@@ -37,6 +37,12 @@ WORKDIR /staak-api/notification-service
 RUN npm install
 RUN npm run build
 
+#build websocket
+
+WORKDIR /staak-api/websocket-manager
+RUN npm install
+RUN npm run build
+
 #build gateway 
 
 WORKDIR /staak-api/staak-gateway
@@ -52,4 +58,4 @@ EXPOSE 3003
 EXPOSE $PORT
 
 
-CMD (npm run start --prefix notification-service &) &&  (npm run start --prefix storage-service &) && (npm run start --prefix user-service &) && (npm run start --prefix jobs-service &) && (npm run start --prefix metadata-service &) && npm run start:app
+CMD (npm run start --prefix notification-service &) &&  (npm run start --prefix storage-service &) && (npm run start --prefix user-service &) && (npm run start --prefix jobs-service &) && (npm run start --prefix metadata-service &) && (npm run start --prefix websocket-manager &) && npm run start:app
