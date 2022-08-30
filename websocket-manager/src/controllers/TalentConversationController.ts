@@ -8,9 +8,19 @@ class TalentConversationController {
 			const { name = '', limit = 20, page } = req.query;
 			const count = await Conversation.count({ createdBy: rootObjectId });
 			let queryConditions: any = { members: { $in: [rootObjectId] } };
-			console.log(rootObjectId);
+
+			const limitFilters = [];
+			let pageN;
+			const limitN = Number(limit);
+			if (page) {
+				pageN = Number(page);
+				limitFilters.push({ $skip: pageN * limitN });
+			}
+			limitFilters.push({ $limit: limitN });
+
 			const query = Conversation.aggregate([
 				{ $match: queryConditions },
+				...limitFilters,
 				{
 					$lookup: {
 						from: 'companies',
