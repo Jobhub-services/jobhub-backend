@@ -35,7 +35,7 @@ serviceEndpoints:
   notifications:
     url: 'http://localhost:3006'
   websockets:
-    url: 'http://localhost:3008'
+    url: 'http://localhost:3009'
   payments:
     url: 'http://localhost:3008'
 policies:
