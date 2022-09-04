@@ -41,11 +41,21 @@ class ConversationController {
 		try {
 			const rootObjectId = req.rootObjectId;
 			const { name = '', limit = 20, page } = req.query;
-			const count = await Conversation.count({ createdBy: rootObjectId });
 			let queryConditions: any = { createdBy: rootObjectId };
-			console.log(rootObjectId);
+			const count = await Conversation.count(queryConditions);
+
+			const limitFilters = [];
+			let pageN;
+			const limitN = Number(limit);
+			if (page) {
+				pageN = Number(page);
+				limitFilters.push({ $skip: pageN * limitN });
+			}
+			limitFilters.push({ $limit: limitN });
+
 			const query = Conversation.aggregate([
 				{ $match: queryConditions },
+				...limitFilters,
 				{
 					$lookup: {
 						from: 'developers',
