@@ -6,6 +6,8 @@ import JobCategory from '@/models/JobCategory';
 import Country from '@/models/Country';
 import Language from '@/models/Language';
 import JobRole from '@/models/JobRole';
+import Timezone from '@/models/Timezone';
+import { ITimezone } from '@/interfaces/timezone.interface';
 
 class MetadataController {
 	// countries
@@ -182,6 +184,47 @@ class MetadataController {
 			}
 			const jobRoles = await query;
 			res.status(200).send({ content: jobRoles, count, size: jobRoles.length });
+		} catch {
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	}
+
+	// timezones
+	public async initTimezones(req: Request, res: Response) {
+		try {
+			const jsonFile = await fs.readFileSync(path.join(__dirname, '..', '..', 'json_data', 'timezones.json'));
+			const timezones: { label: string; tzCode: string; name: String; utc: String }[] = JSON.parse(jsonFile.toString());
+			const timezone = await Timezone.findOne();
+			if (!timezone) {
+				const data: ITimezone[] = timezones.map((_) => {
+					return {
+						code: _.tzCode,
+						name: _.label,
+						utc: _.utc,
+					};
+				});
+				await Timezone.insertMany(data);
+			}
+			res.status(200).send({ message: 'Timezones added' });
+		} catch (e) {
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	}
+	public async getTimezones(req: Request, res: Response) {
+		try {
+			const { code = '', name = '', limit, page } = req.query;
+			const query = Timezone.find({ code: { $regex: code, $options: 'i' }, name: { $regex: name, $options: 'i' } });
+			const count = await Timezone.count();
+			if (limit) {
+				const limitN = Number(limit);
+				query.limit(limitN);
+				if (page) {
+					const pageN = Number(page);
+					query.skip(pageN * limitN);
+				}
+			}
+			const timezones = await query;
+			res.status(200).send({ content: timezones, count, size: timezones.length });
 		} catch {
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}

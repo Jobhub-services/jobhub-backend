@@ -40,9 +40,12 @@ class CompanyController {
 			const companyInfo: any = {};
 			const userInfo: any = {};
 			if (profileBody.companyName) companyInfo.companyName = profileBody.companyName;
+			if (profileBody.owner_first_name) companyInfo.owner_first_name = profileBody.owner_first_name;
+			if (profileBody.owner_last_name) companyInfo.owner_last_name = profileBody.owner_last_name;
 
 			if (profileBody.email) userInfo.email = profileBody.email;
 			if (profileBody.username) userInfo.username = profileBody.username;
+			if (profileBody.phone) userInfo.phone = profileBody.phone;
 
 			if (Object.keys(companyInfo).length > 0) await Company.updateOne({ userId: rootObjectId }, companyInfo);
 			if (Object.keys(userInfo).length > 0) await User.updateOne({ _id: rootObjectId }, userInfo);
@@ -64,6 +67,8 @@ class CompanyController {
 			if (profileBody.social_profile) this._setSocialProfile(profile, profileBody.social_profile);
 			if (profileBody.headquarter) await this._setHeadquarter(profile, profileBody.headquarter);
 			if (profileBody.generalinfo) this._setGeneralinfo(profile, profileBody.generalinfo);
+			if (profileBody.currency) this._setCurrency(profile, profileBody.currency);
+			if (profileBody.timezone) this._setTimezone(profile, profileBody.timezone);
 			if (req.files) {
 				if (req.files.avatar) await this._updateAvatar(profile, req.files.avatar as UploadedFile);
 			}
@@ -152,6 +157,14 @@ class CompanyController {
 
 	private _setGeneralinfo = (profile: ICompany, generalinfo: CompanyDto['generalinfo']) => {
 		profile.generalinfo = generalinfo;
+	};
+
+	private _setCurrency = async (profile: ICompany, currency: CompanyDto['currency']) => {
+		profile.currency = await metadataService.getCurrency(currency);
+	};
+
+	private _setTimezone = async (profile: ICompany, timezone: CompanyDto['timezone']) => {
+		profile.timezone = await metadataService.getTimezone(timezone);
 	};
 
 	private _updateAvatar = async (profile: ICompany, file: UploadedFile) => {

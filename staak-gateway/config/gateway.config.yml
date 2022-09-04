@@ -20,6 +20,9 @@ apiEndpoints:
   websockets:
     host: '*'
     paths: ['/api/websocket', '/api/websocket/*']
+  payments:
+    host: '*'
+    paths: ['/api/payments', '/api/payments/*']
 serviceEndpoints:
   jobs:
     url: 'http://localhost:3001'
@@ -32,6 +35,8 @@ serviceEndpoints:
   notifications:
     url: 'http://localhost:3006'
   websockets:
+    url: 'http://localhost:3008'
+  payments:
     url: 'http://localhost:3008'
 policies:
   - basic-auth
@@ -112,4 +117,16 @@ pipelines:
       - proxy:
           - action:
               serviceEndpoint: websockets
+              changeOrigin: true
+  payments:
+    apiEndpoints:
+      - payments
+    policies:
+      - cors:
+          - action:
+              origin: '*'
+      - auth:
+      - proxy:
+          - action:
+              serviceEndpoint: payments
               changeOrigin: true

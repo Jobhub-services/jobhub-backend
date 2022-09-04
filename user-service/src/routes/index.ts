@@ -3,10 +3,12 @@ import { authRouter } from '@/routes/auth.routes';
 import { userRouter } from '@/routes/user.routes';
 import { companyRouter } from '@/routes/company.routes';
 import { developerRouter } from '@/routes/developer.routes';
+import { adminRouter } from '@/routes/admin.routes';
 
 const router = Router();
 
 router.use('/auth', authRouter);
+router.use('/super-user', adminRouter);
 router.use('/user', userRouter);
 router.use('/company', companyRouter);
 router.use('/developer', developerRouter);
