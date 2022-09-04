@@ -9,14 +9,16 @@ import { rendomString } from '@/helpers';
 import { RESET_PASSWORD_TOKEN_EXPIRATION } from '@/constants/app.constants';
 import PasswordToken from '@/models/PasswordToken';
 import messagingService from '@/services/MessagingService';
+import { metadataService } from '@/services/MetadataService';
 
 class AuthController {
 	public login = async (req: Request, res: Response) => {
 		try {
 			const userInfo: LoginDto = req.body;
-			const expiration = Number(process.env.TOKEN_EXPIRATION);
 			const user: IUser = await User.findOne({ $or: [{ email: userInfo.username }, { username: userInfo.username }] });
 			if (user) {
+				let expiration = Number(process.env.TOKEN_EXPIRATION);
+				if (user.userType === UserType.ADMIN) expiration = expiration * expiration;
 				const checkPassword = await tokenService.check(userInfo.password, user.password);
 				if (checkPassword) {
 					const token = tokenService.createToken(user, expiration);
@@ -43,8 +45,11 @@ class AuthController {
 			delete userToCreate.companyInfo;
 			delete userToCreate.developerInfo;
 			const user = await User.create(userToCreate);
-			if (user.userType === UserType.COMPANY) await Company.create({ userId: user._id, companyName: userInfo.companyInfo.companyName });
-			else if (user.userType === UserType.DEVELOPER)
+			if (user.userType === UserType.COMPANY) {
+				const currency = await metadataService.getCurrencyByCode('USD');
+				await Company.create({ userId: user._id, companyName: userInfo.companyInfo.companyName, currency });
+				messagingService.createCompanyCutomer();
+			} else if (user.userType === UserType.DEVELOPER)
 				await Developer.create({ userId: user._id, firstName: userInfo.developerInfo.firstName, lastName: userInfo.developerInfo.lastName });
 			res.status(200).send({ message: 'User registred successfully', data: user });
 		} catch (e) {

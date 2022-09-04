@@ -57,6 +57,7 @@ class DeveloperController {
 
 			if (profileBody.email) userInfo.email = profileBody.email;
 			if (profileBody.username) userInfo.username = profileBody.username;
+			if (profileBody.phone) userInfo.phone = profileBody.phone;
 
 			if (Object.keys(developerInfo).length > 0) await Developer.updateOne({ userId: rootObjectId }, developerInfo);
 			if (Object.keys(userInfo).length > 0) await User.updateOne({ _id: rootObjectId }, userInfo);

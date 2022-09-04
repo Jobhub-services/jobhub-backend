@@ -1,5 +1,4 @@
 import { model, Schema, Types, Document } from 'mongoose';
-
 import Company from '@/models/Company';
 import User from '@/models/User';
 const companyJobSchema: Schema = new Schema({

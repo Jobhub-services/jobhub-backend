@@ -19,6 +19,10 @@ npm install
 cd ../notification-service
 npm install
 
+# install modules for payment-service
+cd ../payment-service
+npm install
+
 # install modules for staak-gateway
 cd ../staak-gateway
 npm install

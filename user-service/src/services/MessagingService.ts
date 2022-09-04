@@ -6,11 +6,23 @@ import HttpClient from '@/services/HttpClient';
 class MessagingService {
 	storageService: HttpClient;
 	notificationService: HttpClient;
+	paymentService: HttpClient;
+
 	constructor() {
-		const { STORAGE_SERVICE, NOTIFICATION_SERVICE } = process.env;
+		const { STORAGE_SERVICE, NOTIFICATION_SERVICE, PAYMENT_SERVICE } = process.env;
 		this.storageService = new HttpClient(STORAGE_SERVICE);
 		this.notificationService = new HttpClient(NOTIFICATION_SERVICE);
+		this.paymentService = new HttpClient(PAYMENT_SERVICE);
 	}
+
+	createCompanyCutomer = async () => {
+		try {
+			const response = await this.paymentService.post('customers/customer');
+			console.log(response.data);
+		} catch (e) {
+			console.log(e);
+		}
+	};
 
 	sendPasswordConfirmationEmail = async (payload: any) => {
 		try {

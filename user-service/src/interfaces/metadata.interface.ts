@@ -23,14 +23,21 @@ export interface ISkillData {
 	name: string;
 }
 
+export interface IJobCategoryData {
+	_id: Types.ObjectId;
+	industry: string;
+	name: string;
+}
+
 export interface ICurrencyData {
 	_id: Types.ObjectId;
 	code: string;
 	name: string;
 }
 
-export interface IJobCategoryData {
+export interface ITimezoneData {
 	_id: Types.ObjectId;
-	industry: string;
+	code: string;
 	name: string;
+	utc: string;
 }
