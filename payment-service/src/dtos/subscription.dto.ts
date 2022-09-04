@@ -5,12 +5,18 @@ import { Expose, Type } from 'class-transformer';
 import Subscription from '@/models/Subscription';
 import { IsExists } from '@/helpers';
 import { SubscriptionType } from '@/interfaces/pSubscriptions.interface';
+import PaymentMethod from '@/models/PaymentMethod';
 
 export class PaymentSubscriptionDto {
 	@Expose()
 	@IsNotEmpty()
 	@IsExists(Subscription)
 	subscriptionId: Types.ObjectId;
+
+	@Expose()
+	@IsNotEmpty()
+	@IsExists(PaymentMethod)
+	paymentMethodId: Types.ObjectId;
 
 	@Expose()
 	@IsNotEmpty()

@@ -5,11 +5,12 @@ import { tokenService } from '@/services/HashService';
 import User from '@/models/User';
 import Company from '@/models/Company';
 import Developer from '@/models/Developer';
-import { rendomString } from '@/helpers';
+import { getGeolocationInfoFromIp, rendomString } from '@/helpers';
 import { RESET_PASSWORD_TOKEN_EXPIRATION } from '@/constants/app.constants';
 import PasswordToken from '@/models/PasswordToken';
 import messagingService from '@/services/MessagingService';
 import { metadataService } from '@/services/MetadataService';
+import UserConnection from '@/models/UserConnection';
 
 class AuthController {
 	public login = async (req: Request, res: Response) => {
@@ -23,6 +24,14 @@ class AuthController {
 				if (checkPassword) {
 					const token = tokenService.createToken(user, expiration);
 					if (token) {
+						const userIp: any = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+						const userGeolocation = userIp ? getGeolocationInfoFromIp(userIp) : null;
+						const userConnection = await UserConnection.findOne({ userId: user._id });
+						if (userConnection) {
+							if (userGeolocation) userConnection.connections.push({ ...userGeolocation, connected_at: new Date().toUTCString() });
+							else userConnection.connections.push({ userIp, geoInfoNotFound: true, connected_at: new Date().toUTCString() });
+							await userConnection.save();
+						}
 						res.status(200).send({ message: 'user authentified successfully', data: token });
 						return;
 					}
@@ -38,6 +47,8 @@ class AuthController {
 	public register = async (req: Request, res: Response) => {
 		try {
 			const userInfo: RegisterDto = req.body;
+			const userIp: any = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+			const userGeolocation = userIp ? getGeolocationInfoFromIp(userIp) : null;
 			const existingUser: IUser = await User.findOne({ $or: [{ email: userInfo.email }, { username: userInfo.username }] });
 			if (existingUser) return res.status(403).send({ message: 'Email or Username already exist' });
 			userInfo.password = await tokenService.hash(userInfo.password);
@@ -45,9 +56,17 @@ class AuthController {
 			delete userToCreate.companyInfo;
 			delete userToCreate.developerInfo;
 			const user = await User.create(userToCreate);
+			await UserConnection.create({
+				userId: user._id,
+				connections: [],
+			});
 			if (user.userType === UserType.COMPANY) {
 				const currency = await metadataService.getCurrencyByCode('USD');
-				await Company.create({ userId: user._id, companyName: userInfo.companyInfo.companyName, currency });
+				let timezone;
+				if (userGeolocation && userGeolocation.timezone) {
+					timezone = await metadataService.getTimezoneByCode(userGeolocation.timezone);
+				}
+				await Company.create({ userId: user._id, companyName: userInfo.companyInfo.companyName, currency, timezone });
 				messagingService.createCompanyCutomer();
 			} else if (user.userType === UserType.DEVELOPER)
 				await Developer.create({ userId: user._id, firstName: userInfo.developerInfo.firstName, lastName: userInfo.developerInfo.lastName });

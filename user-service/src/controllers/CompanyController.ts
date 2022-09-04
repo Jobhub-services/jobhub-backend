@@ -67,8 +67,8 @@ class CompanyController {
 			if (profileBody.social_profile) this._setSocialProfile(profile, profileBody.social_profile);
 			if (profileBody.headquarter) await this._setHeadquarter(profile, profileBody.headquarter);
 			if (profileBody.generalinfo) this._setGeneralinfo(profile, profileBody.generalinfo);
-			if (profileBody.currency) this._setCurrency(profile, profileBody.currency);
-			if (profileBody.timezone) this._setTimezone(profile, profileBody.timezone);
+			//if (profileBody.currency)await  this._setCurrency(profile, profileBody.currency);
+			if (profileBody.timezone) await this._setTimezone(profile, profileBody.timezone);
 			if (req.files) {
 				if (req.files.avatar) await this._updateAvatar(profile, req.files.avatar as UploadedFile);
 			}

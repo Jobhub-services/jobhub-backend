@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import { ICurrencyData } from '@/interfaces/metadata.interface';
 
 export enum FeatureType {
@@ -8,6 +9,7 @@ export enum FeatureType {
 }
 
 export type FeatureDetail = {
+	_id: Types.ObjectId;
 	slug: FeatureType;
 	title: string;
 	description: string;

@@ -62,6 +62,10 @@ class MetadataService {
 		const selectedItems = await this._selectItems(dataIds, TIMEZONES_COLLECTION);
 		return selectedItems;
 	}
+	async getTimezoneByCode(code: string): Promise<ITimezoneData> {
+		const selectedItem = await this._selectItemByQeury({ code }, TIMEZONES_COLLECTION);
+		return selectedItem;
+	}
 
 	/**** */
 

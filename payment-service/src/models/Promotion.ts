@@ -10,7 +10,10 @@ const promotionSchema: Schema = new Schema(
 			enum: PromotionType,
 		},
 		promotion_code: String,
-		status: PromotionStatus,
+		status: {
+			type: String,
+			enum: PromotionStatus,
+		},
 	},
 	{
 		timestamps: true,

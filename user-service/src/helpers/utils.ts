@@ -1,4 +1,5 @@
 import { model, Schema } from 'mongoose';
+import satelize from 'satelize';
 import { SoftDeleteModel, SoftDeleteDocument } from 'mongoose-delete';
 export function softDeleteModel<T>(name, schema): SoftDeleteModel<T & SoftDeleteDocument> {
 	const modal = model<T & SoftDeleteDocument>(name, schema) as any;
@@ -14,4 +15,8 @@ export function metadataSchema(schema: any) {
 export function rendomString() {
 	const randomString = (Math.random() + 1).toString(36).substring(7);
 	return randomString;
+}
+
+export function getGeolocationInfoFromIp(ip: string) {
+	return satelize({ ip });
 }

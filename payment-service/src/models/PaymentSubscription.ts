@@ -24,13 +24,16 @@ const paymentSubscriptionSchema: Schema = new Schema(
 		payment_method: { type: Types.ObjectId, ref: PaymentMethod },
 		promotion_id: { type: Types.ObjectId, ref: Promotion },
 		subscription_id: String,
-		interval: SubscriptionType,
+		interval: {
+			type: String,
+			enum: SubscriptionType,
+		},
 		amount: Number,
 		auto_renew: Boolean,
 		status: {
 			type: String,
 			enum: SubscriptionStatus,
-			default: SubscriptionStatus.ACTIVE,
+			default: SubscriptionStatus.CREATED,
 		},
 		description: String,
 		metadata: Schema.Types.Mixed,
