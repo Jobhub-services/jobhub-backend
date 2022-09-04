@@ -11,11 +11,15 @@ export enum SubscriptionStatus {
 	EXPIRED = 'expired',
 	CANCELED = 'canceled',
 }
+
+export type ITapSubscription = {};
+
 export interface IPSubscription {
 	userId: Types.ObjectId;
 	subscriptionId: Types.ObjectId;
 	payment_method: Types.ObjectId;
 	promotion_id: Types.ObjectId;
+	subscription_id: string;
 	interval: SubscriptionType;
 	amount: number;
 	auto_renew: boolean;

@@ -40,9 +40,12 @@ class CompanyController {
 			const companyInfo: any = {};
 			const userInfo: any = {};
 			if (profileBody.companyName) companyInfo.companyName = profileBody.companyName;
+			if (profileBody.owner_first_name) companyInfo.owner_first_name = profileBody.owner_first_name;
+			if (profileBody.owner_last_name) companyInfo.owner_last_name = profileBody.owner_last_name;
 
 			if (profileBody.email) userInfo.email = profileBody.email;
 			if (profileBody.username) userInfo.username = profileBody.username;
+			if (profileBody.phone) userInfo.phone = profileBody.phone;
 
 			if (Object.keys(companyInfo).length > 0) await Company.updateOne({ userId: rootObjectId }, companyInfo);
 			if (Object.keys(userInfo).length > 0) await User.updateOne({ _id: rootObjectId }, userInfo);

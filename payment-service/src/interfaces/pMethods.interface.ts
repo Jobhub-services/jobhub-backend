@@ -4,11 +4,10 @@ export interface IPMethods {
 	userId: Types.ObjectId;
 	card_id: string;
 	card_token: string;
-	last_four: string;
-	exp_year: string;
-	exp_month: string;
+	first_six: string;
+	exp_year: number;
+	exp_month: number;
 	brand: string;
-	client_ip: string;
 	name: string;
 	funding: string;
 }

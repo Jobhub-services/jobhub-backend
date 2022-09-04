@@ -9,11 +9,14 @@ export enum FeatureType {
 
 export type FeatureDetail = {
 	slug: FeatureType;
+	title: string;
 	description: string;
 	value: number;
 };
 
 export interface ISubscription {
+	title?: string;
+	description?: string;
 	monthly_amount: number;
 	yearly_amount: number;
 	currency: ICurrencyData;

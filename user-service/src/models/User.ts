@@ -13,6 +13,11 @@ const userSchema: Schema = new Schema(
 			required: true,
 			unique: true,
 		},
+		phone: {
+			country_code: String,
+			number: String,
+			_id: false,
+		},
 		password: {
 			type: String,
 			required: false,

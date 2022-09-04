@@ -29,6 +29,8 @@ export interface ICompany {
 	user: any;
 	description?: string;
 	companyName: string;
+	owner_first_name?: string;
+	owner_last_name?: string;
 	keywords?: string[];
 	company_division?: ICompanyDivision[];
 	social_profile?: TSocialProfile;

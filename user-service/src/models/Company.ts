@@ -34,6 +34,8 @@ const companySchema: Schema = new Schema(
 		userId: { type: Types.ObjectId, ref: User },
 		description: String,
 		companyName: String,
+		owner_first_name: String,
+		owner_last_name: String,
 		social_profile: socialSchema,
 		keywords: [{ type: String }],
 		headquarter: headquarterSchema,

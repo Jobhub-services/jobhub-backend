@@ -6,6 +6,7 @@ import { Expose, Type } from 'class-transformer';
 import { IsObjectId, IsUnique } from '@/helpers';
 import { AvailabilityStatus } from '@/interfaces/developer.interface';
 import User from '@/models/User';
+import { PhoneDto } from '@/dtos/common.dto';
 
 class LanguagesDto {
 	@Expose()
@@ -276,6 +277,12 @@ export class UpdateDeveloperDto {
 	@IsOptional()
 	@IsUnique(User, {}, 'email')
 	email?: string;
+
+	@Expose()
+	@IsOptional()
+	@ValidateNested()
+	@Type(() => PhoneDto)
+	phone?: PhoneDto;
 
 	@Expose()
 	@IsOptional()

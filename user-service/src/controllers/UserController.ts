@@ -21,6 +21,8 @@ export default class UserController {
 			} else if (userData.userType === UserType.COMPANY) {
 				const company = await Company.findOne({ userId: userData._id });
 				userInfo.companyName = company.companyName;
+				userInfo.owner_first_name = company.owner_first_name;
+				userInfo.owner_last_name = company.owner_last_name;
 				userInfo.avatar = company.avatar;
 			}
 			res.status(200).send({ message: 'Info fetched successfully', data: userInfo });

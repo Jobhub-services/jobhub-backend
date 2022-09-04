@@ -7,12 +7,15 @@ const featureSchema: Schema = new Schema({
 		type: String,
 		enum: FeatureType,
 	},
+	title: String,
 	description: String,
 	value: Number,
 });
 
 const subscriptionSchema: Schema = new Schema(
 	{
+		title: String,
+		description: String,
 		monthly_amount: Number,
 		yearly_amount: Number,
 		currency: currencySchema,

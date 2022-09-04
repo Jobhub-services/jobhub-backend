@@ -3,6 +3,7 @@ import { IsUnique, IsObjectId } from '@/helpers';
 import { Expose, Type } from 'class-transformer';
 import { IsArray, IsOptional, IsString, ValidateNested } from 'class-validator';
 import User from '@/models/User';
+import { PhoneDto } from '@/dtos/common.dto';
 
 class SocialsDto {
 	@Expose()
@@ -117,8 +118,24 @@ export class UpdateCompanyDto {
 
 	@Expose()
 	@IsOptional()
+	@IsString()
+	owner_first_name?: string;
+
+	@Expose()
+	@IsOptional()
+	@IsString()
+	owner_last_name?: string;
+
+	@Expose()
+	@IsOptional()
 	@IsUnique(User, {}, 'email')
 	email?: string;
+
+	@Expose()
+	@IsOptional()
+	@ValidateNested()
+	@Type(() => PhoneDto)
+	phone?: PhoneDto;
 
 	@Expose()
 	@IsOptional()
