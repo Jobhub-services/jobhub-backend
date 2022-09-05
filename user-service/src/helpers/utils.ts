@@ -17,6 +17,10 @@ export function rendomString() {
 	return randomString;
 }
 
-export function getGeolocationInfoFromIp(ip: string) {
-	return satelize({ ip });
+export async function getGeolocationInfoFromIp(ip: string): Promise<any> {
+	return new Promise((resolve) => {
+		satelize.satelize({ ip }, function (err, payload) {
+			resolve(payload);
+		});
+	});
 }

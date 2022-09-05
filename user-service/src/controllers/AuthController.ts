@@ -25,7 +25,7 @@ class AuthController {
 					const token = tokenService.createToken(user, expiration);
 					if (token) {
 						const userIp: any = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-						const userGeolocation = userIp ? getGeolocationInfoFromIp(userIp) : null;
+						const userGeolocation = userIp ? await getGeolocationInfoFromIp(userIp) : null;
 						const userConnection = await UserConnection.findOne({ userId: user._id });
 						if (userConnection) {
 							if (userGeolocation) userConnection.connections.push({ ...userGeolocation, connected_at: new Date().toUTCString() });
@@ -48,7 +48,7 @@ class AuthController {
 		try {
 			const userInfo: RegisterDto = req.body;
 			const userIp: any = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-			const userGeolocation = userIp ? getGeolocationInfoFromIp(userIp) : null;
+			const userGeolocation = userIp ? await getGeolocationInfoFromIp(userIp) : null;
 			const existingUser: IUser = await User.findOne({ $or: [{ email: userInfo.email }, { username: userInfo.username }] });
 			if (existingUser) return res.status(403).send({ message: 'Email or Username already exist' });
 			userInfo.password = await tokenService.hash(userInfo.password);
