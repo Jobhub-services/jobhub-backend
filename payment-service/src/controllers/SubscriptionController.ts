@@ -88,21 +88,21 @@ class SubscriptionController {
 					amount: paymentSubscription.amount,
 					currency: paymentSubscription.currency.code,
 					description: paymentSubscription.description,
-				},
-				receipt: {
-					email: true,
-				},
-				customer: {
-					id: userCustomer.customer_id,
-				},
-				source: {
-					id: paymentMethod.card_id,
-				},
-				post: {
-					url: createTransactionPostURL({
-						transactionType: TransactionTypes.SUBSCRIPTION_PAYMENT,
-						subscription_id: createdSubscription._id,
-					}),
+					receipt: {
+						email: true,
+					},
+					customer: {
+						id: userCustomer.customer_id,
+					},
+					source: {
+						id: paymentMethod.card_id,
+					},
+					post: {
+						url: createTransactionPostURL({
+							transactionType: TransactionTypes.SUBSCRIPTION_PAYMENT,
+							subscription_id: createdSubscription._id,
+						}),
+					},
 				},
 			};
 			console.log(tapSubscription);

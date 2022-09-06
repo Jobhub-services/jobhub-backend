@@ -26,18 +26,18 @@ export type ITapSubscription = {
 		amount: number;
 		currency: string;
 		description: string;
-	};
-	receipt: {
-		email: boolean;
-	};
-	customer: {
-		id: string;
-	};
-	source: {
-		id: string;
-	};
-	post?: {
-		url: string;
+		receipt: {
+			email: boolean;
+		};
+		customer: {
+			id: string;
+		};
+		source: {
+			id: string;
+		};
+		post?: {
+			url: string;
+		};
 	};
 };
 
