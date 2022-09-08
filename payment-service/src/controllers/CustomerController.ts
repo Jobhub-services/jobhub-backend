@@ -32,13 +32,15 @@ class CustomerController {
 		try {
 			const user = req.user;
 			const cardBody: PaymentMethodDto = req.body;
-			const isExist = await PaymentMethod.exists({ card_id: cardBody.card_id, card_token: cardBody.card_token });
+			const isExist = await PaymentMethod.exists({ card_id: cardBody.card_id });
 			if (isExist) return res.status(500).send({ message: 'Payment method already exist' });
 			await this._createCustomer(user);
-			const paymentMethod = await PaymentMethod.create({
-				userId: user._id,
-				...cardBody,
-			});
+			const userCustomer = await PaymentCustomer.findOne({ userId: user._id });
+			const paymentMethod = await this._saveCardForCustomer(userCustomer.customer_id, cardBody.card_token);
+			if (!paymentMethod) return res.status(406).send({ message: 'Not able to add card , please try again' });
+			paymentMethod.userId = user._id;
+			paymentMethod.card_token = cardBody.card_token;
+			await PaymentMethod.create(paymentMethod);
 			res.status(200).send({ message: 'Payment method added' });
 		} catch (e) {
 			console.log(e);
@@ -55,6 +57,11 @@ class CustomerController {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
+	};
+
+	private _saveCardForCustomer = async (customerId: string, cardToken: string) => {
+		const paymentMethod = await paymentService.saveCustomerCard(customerId, cardToken);
+		return paymentMethod;
 	};
 
 	private _createCustomer = async (user: IUser) => {

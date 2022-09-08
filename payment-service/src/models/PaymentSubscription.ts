@@ -5,6 +5,7 @@ import Subscription from '@/models/Subscription';
 import PaymentMethod from '@/models/PaymentMethod';
 import Promotion from '@/models/Promotion';
 import { currencySchema, timezoneSchema } from '@/models/MetadataSchema';
+import { ChargesStatus } from '@/interfaces/pCharges.interface';
 
 const featureSchema: Schema = new Schema(
 	{
@@ -30,10 +31,15 @@ const paymentSubscriptionSchema: Schema = new Schema(
 		},
 		amount: Number,
 		auto_renew: Boolean,
+		creation_status: {
+			type: String,
+			enum: ChargesStatus,
+			default: ChargesStatus.UNKNOWN,
+		},
 		status: {
 			type: String,
 			enum: SubscriptionStatus,
-			default: SubscriptionStatus.CREATED,
+			default: SubscriptionStatus.ACTIVE,
 		},
 		description: String,
 		metadata: Schema.Types.Mixed,

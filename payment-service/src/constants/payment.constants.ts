@@ -6,4 +6,5 @@ export const TAB_API_PATHS = {
 	SUBSCRIPTION_PATH: 'subscription/v1/',
 	CUSTOMER_PATH: 'customers/',
 	CHARGE_PATH: 'charges/',
+	CARDS_PATH: 'card/',
 };

@@ -2,8 +2,9 @@ import HttpClient from '@/services/HttpClient';
 import { TAP_CLIENT_API_URL, TAP_CLIENT_API_KEY, TAB_API_PATHS } from '@/constants/payment.constants';
 import { ITapCustomer, IPCustomer } from '@/interfaces/pCustomers.interface';
 import { IPSubscription, ITapSubscription } from '@/interfaces/pSubscriptions.interface';
+import { IPMethods } from '@/interfaces/pMethods.interface';
 
-const { SUBSCRIPTION_PATH, CUSTOMER_PATH, CHARGE_PATH } = TAB_API_PATHS;
+const { SUBSCRIPTION_PATH, CUSTOMER_PATH, CHARGE_PATH, CARDS_PATH } = TAB_API_PATHS;
 
 class PaymentService {
 	private _tapClient: HttpClient;
@@ -53,6 +54,28 @@ class PaymentService {
 						object: data.object,
 						description: data.description,
 					},
+				};
+			}
+			return null;
+		} catch (e) {
+			console.log(e.response.data);
+			return null;
+		}
+	}
+
+	async saveCustomerCard(customerId: string, cardToken: string): Promise<IPMethods> {
+		try {
+			const customerResponse = await this._tapClient.post(`${CARDS_PATH}${customerId}`, { source: cardToken });
+			if (customerResponse.data) {
+				const data = customerResponse.data;
+				console.log(data);
+				return {
+					card_id: data.id,
+					name: data.name,
+					last4: data.last_four,
+					exp_year: data.exp_year,
+					exp_month: data.exp_month,
+					brand: data.brand,
 				};
 			}
 			return null;

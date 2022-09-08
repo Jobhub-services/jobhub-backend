@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import Subscription from '@/models/Subscription';
 import { ISubscription } from '@/interfaces/subscriptions.interface';
-import { IPSubscription, ITapSubscription, SubscriptionStatus, SubscriptionType } from '@/interfaces/pSubscriptions.interface';
+import { IPSubscription, ITapSubscription, SubscriptionType } from '@/interfaces/pSubscriptions.interface';
 import Company from '@/models/Company';
 import PaymentCustomer from '@/models/PaymentCustomer';
 import PaymentMethod from '@/models/PaymentMethod';
@@ -9,6 +9,7 @@ import { createTransactionPostURL, getCurrentDataWithFormat } from '@/helpers';
 import { TransactionTypes } from '@/interfaces/pTransaction.interface';
 import { paymentService } from '@/services/PaymentService';
 import PaymentSubscription from '@/models/PaymentSubscription';
+import { ChargesStatus } from '@/interfaces/pCharges.interface';
 
 class SubscriptionController {
 	getSubscriptions = async (req: Request, res: Response) => {
@@ -59,14 +60,13 @@ class SubscriptionController {
 			const paymentMethod = await PaymentMethod.findOne({ userId: user._id, _id: paymentMethodId });
 			if (!userCustomer || !paymentMethod) return res.status(406).send({ message: 'Payment method not allowed for this user' });
 			const subscription = await Subscription.findById(subscriptionId);
-			const paymentDate = new Date().toUTCString();
 			const paymentSubscription: IPSubscription = {
 				userId: user._id,
 				subscriptionId,
 				payment_method: paymentMethodId,
 				interval: subscriptionType,
 				amount: subscriptionType === SubscriptionType.MONTHLY ? subscription.monthly_amount : subscription.yearly_amount * 12,
-				auto_renew: false,
+				auto_renew: true,
 				description: `Company subscription to plan ${subscription.title} payed ${subscriptionType}`,
 				features: subscription.features.map((feature) => {
 					return { feature_id: feature._id, total_value: feature.value, current_value: feature.value };
@@ -81,7 +81,7 @@ class SubscriptionController {
 					period: 1,
 					from: getCurrentDataWithFormat('YYYY-MM-DDTHH:mm:ss', paymentSubscription.timezone.code),
 					due: 0,
-					auto_renew: false,
+					auto_renew: paymentSubscription.auto_renew,
 					timezone: paymentSubscription.timezone.code,
 				},
 				charge: {
@@ -105,12 +105,11 @@ class SubscriptionController {
 					},
 				},
 			};
-			console.log(tapSubscription);
 			const tapResponseSubscription = await paymentService.createSubscription(tapSubscription);
 			if (tapResponseSubscription) {
 				createdSubscription.subscription_id = tapResponseSubscription.subscription_id;
 				createdSubscription.metadata = tapResponseSubscription.metadata;
-				createdSubscription.status = SubscriptionStatus.INITIATED;
+				createdSubscription.creation_status = ChargesStatus.INITIATED;
 				await createdSubscription.save();
 			}
 
