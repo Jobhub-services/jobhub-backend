@@ -2,6 +2,11 @@ import { model, Schema, Document, Types } from 'mongoose';
 import { IPMethods } from '@/interfaces/pMethods.interface';
 import User from '@/models/User';
 
+const issuerSchema: Schema = new Schema({
+	bank: String,
+	id: String,
+	country: String,
+});
 const paymentMethodSchema: Schema = new Schema(
 	{
 		userId: { type: Types.ObjectId, ref: User },
@@ -14,6 +19,8 @@ const paymentMethodSchema: Schema = new Schema(
 		name: String,
 		funding: String,
 		fingerprint: String,
+		last_four: String,
+		isseur: issuerSchema,
 	},
 	{
 		timestamps: true,

@@ -1,7 +1,7 @@
 import { model, Schema, Document, Types } from 'mongoose';
 import { IPCustomer } from '@/interfaces/pCustomers.interface';
 import User from '@/models/User';
-import { currencySchema } from '@/models/MetadataSchema';
+import { countrySchema, currencySchema } from '@/models/MetadataSchema';
 
 const paymentCustomerSchema: Schema = new Schema(
 	{
@@ -10,6 +10,11 @@ const paymentCustomerSchema: Schema = new Schema(
 		currency: currencySchema,
 		title: String,
 		metadata: Schema.Types.Mixed,
+		address: String,
+		city: String,
+		zipCode: String,
+		region: String,
+		country: countrySchema,
 	},
 	{
 		timestamps: true,
