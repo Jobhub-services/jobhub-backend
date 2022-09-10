@@ -1,5 +1,6 @@
 import { Types } from 'mongoose';
 import { ITimezoneData, ICurrencyData } from '@/interfaces/metadata.interface';
+import { ChargesStatus } from '@/interfaces/pCharges.interface';
 
 export enum SubscriptionType {
 	MONTHLY = 'MONTHLY',
@@ -7,10 +8,7 @@ export enum SubscriptionType {
 }
 export enum SubscriptionStatus {
 	ACTIVE = 'active',
-	EXPIRED = 'expired',
 	CANCELED = 'canceled',
-	INITIATED = 'initiated',
-	CREATED = 'created',
 }
 
 export type ITapSubscription = {
@@ -50,6 +48,7 @@ export interface IPSubscription {
 	interval?: SubscriptionType;
 	amount?: number;
 	auto_renew?: boolean;
+	creation_status?: ChargesStatus;
 	status?: SubscriptionStatus;
 	description?: string;
 	features?: { feature_id: Types.ObjectId; total_value: number; current_value: number }[];

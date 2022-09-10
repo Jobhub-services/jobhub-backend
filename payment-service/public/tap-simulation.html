@@ -208,6 +208,24 @@
 							first_six: result.card.first_six,
 							fingerprint: result.card.fingerprint,
 						};
+						var config = {
+							method: 'post',
+							url: 'http://localhost:3000/api/payments/customers/payment-method',
+							headers: {
+								Authorization:
+									'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2MzEzOTBkNTJkOTA1NzQwYTY2YjIwMjQiLCJpYXQiOjE2NjIyMjY2ODAsImV4cCI6MTY2NDgxODY4MH0.7EB0vx3PWxolytILpxyraWoPcANhnCvaZlk6uaEONKo',
+								'Content-Type': 'application/json',
+							},
+							data: paymentMethod,
+						};
+
+						axios(config)
+							.then(function (response) {
+								console.log(JSON.stringify(response.data));
+							})
+							.catch(function (error) {
+								console.log(error);
+							});
 						console.log(result);
 						// Send the token to your server
 						var errorElement = document.getElementById('success');
