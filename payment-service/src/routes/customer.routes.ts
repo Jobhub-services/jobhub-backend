@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import CustomerController from '@/controllers/CustomerController';
 import validationMiddleware from '@/middleware/validation.middleware';
-import { PaymentMergedDto } from '@/dtos/customers.dto';
+import { BillingDto, PaymentMethodDto } from '@/dtos/customers.dto';
 import { authRole } from '@/middleware/auth.middleware';
 import { UserType } from '@/interfaces/users.interface';
 
@@ -11,8 +11,10 @@ const router = Router();
 router.use('/', authRole(UserType.COMPANY));
 
 router.post('/customer', customerController.createCustomer);
-router.put('/customer', customerController.updateCustomer);
-router.post('/payment-method', validationMiddleware(PaymentMergedDto, true), customerController.createPaymentMethod);
+router.put('/billing', validationMiddleware(BillingDto), customerController.updateCustomer);
+router.get('/billing', customerController.getCustomer);
+router.post('/payment-method', validationMiddleware(PaymentMethodDto), customerController.createPaymentMethod);
+router.delete('/payment-method/:paymentMethodId', customerController.deletePaymentMethod);
 router.get('/payment-method', customerController.getPaymentMethods);
 
 export { router as customerRouter };

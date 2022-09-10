@@ -22,28 +22,11 @@ class SubscriptionController {
 		}
 	};
 
-	createSubscription = async (req: Request, res: Response) => {
+	getMySubscription = async (req: Request, res: Response) => {
 		try {
-			const subscriptions = req.body.subscriptions;
-			if (subscriptions) {
-				if (Array.isArray(subscriptions)) {
-					for (const subscription of subscriptions) {
-						await this._createSubscription(subscription);
-					}
-				} else {
-					await this._createSubscription(subscriptions);
-				}
-			}
-			res.status(200).send({ message: 'Subscriptions created' });
-		} catch (e: any) {
-			console.log(e);
-			res.status(500).send({ message: 'Something went wrong please try again' });
-		}
-	};
-
-	updateSubscription = async (req: Request, res: Response) => {
-		try {
-			res.status(200).send({ message: 'Subscriptions created' });
+			const user = req.user;
+			const subscription = await PaymentSubscription.findOne({ userId: user._id }).populate('subscriptionId');
+			res.status(200).send({ content: subscription, isSubscribed: subscription != null });
 		} catch (e: any) {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
@@ -69,7 +52,7 @@ class SubscriptionController {
 				auto_renew: true,
 				description: `Company subscription to plan ${subscription.title} payed ${subscriptionType}`,
 				features: subscription.features.map((feature) => {
-					return { feature_id: feature._id, total_value: feature.value, current_value: feature.value };
+					return { feature_id: feature._id, total_value: feature.value, current_value: feature.value, slug: feature.slug };
 				}),
 				timezone: company.timezone,
 				currency: company.currency,
@@ -114,6 +97,51 @@ class SubscriptionController {
 			}
 
 			res.status(200).send({ content: 'Subscription created' });
+		} catch (e: any) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
+
+	cancelSubscription = async (req: Request, res: Response) => {
+		try {
+			const user = req.user;
+			const subscription = await PaymentSubscription.findOne({ userId: user._id });
+			if (!subscription || !subscription?.subscription_id) return res.status(406).send({ content: 'You have no subscription registred yet' });
+			const isCanceled = await paymentService.cancelSubscription(subscription?.subscription_id);
+			if (!isCanceled) return res.status(406).send({ content: "We can't cancel your subscription now please try later or contact support" });
+			await subscription.remove();
+			res.status(200).send({ content: 'Your subscription canceled successfully' });
+		} catch (e: any) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
+
+	// ADMIN FUNCTIONS
+
+	createSubscription = async (req: Request, res: Response) => {
+		try {
+			const subscriptions = req.body.subscriptions;
+			if (subscriptions) {
+				if (Array.isArray(subscriptions)) {
+					for (const subscription of subscriptions) {
+						await this._createSubscription(subscription);
+					}
+				} else {
+					await this._createSubscription(subscriptions);
+				}
+			}
+			res.status(200).send({ message: 'Subscriptions created' });
+		} catch (e: any) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
+
+	updateSubscription = async (req: Request, res: Response) => {
+		try {
+			res.status(200).send({ message: 'Subscriptions created' });
 		} catch (e: any) {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });

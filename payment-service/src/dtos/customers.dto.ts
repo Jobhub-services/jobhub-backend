@@ -1,52 +1,64 @@
-import { IsNotEmpty, IsNumber, IsObject, IsString, ValidateNested } from 'class-validator';
-import { Expose, Type } from 'class-transformer';
-import { IPhone } from '@/interfaces/pCustomers.interface';
+import { Types } from 'mongoose';
+import { IsNotEmpty, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { Expose } from 'class-transformer';
 
-export class PaymentCustomerDto {
+export class PhoneDto {
 	@Expose()
 	@IsNotEmpty()
+	@IsString()
+	country_code: string;
+
+	@Expose()
+	@IsNotEmpty()
+	@IsString()
+	number: string;
+}
+
+export class BillingDto {
+	@Expose()
+	@IsOptional()
 	@IsString()
 	address: string;
 
 	@Expose()
-	@IsNotEmpty()
+	@IsOptional()
 	@IsString()
 	city: string;
 
 	@Expose()
-	@IsNotEmpty()
+	@IsOptional()
 	@IsString()
 	zipCode: string;
 
 	@Expose()
-	@IsNotEmpty()
+	@IsOptional()
 	@IsString()
 	region: string;
 
 	@Expose()
 	@IsObject()
 	country: {
-		_id?: string;
+		_id?: Types.ObjectId;
 		name?: string;
 	};
 
 	@Expose()
-	@IsNotEmpty()
+	@IsOptional()
 	@IsString()
-	firstName: string;
+	first_name: string;
 
 	@Expose()
-	@IsNotEmpty()
+	@IsOptional()
 	@IsString()
-	lastName: string;
+	last_name: string;
 
 	@Expose()
-	@IsNotEmpty()
+	@IsOptional()
 	@IsString()
 	email: string;
 
 	@Expose()
-	phone: IPhone;
+	phone: PhoneDto;
 }
 export class PaymentMethodDto {
 	@Expose()
@@ -78,37 +90,4 @@ export class PaymentMethodDto {
 	@IsNotEmpty()
 	@IsString()
 	name: string;
-
-	@Expose()
-	@IsNotEmpty()
-	@IsString()
-	funding: string;
-
-	@Expose()
-	@IsNotEmpty()
-	@IsString()
-	first_six: string;
-
-	@Expose()
-	@IsNotEmpty()
-	@IsString()
-	fingerprint: string;
-
-	@Expose()
-	@IsNotEmpty()
-	@IsString()
-	last_four: string;
-
-	@Expose()
-	issuer: { bank: string; country: string; id: string };
-}
-
-export class PaymentMergedDto extends PaymentMethodDto {
-	@Expose()
-	@ValidateNested({
-		each: true,
-	})
-	@ValidateNested({ each: true })
-	@Type(() => PaymentCustomerDto)
-	customer: PaymentCustomerDto;
 }

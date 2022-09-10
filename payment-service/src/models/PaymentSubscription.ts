@@ -6,10 +6,12 @@ import PaymentMethod from '@/models/PaymentMethod';
 import Promotion from '@/models/Promotion';
 import { currencySchema, timezoneSchema } from '@/models/MetadataSchema';
 import { ChargesStatus } from '@/interfaces/pCharges.interface';
+import { getSubscriptionFeatureMessage } from '@/helpers';
 
 const featureSchema: Schema = new Schema(
 	{
 		feature_id: Types.ObjectId,
+		slug: String,
 		total_value: Number,
 		current_value: Number,
 	},
@@ -51,6 +53,29 @@ const paymentSubscriptionSchema: Schema = new Schema(
 		timestamps: true,
 	}
 );
+
+paymentSubscriptionSchema.methods.toJSON = function () {
+	const subscription = this.toObject();
+	const featuresDisplayText = [];
+	subscription.features.forEach((feature) => {
+		featuresDisplayText.push({
+			featureKey: feature.slug,
+			displayText: getSubscriptionFeatureMessage(feature.slug, feature.current_value),
+		});
+	});
+	return {
+		subscriptionId: subscription.subscriptionId,
+		subscriptionType: subscription.interval,
+		title: subscription.subscriptionId?.title,
+		description: subscription.subscriptionId?.description,
+		amount: subscription.amount,
+		status: subscription.status,
+		timezone: subscription.timezone.name,
+		currency: subscription.currency.name,
+		features: featuresDisplayText,
+		subscriptionFeatures: subscription.subscriptionId?.features,
+	};
+};
 
 const PaymentSubscription = model<IPSubscription & Document>('PaymentSubscription', paymentSubscriptionSchema);
 

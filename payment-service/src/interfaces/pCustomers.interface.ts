@@ -1,18 +1,19 @@
 import { Types } from 'mongoose';
-import { ICurrencyData } from '@/interfaces/metadata.interface';
+import { ICountryData, ICurrencyData } from '@/interfaces/metadata.interface';
 
 export type IPhone = {
 	country_code?: string;
 	number?: string;
 };
 export type ITapCustomer = {
-	first_name: string;
+	first_name?: string;
 	middle_name?: string;
-	last_name: string;
-	email: string;
-	phone: IPhone;
-	description: string;
-	currency: string;
+	last_name?: string;
+	email?: string;
+	phone?: IPhone;
+	description?: string;
+	currency?: string;
+	title?: string;
 };
 
 export interface IPCustomer {
@@ -25,8 +26,9 @@ export interface IPCustomer {
 	city?: string;
 	zipCode?: string;
 	region?: string;
-	country?: {
-		_id?: string;
-		name?: string;
-	};
+	country?: ICountryData;
+	first_name?: string;
+	last_name?: string;
+	email?: string;
+	phone?: IPhone;
 }

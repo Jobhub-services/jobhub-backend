@@ -10,7 +10,9 @@ const subscriptionController = new SubscriptionController();
 const router = Router();
 
 router.get('/', authRole(UserType.COMPANY), subscriptionController.getSubscriptions);
+router.get('/me', authRole(UserType.COMPANY), subscriptionController.getMySubscription);
 router.post('/subscribe', authRole(UserType.COMPANY), validationMiddleware(PaymentSubscriptionDto), subscriptionController.createPaymentSubscription);
+router.delete('/cancel', authRole(UserType.COMPANY), subscriptionController.cancelSubscription);
 
 router.post('/', authRole(UserType.ADMIN), subscriptionController.createSubscription);
 router.put('/:subscriptionId', authRole(UserType.ADMIN), subscriptionController.updateSubscription);

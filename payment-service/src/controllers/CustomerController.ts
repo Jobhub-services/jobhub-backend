@@ -4,9 +4,8 @@ import { IUser } from '@/interfaces/users.interface';
 import { IPCustomer, ITapCustomer } from '@/interfaces/pCustomers.interface';
 import Company from '@/models/Company';
 import PaymentCustomer from '@/models/PaymentCustomer';
-import { PaymentCustomerDto, PaymentMergedDto, PaymentMethodDto } from '@/dtos/customers.dto';
+import { BillingDto, PaymentMethodDto } from '@/dtos/customers.dto';
 import PaymentMethod from '@/models/PaymentMethod';
-import Currency from '@/models/Currency';
 
 class CustomerController {
 	createCustomer = async (req: Request, res: Response) => {
@@ -23,7 +22,58 @@ class CustomerController {
 	updateCustomer = async (req: Request, res: Response) => {
 		try {
 			const user = req.user;
+			const customer = await PaymentCustomer.findOne({ userId: user._id });
+			if (!customer) return res.status(406).send({ message: "Can't update billing information please try again or contact support" });
+			const customerBody: BillingDto = req.body;
+			const tapCustomer: ITapCustomer = {};
+			if (customerBody.first_name) {
+				tapCustomer.first_name = customerBody.first_name;
+				customer.first_name = customerBody.first_name;
+			}
+			if (customerBody.last_name) {
+				tapCustomer.last_name = customerBody.last_name;
+				customer.last_name = customerBody.last_name;
+			}
+			if (customerBody.email) {
+				tapCustomer.email = customerBody.email;
+				customer.email = customerBody.email;
+			}
+			if (customerBody.phone) {
+				tapCustomer.phone = customerBody.phone;
+				customer.phone = customerBody.phone;
+			}
+			if (customerBody.address) {
+				customer.address = customerBody.address;
+			}
+			if (customerBody.city) {
+				customer.city = customerBody.city;
+			}
+			if (customerBody.zipCode) {
+				customer.zipCode = customerBody.zipCode;
+			}
+			if (customerBody.region) {
+				customer.region = customerBody.region;
+			}
+			if (customerBody.country) {
+				customer.country = customerBody.country;
+			}
+
+			await paymentService.updateCustomer(customer.customer_id, tapCustomer);
+			await customer.save();
+			res.status(200).send({ message: 'Billing information updated' });
 		} catch (e: any) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
+
+	getCustomer = async (req: Request, res: Response) => {
+		try {
+			const user = req.user;
+			const customer = await PaymentCustomer.findOne({ userId: user._id });
+			if (!customer) return res.status(406).send({ message: "Can't update billing information please try again or contact support" });
+			res.status(200).send({ content: customer });
+		} catch (e) {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
@@ -60,6 +110,22 @@ class CustomerController {
 		}
 	};
 
+	deletePaymentMethod = async (req: Request, res: Response) => {
+		try {
+			const user = req.user;
+			const paymentMethodId = req.params.paymentMethodId;
+			const customer = await PaymentCustomer.findOne({ userId: user._id });
+			const paymentMethod = await PaymentMethod.findOneAndDelete({ userId: user._id, _id: paymentMethodId });
+			if (paymentMethod && customer) {
+				await paymentService.deleteCustomerCard(customer.customer_id, paymentMethod.card_id);
+			}
+			res.status(200).send({ content: 'Payment method deleted' });
+		} catch (e) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
+
 	private _saveCardForCustomer = async (customerId: string, cardToken: string) => {
 		const paymentMethod = await paymentService.saveCustomerCard(customerId, cardToken);
 		return paymentMethod;
@@ -76,11 +142,11 @@ class CustomerController {
 			phone: {
 				...user.phone,
 			},
+			title: company.companyName,
 			description: `Staak company customer ${company.companyName}`,
-			currency: company?.currency?.code ?? 'USD',
+			currency: company.currency?.code ?? 'USD',
 		};
 		const customer: IPCustomer = await paymentService.createCustomer(tapCustomer);
-		const currency = await Currency.findOne({ code: 'USD' });
 		customer.userId = user._id;
 		customer.currency = company.currency;
 		const paymentCustomer = await PaymentCustomer.create(customer);

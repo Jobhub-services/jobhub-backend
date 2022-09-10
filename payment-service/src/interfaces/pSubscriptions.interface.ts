@@ -1,6 +1,7 @@
 import { Types } from 'mongoose';
 import { ITimezoneData, ICurrencyData } from '@/interfaces/metadata.interface';
 import { ChargesStatus } from '@/interfaces/pCharges.interface';
+import { FeatureType } from '@/interfaces/subscriptions.interface';
 
 export enum SubscriptionType {
 	MONTHLY = 'MONTHLY',
@@ -51,7 +52,7 @@ export interface IPSubscription {
 	creation_status?: ChargesStatus;
 	status?: SubscriptionStatus;
 	description?: string;
-	features?: { feature_id: Types.ObjectId; total_value: number; current_value: number }[];
+	features?: { feature_id: Types.ObjectId; total_value: number; current_value: number; slug: FeatureType }[];
 	timezone?: ITimezoneData;
 	currency?: ICurrencyData;
 	metadata?: any;

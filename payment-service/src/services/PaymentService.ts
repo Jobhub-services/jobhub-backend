@@ -35,6 +35,17 @@ class PaymentService {
 		}
 	}
 
+	async cancelSubscription(subscriptionId: string): Promise<boolean> {
+		try {
+			const response = await this._tapClient.delete(`${SUBSCRIPTION_PATH}${subscriptionId}`);
+			console.log(response.data);
+			return true;
+		} catch (e) {
+			console.log(e.response.data);
+			return false;
+		}
+	}
+
 	// charges methods
 	createCharge() {}
 
@@ -63,6 +74,14 @@ class PaymentService {
 		}
 	}
 
+	async updateCustomer(customer_id: string, customer: ITapCustomer): Promise<void> {
+		try {
+			await this._tapClient.put(`${CUSTOMER_PATH}${customer_id}`, customer);
+		} catch (e) {
+			console.log(e.response.data);
+		}
+	}
+
 	async saveCustomerCard(customerId: string, cardToken: string): Promise<IPMethods> {
 		try {
 			const customerResponse = await this._tapClient.post(`${CARDS_PATH}${customerId}`, { source: cardToken });
@@ -82,6 +101,14 @@ class PaymentService {
 		} catch (e) {
 			console.log(e.response.data);
 			return null;
+		}
+	}
+
+	async deleteCustomerCard(customerId: string, cardId: string): Promise<void> {
+		try {
+			await this._tapClient.delete(`${CARDS_PATH}${customerId}/${cardId}`);
+		} catch (e) {
+			console.log(e.response.data);
 		}
 	}
 }
