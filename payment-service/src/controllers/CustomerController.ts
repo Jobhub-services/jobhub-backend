@@ -4,8 +4,9 @@ import { IUser } from '@/interfaces/users.interface';
 import { IPCustomer, ITapCustomer } from '@/interfaces/pCustomers.interface';
 import Company from '@/models/Company';
 import PaymentCustomer from '@/models/PaymentCustomer';
-import { PaymentMethodDto } from '@/dtos/customers.dto';
+import { PaymentCustomerDto, PaymentMergedDto, PaymentMethodDto } from '@/dtos/customers.dto';
 import PaymentMethod from '@/models/PaymentMethod';
+import Currency from '@/models/Currency';
 
 class CustomerController {
 	createCustomer = async (req: Request, res: Response) => {
@@ -76,9 +77,10 @@ class CustomerController {
 				...user.phone,
 			},
 			description: `Staak company customer ${company.companyName}`,
-			currency: company.currency.code,
+			currency: company?.currency?.code ?? 'USD',
 		};
 		const customer: IPCustomer = await paymentService.createCustomer(tapCustomer);
+		const currency = await Currency.findOne({ code: 'USD' });
 		customer.userId = user._id;
 		customer.currency = company.currency;
 		const paymentCustomer = await PaymentCustomer.create(customer);

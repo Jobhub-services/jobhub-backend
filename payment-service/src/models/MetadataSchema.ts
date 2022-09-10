@@ -13,3 +13,9 @@ export const timezoneSchema = metadataSchema({
 	name: String,
 	utc: String,
 });
+
+export const countrySchema = metadataSchema({
+	_id: Types.ObjectId,
+	code: String,
+	name: String,
+});
