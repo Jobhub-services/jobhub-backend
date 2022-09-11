@@ -12,6 +12,7 @@ const paymentMethodSchema: Schema = new Schema(
 		exp_month: Number,
 		brand: String,
 		name: String,
+		default: Boolean,
 	},
 	{
 		timestamps: true,

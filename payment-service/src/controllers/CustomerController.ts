@@ -91,7 +91,14 @@ class CustomerController {
 			if (!paymentMethod) return res.status(406).send({ message: 'Not able to add card , please try again' });
 			paymentMethod.userId = user._id;
 			paymentMethod.card_token = cardBody.card_token;
-			await PaymentMethod.create(paymentMethod);
+			paymentMethod.default = true;
+			const createdPaymentMethod = await PaymentMethod.create(paymentMethod);
+			await PaymentMethod.updateMany(
+				{ _id: { $ne: createdPaymentMethod._id } },
+				{
+					default: false,
+				}
+			);
 			res.status(200).send({ message: 'Payment method added' });
 		} catch (e) {
 			console.log(e);

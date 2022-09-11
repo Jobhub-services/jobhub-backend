@@ -1,7 +1,7 @@
 import { Types } from 'mongoose';
-import { IsEnum, IsNotEmpty } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
 import { isEnumMessage } from '@/config/dto.config';
-import { Expose, Type } from 'class-transformer';
+import { Expose } from 'class-transformer';
 import Subscription from '@/models/Subscription';
 import { IsExists } from '@/helpers';
 import { SubscriptionType } from '@/interfaces/pSubscriptions.interface';
@@ -14,7 +14,7 @@ export class PaymentSubscriptionDto {
 	subscriptionId: Types.ObjectId;
 
 	@Expose()
-	@IsNotEmpty()
+	@IsOptional()
 	@IsExists(PaymentMethod)
 	paymentMethodId: Types.ObjectId;
 

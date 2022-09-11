@@ -9,4 +9,5 @@ export interface IPMethods {
 	exp_month?: number;
 	brand?: string;
 	name?: string;
+	default?: boolean;
 }

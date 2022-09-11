@@ -3,6 +3,7 @@ import { TAP_CLIENT_API_URL, TAP_CLIENT_API_KEY, TAB_API_PATHS } from '@/constan
 import { ITapCustomer, IPCustomer } from '@/interfaces/pCustomers.interface';
 import { IPSubscription, ITapSubscription } from '@/interfaces/pSubscriptions.interface';
 import { IPMethods } from '@/interfaces/pMethods.interface';
+import { IPCharge, ITapCharge } from '@/interfaces/pCharges.interface';
 
 const { SUBSCRIPTION_PATH, CUSTOMER_PATH, CHARGE_PATH, CARDS_PATH } = TAB_API_PATHS;
 
@@ -47,7 +48,36 @@ class PaymentService {
 	}
 
 	// charges methods
-	createCharge() {}
+	async createCharge(charge: ITapCharge): Promise<IPCharge> {
+		try {
+			const chargeResponse = await this._tapClient.post(`${CHARGE_PATH}`, charge);
+			if (chargeResponse.data) {
+				const chargeData = chargeResponse.data;
+				console.log(chargeData);
+				return {
+					transaction: chargeData.transaction,
+					amount: chargeData.amount,
+					description: chargeData.description,
+					status: chargeData.status,
+					charge_id: chargeData.id,
+					metadata: {
+						destinations: chargeData.destinations,
+						reference: chargeData.reference,
+						currency: chargeData.currency,
+						response: chargeData.response,
+						card: chargeData.card,
+						application: chargeData.application,
+						merchant_payouts: chargeData.merchant_payouts,
+						payout: chargeData.payout,
+					},
+				};
+			}
+			return null;
+		} catch (e) {
+			console.log(e.response.data);
+			return null;
+		}
+	}
 
 	// customers methods
 	async createCustomer(customer: ITapCustomer): Promise<IPCustomer> {
@@ -57,6 +87,10 @@ class PaymentService {
 				const data = customerResponse.data;
 				return {
 					customer_id: data.id,
+					first_name: customer.first_name,
+					last_name: customer.last_name,
+					email: customer.email,
+					phone: customer.phone,
 					title: data.title,
 					metadata: {
 						...data.metadata,

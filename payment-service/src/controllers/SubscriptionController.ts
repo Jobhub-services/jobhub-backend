@@ -40,7 +40,10 @@ class SubscriptionController {
 			const company = (await Company.findOne({ userId: user._id })).toJSON();
 			if (!company.timezone) return res.status(406).send({ message: 'Please add timezone to your profile' });
 			const userCustomer = await PaymentCustomer.findOne({ userId: user._id });
-			const paymentMethod = await PaymentMethod.findOne({ userId: user._id, _id: paymentMethodId });
+			const paymentMethodFilter: any = {};
+			if (paymentMethodId) paymentMethodFilter._id = paymentMethodId;
+			else paymentMethodFilter.default = true;
+			const paymentMethod = await PaymentMethod.findOne({ userId: user._id, ...paymentMethodFilter });
 			if (!userCustomer || !paymentMethod) return res.status(406).send({ message: 'Payment method not allowed for this user' });
 			const subscription = await Subscription.findById(subscriptionId);
 			const paymentSubscription: IPSubscription = {

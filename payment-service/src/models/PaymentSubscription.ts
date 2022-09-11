@@ -64,7 +64,7 @@ paymentSubscriptionSchema.methods.toJSON = function () {
 		});
 	});
 	return {
-		subscriptionId: subscription.subscriptionId,
+		subscriptionId: subscription.subscriptionId._id || subscription.subscriptionId,
 		subscriptionType: subscription.interval,
 		title: subscription.subscriptionId?.title,
 		description: subscription.subscriptionId?.description,

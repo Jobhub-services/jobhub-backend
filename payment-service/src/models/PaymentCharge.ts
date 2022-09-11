@@ -7,11 +7,21 @@ const paymentChargeSchema: Schema = new Schema(
 	{
 		userId: { type: Types.ObjectId, ref: User },
 		payment_method: { type: Types.ObjectId, ref: PaymentMethod },
+		charge_id: String,
 		status: {
 			type: String,
 			enum: ChargesStatus,
+			default: ChargesStatus.UNKNOWN,
 		},
-		amout: Number,
+		transaction: {
+			authorization_id: String,
+			timezone: String,
+			created: String,
+			url: String,
+			_id: false,
+		},
+		amount: Number,
+		quantity: Number,
 		description: String,
 		metadata: Schema.Types.Mixed,
 	},
