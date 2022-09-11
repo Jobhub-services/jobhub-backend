@@ -2,9 +2,12 @@ import HttpClient from '@/services/HttpClient';
 
 class MessagingService {
 	storageService: HttpClient;
+	paymentService: HttpClient;
 	constructor() {
 		const STORAGE_SERVICE = process.env.STORAGE_SERVICE;
+		const PAYMENT_SERVICE = process.env.PAYMENT_SERVICE;
 		this.storageService = new HttpClient(STORAGE_SERVICE);
+		this.paymentService = new HttpClient(PAYMENT_SERVICE);
 	}
 
 	presigneUserMedia = async (fileIds: any) => {

@@ -38,7 +38,7 @@ class PaymentService {
 
 	async cancelSubscription(subscriptionId: string): Promise<boolean> {
 		try {
-			const response = await this._tapClient.delete(`${SUBSCRIPTION_PATH}${subscriptionId}`);
+			const response = await this._tapClient.delete(`${SUBSCRIPTION_PATH}/${subscriptionId}`);
 			console.log(response.data);
 			return true;
 		} catch (e) {
@@ -110,7 +110,7 @@ class PaymentService {
 
 	async updateCustomer(customer_id: string, customer: ITapCustomer): Promise<void> {
 		try {
-			await this._tapClient.put(`${CUSTOMER_PATH}${customer_id}`, customer);
+			await this._tapClient.put(`${CUSTOMER_PATH}/${customer_id}`, customer);
 		} catch (e) {
 			console.log(e.response.data);
 		}
@@ -118,7 +118,8 @@ class PaymentService {
 
 	async saveCustomerCard(customerId: string, cardToken: string): Promise<IPMethods> {
 		try {
-			const customerResponse = await this._tapClient.post(`${CARDS_PATH}${customerId}`, { source: cardToken });
+			console.log(cardToken);
+			const customerResponse = await this._tapClient.post(`${CARDS_PATH}/${customerId}`, { source: cardToken });
 			if (customerResponse.data) {
 				const data = customerResponse.data;
 				console.log(data);
@@ -140,7 +141,7 @@ class PaymentService {
 
 	async deleteCustomerCard(customerId: string, cardId: string): Promise<void> {
 		try {
-			await this._tapClient.delete(`${CARDS_PATH}${customerId}/${cardId}`);
+			await this._tapClient.delete(`${CARDS_PATH}/${customerId}/${cardId}`);
 		} catch (e) {
 			console.log(e.response.data);
 		}
