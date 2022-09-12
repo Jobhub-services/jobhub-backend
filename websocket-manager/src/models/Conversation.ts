@@ -1,9 +1,8 @@
-import { model, Schema, Document, Types } from 'mongoose';
+import { Schema, Types } from 'mongoose';
+import MongooseDelete from 'mongoose-delete';
 import User from '@/models/User';
 import { IConversation } from '@/interfaces/conversation.interface';
 import { softDeleteModel } from '@/helpers';
-import Developer from '@/models/Developer';
-import Company from '@/models/Company';
 import messagingService from '@/services/MessagingService';
 
 const messageSchema = new Schema(
@@ -29,9 +28,6 @@ const conversationSchema: Schema = new Schema(
 	}
 );
 
-//messageSchema.virtual('talent', { ref: Developer, localField: 'members', foreignField: 'userId', justOne: true });
-//messageSchema.virtual('company', { ref: Company, localField: 'members', foreignField: 'userId', justOne: true });
-
 async function populateFiles(docs, next) {
 	try {
 		if (Array.isArray(docs) && docs.length > 0) {
@@ -49,6 +45,8 @@ async function populateFiles(docs, next) {
 		next();
 	}
 }
+
+conversationSchema.plugin(MongooseDelete, { deletedAt: true, overrideMethods: true, deletedBy: true });
 
 conversationSchema.post('aggregate', populateFiles);
 conversationSchema.post('find', populateFiles);

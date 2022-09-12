@@ -7,6 +7,7 @@ import CompanyJob from '@/models/CompanyJob';
 import { isValidObjectId } from '@/helpers';
 import { metadataService } from '@/services/MetadataService';
 import Application from '@/models/Application';
+import { permissionService } from '@/services/PermissionService';
 
 class CompanyJobController {
 	createJob = async (req: Request, res: Response) => {
@@ -25,6 +26,9 @@ class CompanyJobController {
 			const questions = this._populateQuestions(jobBody.questions);
 			const company_division = company.company_division.find((division) => division._id == jobBody.company_division);
 			if (!work_remotly && work_location.length === 0) return res.status(406).send({ message: 'Select work location' });
+			const jobInfo = await permissionService.getSubscriptionJobInfo(rootObjectId);
+			if (!jobInfo) return res.status(406).send({ message: "You have invalid subscription you can't create job" });
+			if (jobInfo.jobRemaining == 0) return res.status(406).send({ message: "You don't have enough jobs please purchase new posting" });
 			const createJobInstance = async (location?: ICompanyJob['work_location']) => {
 				const companyJob: ICompanyJob = {
 					title: jobBody.title,
@@ -40,6 +44,7 @@ class CompanyJobController {
 					start_salary: jobBody.start_salary,
 					end_salary: jobBody.end_salary,
 					benefits: jobBody.benefits,
+					job_duration: jobInfo.jobDuration,
 					work_remotly,
 					hire_remotly: jobBody.hire_remotly,
 					visa_sponsorship: jobBody.visa_sponsorship,
@@ -56,8 +61,13 @@ class CompanyJobController {
 				const job = await CompanyJob.create(companyJob);
 				jobs.push(job);
 			};
-			if (work_remotly) await createJobInstance();
-			else
+			if (work_remotly) {
+				await createJobInstance();
+				await permissionService.subtractJobSubscription(rootObjectId);
+			} else {
+				const jobsToCreate = work_location.length;
+				if (jobInfo.jobRemaining >= 0 && jobInfo.jobRemaining < jobsToCreate)
+					return res.status(406).send({ message: "You don't have enough jobs please purchase new posting" });
 				for (const workLocation of work_location) {
 					const location = await metadataService.getCountry(workLocation.country);
 					if (!location) continue;
@@ -66,6 +76,8 @@ class CompanyJobController {
 						country: location,
 					});
 				}
+				await permissionService.subtractJobSubscription(rootObjectId, jobs.length);
+			}
 			res.status(200).send({ message: 'Job created successfully', countCreated: jobs.length });
 		} catch (e) {
 			console.log(e);

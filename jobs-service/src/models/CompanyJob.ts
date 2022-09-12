@@ -60,6 +60,7 @@ const companyJobSchema: Schema = new Schema(
 		questions: [questionSchema],
 		education: [{ type: String }],
 		certification: [{ type: String }],
+		job_duration: Number,
 		status: {
 			type: String,
 			enum: JobStatus,

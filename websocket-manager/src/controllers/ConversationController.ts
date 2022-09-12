@@ -1,23 +1,27 @@
 import { ConversationDto } from '@/dtos/conversation.dto';
 import { isValidObjectId } from '@/helpers';
-import { IConversation } from '@/interfaces/conversation.interface';
 import Conversation from '@/models/Conversation';
+import { permissionService } from '@/services/PermissionService';
 import { Request, Response } from 'express';
-import { OutgoingMessage } from 'http';
 class ConversationController {
 	createConversation = async (req: Request, res: Response) => {
 		try {
 			const rootObjectId = req.rootObjectId;
 			const convData: ConversationDto = req.body;
-			if (convData.members.length < 2) return res.status(406).send({ message: 'Members at least must be two' });
-			const convs = await Conversation.find({ members: { $all: convData.members } });
-			const firstConv = convs.find((val) => val.members.length === convData.members.length);
-			if (firstConv) return res.status(200).send({ message: 'Conversation created successfully jje', data: firstConv._id });
+			const members = convData.members;
+			if (members.indexOf(rootObjectId.toString() as any) < 0) return res.status(406).send({ message: 'Owner should be member in conversation' });
+			if (members.length < 2) return res.status(406).send({ message: 'Members at least must be two' });
+			const conversationItem = await Conversation.findOne({ members: members, createdBy: rootObjectId });
+			if (conversationItem) return res.status(200).send({ message: 'Conversation created successfully', data: conversationItem._id });
+			const contactsNumber = await permissionService.getSubscriptionContactInfo(rootObjectId);
+			if (contactsNumber == 0)
+				return res.status(406).send({ message: "Your don't have enough contact to create this conversation , please wait contact support" });
 			const conversation = await Conversation.create({
 				createdBy: rootObjectId,
 				members: convData.members,
 				messages: [],
 			});
+			await permissionService.subtractContactsSubscription(rootObjectId);
 			res.status(200).send({ message: 'Conversation created successfully', data: conversation._id });
 		} catch (e: any) {
 			console.log(e);

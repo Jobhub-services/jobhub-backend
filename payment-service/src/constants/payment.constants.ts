@@ -8,4 +8,5 @@ export const TAB_API_PATHS = {
 	CUSTOMER_PATH: 'customers',
 	CHARGE_PATH: 'charges',
 	CARDS_PATH: 'card',
+	TOKENS_PATH: 'tokens',
 };

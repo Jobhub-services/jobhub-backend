@@ -25,7 +25,16 @@ class ChargesController {
 				if (transactionType === TransactionTypes.SUBSCRIPTION_PAYMENT) {
 					const subscription_id = transaction_token.subscription_id;
 					const subscription = await PaymentSubscription.findById(subscription_id);
-					subscription.creation_status = chargeData.status;
+					if (subscription.is_new_subscription) {
+						subscription.creation_status = chargeData.status;
+						subscription.is_new_subscription = false;
+					} else {
+						const features = [...subscription.features];
+						features.forEach((feature) => {
+							if (feature.slug === FeatureType.POSTING_NUMBER || (feature.slug === FeatureType.CONTACTS_NUMBER && feature.total_value >= 0))
+								feature.current_value += feature.total_value;
+						});
+					}
 					await subscription.save();
 					referenceData.reference_id = subscription._id;
 				} else if (transactionType === TransactionTypes.CHARGE_PAYMENT) {
@@ -57,6 +66,7 @@ class ChargesController {
 						application: chargeData.application,
 						merchant_payouts: chargeData.merchant_payouts,
 						payout: chargeData.payout,
+						activities: chargeData.activities,
 					},
 				});
 			}
@@ -80,8 +90,9 @@ class ChargesController {
 			const paymentMethod = await PaymentMethod.findOne({ userId: user._id, ...paymentMethodFilter });
 			if (!paymentMethod) return res.status(406).send({ message: 'Please add payment method to charge post' });
 			const userCustomer = await PaymentCustomer.findOne({ userId: user._id });
+			const card_token = await paymentService.createCustomerCardToken(paymentMethod.card_id, userCustomer.customer_id);
+			if (!card_token) return res.status(406).send({ message: "Can't process payment, please try again" });
 			const company = (await Company.findOne({ userId: user._id })).toJSON();
-
 			const postPrice = subscription.features.find((item) => item.slug == FeatureType.CHARGE_PER_POST).total_value;
 
 			const paymentCharge = await PaymentCharge.create({
@@ -108,9 +119,8 @@ class ChargesController {
 						number: userCustomer.phone.number,
 					},
 				},
-				merchant: { id: '' },
 				source: {
-					id: paymentMethod.card_id,
+					id: card_token,
 				},
 				post: {
 					url: createTransactionPostURL({
@@ -137,7 +147,7 @@ class ChargesController {
 				await this._chargeJobs(chargeBody.quantity, user._id);
 				return res.status(200).send({ message: 'Your post charged successfully ' });
 			}
-			res.status(406).send({ message: 'Failed to validate payment please try another valid card' });
+			res.status(406).send({ message: `Your payment is ${paymentCharge.status} please try later` });
 		} catch (e: any) {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });

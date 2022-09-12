@@ -149,15 +149,15 @@ developerSchema.methods.toJSON = function () {
 
 const Developer = model<IDeveloper & Document>('Developer', developerSchema);
 
-export function populateDevelopersToJson(developers: IDeveloper[]) {
+export function populateDevelopersToJson(developers: IDeveloper[], hideSocial = false) {
 	const result = [];
 	developers.forEach((developer) => {
-		result.push(populateDeveloperToJson(developer));
+		result.push(populateDeveloperToJson(developer, hideSocial));
 	});
 	return result;
 }
 
-export function populateDeveloperToJson(developer: IDeveloper) {
+export function populateDeveloperToJson(developer: IDeveloper, hideSocial = false) {
 	const result: any = {
 		...developer.toJSON(),
 	};
@@ -193,7 +193,26 @@ export function populateDeveloperToJson(developer: IDeveloper) {
 	if (developer.address?.country) result.address.country = developer.address.country.name;
 	if (developer.currency) result.currency = developer.currency?.name;
 	if (Array.isArray(developer.desired_location)) result.desired_location = developer.desired_location.map((location) => location.name);
-
+	if (hideSocial) {
+		if (result.social_profile)
+			result.social_profile = {
+				website: '',
+				git: '',
+				linkedin: '',
+				twitter: '',
+			};
+		if (result.user) {
+			result.user = {
+				...result.user,
+				email: '',
+				phone: {
+					number: '',
+					country_code: '',
+				},
+			};
+		}
+		result.resume = '';
+	}
 	return result;
 }
 

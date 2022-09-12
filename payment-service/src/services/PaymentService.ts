@@ -5,7 +5,7 @@ import { IPSubscription, ITapSubscription } from '@/interfaces/pSubscriptions.in
 import { IPMethods } from '@/interfaces/pMethods.interface';
 import { IPCharge, ITapCharge } from '@/interfaces/pCharges.interface';
 
-const { SUBSCRIPTION_PATH, CUSTOMER_PATH, CHARGE_PATH, CARDS_PATH } = TAB_API_PATHS;
+const { SUBSCRIPTION_PATH, CUSTOMER_PATH, CHARGE_PATH, CARDS_PATH, TOKENS_PATH } = TAB_API_PATHS;
 
 class PaymentService {
 	private _tapClient: HttpClient;
@@ -69,6 +69,7 @@ class PaymentService {
 						application: chargeData.application,
 						merchant_payouts: chargeData.merchant_payouts,
 						payout: chargeData.payout,
+						activities: chargeData.activities,
 					},
 				};
 			}
@@ -118,7 +119,6 @@ class PaymentService {
 
 	async saveCustomerCard(customerId: string, cardToken: string): Promise<IPMethods> {
 		try {
-			console.log(cardToken);
 			const customerResponse = await this._tapClient.post(`${CARDS_PATH}/${customerId}`, { source: cardToken });
 			if (customerResponse.data) {
 				const data = customerResponse.data;
@@ -144,6 +144,25 @@ class PaymentService {
 			await this._tapClient.delete(`${CARDS_PATH}/${customerId}/${cardId}`);
 		} catch (e) {
 			console.log(e.response.data);
+		}
+	}
+
+	async createCustomerCardToken(card_id: string, customer_id: string): Promise<string> {
+		try {
+			const tokenResponse = await this._tapClient.post(`${TOKENS_PATH}`, {
+				saved_card: {
+					card_id,
+					customer_id,
+				},
+			});
+			if (tokenResponse.data) {
+				const data = tokenResponse.data;
+				return data.id;
+			}
+			return null;
+		} catch (e) {
+			console.log(e.response.data);
+			return null;
 		}
 	}
 }

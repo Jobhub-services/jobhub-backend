@@ -45,6 +45,10 @@ const paymentSubscriptionSchema: Schema = new Schema(
 		},
 		description: String,
 		metadata: Schema.Types.Mixed,
+		is_new_subscription: {
+			type: Boolean,
+			default: true,
+		},
 		features: [featureSchema],
 		timezone: timezoneSchema,
 		currency: currencySchema,
