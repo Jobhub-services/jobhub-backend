@@ -99,7 +99,7 @@ class CompanyController {
 				userId: 1,
 				status: 1,
 				address: 1,
-				social_profile: 1,
+				skills: 1,
 				createdAt: 1,
 				updatedAt: 1,
 				avatar: 1,
