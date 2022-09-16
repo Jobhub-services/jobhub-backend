@@ -14,7 +14,7 @@ class MetadataController {
 	public async initCountries(req: Request, res: Response) {
 		try {
 			const jsonFile = await fs.readFileSync(path.join(__dirname, '..', '..', 'json_data', 'country.json'));
-			const countries: { name: string; code: string }[] = JSON.parse(jsonFile.toString());
+			const countries: { name: string; code: string; dialCode: string; flag: string }[] = JSON.parse(jsonFile.toString());
 			const country = await Country.findOne();
 			if (!country) await Country.insertMany(countries);
 			res.status(200).send({ message: 'Countries added' });

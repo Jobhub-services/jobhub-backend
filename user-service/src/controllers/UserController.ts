@@ -4,6 +4,7 @@ import Developer from '@/models/Developer';
 import Company from '@/models/Company';
 import { tokenService } from '@/services/HashService';
 import User from '@/models/User';
+import { permissionService } from '@/services/PermissionService';
 
 export default class UserController {
 	public userInfo = async (req: Request, res: Response) => {
@@ -24,6 +25,7 @@ export default class UserController {
 				userInfo.owner_first_name = company.owner_first_name;
 				userInfo.owner_last_name = company.owner_last_name;
 				userInfo.avatar = company.avatar;
+				userInfo.enableCreateJob = await permissionService.checkJobCreationStatus(userData._id);
 			}
 			res.status(200).send({ message: 'Info fetched successfully', data: userInfo });
 		} catch (e: any) {

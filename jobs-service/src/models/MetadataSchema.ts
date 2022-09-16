@@ -5,6 +5,8 @@ export const countrySchema = metadataSchema({
 	_id: Types.ObjectId,
 	code: String,
 	name: String,
+	dialCode: String,
+	flag: String,
 });
 
 export const jobRoleSchema = metadataSchema({

@@ -9,6 +9,12 @@ const countrySchema: Schema = new Schema({
 		type: String,
 		required: true,
 	},
+	dialCode: {
+		type: String,
+	},
+	flag: {
+		type: String,
+	},
 });
 
 const Country = model<ICountry & Document>('Country', countrySchema);

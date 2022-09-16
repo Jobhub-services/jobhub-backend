@@ -15,6 +15,8 @@ class MessagingService {
 		this.paymentService = new HttpClient(PAYMENT_SERVICE);
 	}
 
+	async excuteMessage(messageName: string, params: any[], req) {}
+
 	createCompanyCutomer = async () => {
 		try {
 			const response = await this.paymentService.post('customers/customer');

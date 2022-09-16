@@ -14,9 +14,10 @@ export enum ChargesStatus {
 }
 
 export interface ITapCharge {
-	amount: number;
-	currency: string;
-	description: string;
+	amount?: number;
+	currency?: string;
+	description?: string;
+	threeDSecure?: boolean;
 	save_card?: boolean;
 	receipt?: {
 		email?: boolean;
@@ -30,6 +31,9 @@ export interface ITapCharge {
 			country_code?: string;
 			number?: string;
 		};
+	};
+	merchant?: {
+		id?: string;
 	};
 	source?: {
 		id?: string;

@@ -52,6 +52,7 @@ export interface ICompanyJob {
 	education?: string[];
 	certification?: string[];
 	requirements?: string;
+	job_duration?: number;
 	company_division?: ICompanyDivision;
 	category?: IJobCategoryData;
 	job_type?: JobTypes;

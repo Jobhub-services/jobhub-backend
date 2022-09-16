@@ -9,6 +9,7 @@ import { isValidObjectId } from '@/helpers';
 import { metadataService } from '@/services/MetadataService';
 import messagingService from '@/services/MessagingService';
 import User from '@/models/User';
+import { permissionService } from '@/services/PermissionService';
 
 class CompanyController {
 	getDivision = async (req: Request, res: Response) => {
@@ -108,7 +109,7 @@ class CompanyController {
 				role: 1,
 			});
 			const talents = await query;
-			const talnetsList = populateDevelopersToJson(talents);
+			const talnetsList = populateDevelopersToJson(talents, true);
 			res.status(200).send({ content: talnetsList, count, size: talents.length, pages: Math.ceil(count / Number(limit)), currentPage: page });
 		} catch (e: any) {
 			console.log(e);
@@ -118,12 +119,15 @@ class CompanyController {
 	getTalentDetails = async (req: Request, res: Response) => {
 		try {
 			const talentId = req.params.talentId;
+			const rootObjectId = req.rootObjectId;
 			if (!talentId || !isValidObjectId(talentId)) return res.status(406).send({ message: 'Talent not found' });
 			const query = Developer.findById(talentId);
 			const talent = await query;
 			if (!talent) return res.status(406).send({ message: 'Talent not found' });
-			const talnetList = populateDeveloperToJson(talent);
-			res.status(200).send({ content: talnetList });
+			const isConnected = await permissionService.checkUsersConnection(rootObjectId, talent._id);
+			const talentDetail = populateDeveloperToJson(talent, !isConnected);
+			talentDetail.enableContact = isConnected;
+			res.status(200).send({ content: talentDetail, isConnected });
 		} catch (e: any) {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });

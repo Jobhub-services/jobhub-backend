@@ -1,9 +1,11 @@
 import { Types } from 'mongoose';
 
 export interface ICountryData {
-	_id: Types.ObjectId;
-	code: string;
-	name: string;
+	_id?: Types.ObjectId;
+	code?: string;
+	name?: string;
+	dialCode?: string;
+	flag?: string;
 }
 
 export interface IJobRoleData {

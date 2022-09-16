@@ -55,5 +55,6 @@ export interface IPSubscription {
 	features?: { feature_id: Types.ObjectId; total_value: number; current_value: number; slug: FeatureType }[];
 	timezone?: ITimezoneData;
 	currency?: ICurrencyData;
+	is_new_subscription?: boolean;
 	metadata?: any;
 }
