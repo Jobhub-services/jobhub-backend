@@ -125,8 +125,9 @@ class CompanyController {
 			const talent = await query;
 			if (!talent) return res.status(406).send({ message: 'Talent not found' });
 			const isConnected = await permissionService.checkUsersConnection(rootObjectId, talent._id);
-			const talnetList = populateDeveloperToJson(talent, !isConnected);
-			res.status(200).send({ content: talnetList, isConnected });
+			const talentDetail = populateDeveloperToJson(talent, !isConnected);
+			talentDetail.enableContact = isConnected;
+			res.status(200).send({ content: talentDetail, isConnected });
 		} catch (e: any) {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
