@@ -29,21 +29,21 @@ class PermissionService {
 		}
 	}
 
-	async checkJobCreationStatus(userId: any): Promise<boolean> {
+	async checkJobCreationStatus(userId: any): Promise<number> {
 		try {
 			const subscription: any = (await PaymentSubscription.findOne({ userId }))?.toJSON();
-			if (!subscription) return false;
-			let jobCreationStatus = false;
+			if (!subscription) return 0;
+			let jobCreationStatus = 0;
 			for (const feature of subscription.features) {
 				if (feature.slug === FeatureType.POSTING_NUMBER) {
-					if (feature.current_value > 0) jobCreationStatus = true;
+					jobCreationStatus = feature.current_value;
 					break;
 				}
 			}
 			return jobCreationStatus;
 		} catch (e) {
 			console.log(e);
-			return false;
+			return 0;
 		}
 	}
 }

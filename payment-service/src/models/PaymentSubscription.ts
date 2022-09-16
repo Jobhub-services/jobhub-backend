@@ -6,7 +6,8 @@ import PaymentMethod from '@/models/PaymentMethod';
 import Promotion from '@/models/Promotion';
 import { currencySchema, timezoneSchema } from '@/models/MetadataSchema';
 import { ChargesStatus } from '@/interfaces/pCharges.interface';
-import { getSubscriptionFeatureMessage } from '@/helpers';
+import { addDaysToDate, getSubscriptionFeatureMessage } from '@/helpers';
+import { FeatureType } from '@/interfaces/subscriptions.interface';
 
 const featureSchema: Schema = new Schema(
 	{
@@ -61,12 +62,17 @@ const paymentSubscriptionSchema: Schema = new Schema(
 paymentSubscriptionSchema.methods.toJSON = function () {
 	const subscription = this.toObject();
 	const featuresDisplayText = [];
+	let renewJob = 0;
 	subscription.features.forEach((feature) => {
 		featuresDisplayText.push({
 			featureKey: feature.slug,
 			displayText: getSubscriptionFeatureMessage(feature.slug, feature.current_value),
 		});
+		if (feature.slug === FeatureType.CHARGE_PER_POST) renewJob = feature.total_value;
 	});
+	let days = 30;
+	if (subscription.interval === SubscriptionType.YEARLY) days = 365;
+	const expireAt = addDaysToDate(subscription.createdAt, days);
 	return {
 		subscriptionId: subscription.subscriptionId._id || subscription.subscriptionId,
 		subscriptionType: subscription.interval,
@@ -78,6 +84,10 @@ paymentSubscriptionSchema.methods.toJSON = function () {
 		currency: subscription.currency.name,
 		features: featuresDisplayText,
 		subscriptionFeatures: subscription.subscriptionId?.features,
+		createdAt: subscription.createdAt,
+		updatedAt: subscription.updatedAt,
+		renewJob,
+		expireAt,
 	};
 };
 
