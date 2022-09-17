@@ -34,10 +34,10 @@ serviceEndpoints:
     url: 'http://localhost:3004'
   notifications:
     url: 'http://localhost:3006'
-  websockets:
-    url: 'http://localhost:3009'
   payments:
     url: 'http://localhost:3008'
+  websockets:
+    url: 'http://localhost:3009'
 policies:
   - basic-auth
   - cors
@@ -66,6 +66,9 @@ pipelines:
       - cors:
           - action:
               origin: '*'
+      - auth:
+          - action:
+              excludedRoutes: ['/api/notifications/newsletter/subscribe']
       - proxy:
           - action:
               serviceEndpoint: notifications
@@ -78,6 +81,15 @@ pipelines:
           - action:
               origin: '*'
       - auth:
+          - action:
+              excludedRoutes:
+                [
+                  '/api/users/auth/login',
+                  '/api/users/auth/register',
+                  '/api/users/auth/forget-password',
+                  '/api/users/auth/reset-password',
+                  '/api/users/super-user/create',
+                ]
       - proxy:
           - action:
               serviceEndpoint: users
@@ -126,6 +138,8 @@ pipelines:
           - action:
               origin: '*'
       - auth:
+          - action:
+              excludedRoutes: ['/api/payments/customers/customer']
       - proxy:
           - action:
               serviceEndpoint: payments

@@ -10,7 +10,8 @@ import PaymentMethod from '@/models/PaymentMethod';
 class CustomerController {
 	createCustomer = async (req: Request, res: Response) => {
 		try {
-			const user = req.user;
+			const { user } = req.body;
+			if (!user) return res.status(403).send({ message: 'Action not authorized' });
 			const response = await this._createCustomer(user);
 			res.status(200).send(response);
 		} catch (e: any) {

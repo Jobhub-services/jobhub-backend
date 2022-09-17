@@ -67,7 +67,8 @@ class AuthController {
 					timezone = await metadataService.getTimezoneByCode(userGeolocation.timezone);
 				}
 				await Company.create({ userId: user._id, companyName: userInfo.companyInfo.companyName, currency, timezone });
-				messagingService.createCompanyCutomer();
+				messagingService.createCompanyCutomer(user);
+				messagingService.subscribeToNewsletter(user);
 			} else if (user.userType === UserType.DEVELOPER)
 				await Developer.create({ userId: user._id, firstName: userInfo.developerInfo.firstName, lastName: userInfo.developerInfo.lastName });
 			res.status(200).send({ message: 'User registred successfully', data: user });

@@ -17,9 +17,18 @@ class MessagingService {
 
 	async excuteMessage(messageName: string, params: any[], req) {}
 
-	createCompanyCutomer = async () => {
+	subscribeToNewsletter = async (user) => {
 		try {
-			const response = await this.paymentService.post('customers/customer');
+			const response = await this.notificationService.post('newsletter', { user });
+			console.log(response.data);
+		} catch (e) {
+			console.log(e);
+		}
+	};
+
+	createCompanyCutomer = async (user) => {
+		try {
+			const response = await this.paymentService.post('customers/customer', { user });
 			console.log(response.data);
 		} catch (e) {
 			console.log(e);

@@ -8,5 +8,12 @@ module.exports = {
 	schema: {
 		// This is for CLI to ask about params 'eg plugin configure customer-auth'
 		$id: 'https://express-gateway.io/schemas/plugins/blacklist.json',
+		type: 'object',
+		properties: {
+			excludedRoutes: {
+				type: 'array',
+				default: [],
+			},
+		},
 	},
 };
