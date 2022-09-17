@@ -68,7 +68,7 @@ pipelines:
               origin: '*'
       - auth:
           - action:
-              excludedRoutes: ['/api/notifications/newsletter/subscribe']
+              excludedRoutes: ['/api/notifications/newsletter/subscribe', '/api/notifications/contact-us']
       - proxy:
           - action:
               serviceEndpoint: notifications
