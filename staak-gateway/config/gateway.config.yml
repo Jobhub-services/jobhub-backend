@@ -114,6 +114,8 @@ pipelines:
           - action:
               origin: '*'
       - auth:
+          - action:
+              excludedRoutes: ['/api/metadata/countries']
       - proxy:
           - action:
               serviceEndpoint: metadata
