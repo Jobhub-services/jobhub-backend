@@ -9,6 +9,7 @@ const talentJobController = new TalentJobController();
 
 const router = Router();
 
+router.get('/public',talentJobController.getPublicJobs)
 router.use('/', authRole(UserType.DEVELOPER));
 router.get('/', talentJobController.getJobs);
 router.get('/:jobid', talentJobController.getJob);
