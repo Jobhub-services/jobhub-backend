@@ -8,6 +8,7 @@ import { UserType } from '@/interfaces/users.interface';
 import Application from '@/models/Application';
 import CompanyJob from '@/models/CompanyJob';
 import Company from '@/models/Company';
+import Developer from '@/models/Developer';
 
 class ApplicationController {
 	createApp = async (req: Request, res: Response) => {
@@ -15,6 +16,7 @@ class ApplicationController {
 			const rootObjectId = req.rootObjectId;
 			const appBody: ApplicationDto = req.body;
 			const applicationJob = await CompanyJob.findById(appBody.jobId);
+			const talent: any = await Developer.findOne({ userId: rootObjectId });
 			const responses = await this._populateResponses(applicationJob.questions, appBody.responses);
 			const application: IApplication = {
 				userId: rootObjectId,
@@ -26,6 +28,10 @@ class ApplicationController {
 				notice_period: appBody.notice_period,
 			};
 			const createdApplication = await Application.create(application);
+			if (talent?.savedJobs?.some((elem) => elem === appBody.jobId)) {
+				talent.savedJobs = talent.savedJobs.filter((elem) => elem !== appBody.jobId);
+				await talent.save();
+			}
 			res.status(200).send({ message: 'Application submited successfully', application: createdApplication });
 		} catch (e: any) {
 			console.log(e);
