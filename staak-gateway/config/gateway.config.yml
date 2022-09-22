@@ -102,6 +102,8 @@ pipelines:
           - action:
               origin: '*'
       - auth:
+          - action:
+              excludedRoutes: ['/api/jobs/public']
       - proxy:
           - action:
               serviceEndpoint: jobs

@@ -9,7 +9,7 @@ import { stringify } from 'querystring';
 import Developer from '@/models/Developer';
 
 class TalentJobController {
-	getPublicJobs = async (req: Request, res: Response) => {
+	public getPublicJobs = async (req: Request, res: Response) => {
 		try {
 			const limitN = 20,
 				count = 20,
