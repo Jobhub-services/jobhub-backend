@@ -29,7 +29,7 @@ class ApplicationController {
 			};
 			const createdApplication = await Application.create(application);
 			if (talent?.savedJobs?.some((elem) => elem === appBody.jobId)) {
-				talent.savedJobs = talent.savedJobs.filter((elem) => elem !== appBody.jobId);
+				talent.savedJobs = talent.savedJobs.filter((elem) => elem.toString() !== appBody.jobId.toString());
 				await talent.save();
 			}
 			res.status(200).send({ message: 'Application submited successfully', application: createdApplication });

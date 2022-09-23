@@ -9,7 +9,7 @@ import { stringify } from 'querystring';
 import Developer from '@/models/Developer';
 
 class TalentJobController {
-	public getPublicJobs = async (req: Request, res: Response) => {
+	getPublicJobs = async (req: Request, res: Response) => {
 		try {
 			const limitN = 20,
 				count = 20,
@@ -74,10 +74,13 @@ class TalentJobController {
 			let queryConditions: any = { status: { $ne: JobStatus.CLOSED }, _id: { $nin: applications } };
 			queryConditions = this._buildQuery(req, queryConditions);
 			let count = 0;
-			if (os && os === '1') {
-				const tmpSavedJobs = (developer?.savedJobs ?? []).filter((elem) => !applications.some((app) => app === elem));
+			/*if (os && os === '1') {
+				console.log(developer?.savedJobs.length);
+				const tmpSavedJobs = (developer?.savedJobs ?? []).filter((elem) => !applications.some((app) => app.toString() === elem.toString()));
 				count = tmpSavedJobs.length;
-			} else count = await CompanyJob.count(queryConditions);
+				console.log(tmpSavedJobs.length);
+			} else*/
+			count = await CompanyJob.count(queryConditions);
 			const limitFilters = [];
 			let pageN;
 			const limitN = Number(limit);
@@ -200,7 +203,6 @@ class TalentJobController {
 		if (hourly?.length > 0) salaryCond = ['Hourly', ...salaryCond];
 		if (monthly?.length > 0) salaryCond = ['Monthly', ...salaryCond];
 		if (annually?.length > 0) salaryCond = ['Yearly', ...salaryCond];
-		console.log('salary ', salaryCond);
 		if (salaryCond.length > 0) tmp = { salary_type: { $in: salaryCond }, ...tmp };
 
 		return tmp;
