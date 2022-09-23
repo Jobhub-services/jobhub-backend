@@ -74,13 +74,12 @@ class TalentJobController {
 			let queryConditions: any = { status: { $ne: JobStatus.CLOSED }, _id: { $nin: applications } };
 			queryConditions = this._buildQuery(req, queryConditions);
 			let count = 0;
-			/*if (os && os === '1') {
-				console.log(developer?.savedJobs.length);
-				const tmpSavedJobs = (developer?.savedJobs ?? []).filter((elem) => !applications.some((app) => app.toString() === elem.toString()));
-				count = tmpSavedJobs.length;
-				console.log(tmpSavedJobs.length);
-			} else*/
-			count = await CompanyJob.count(queryConditions);
+			if (os && os === '1') {
+				//console.log(developer?.savedJobs.length);
+				//const tmpSavedJobs = (developer?.savedJobs ?? []).filter((elem) => !applications.some((app) => app.toString() === elem.toString()));
+				count = developer?.savedJobs?.length ?? 0;
+				//console.log(tmpSavedJobs.length);
+			} else count = await CompanyJob.count(queryConditions);
 			const limitFilters = [];
 			let pageN;
 			const limitN = Number(limit);
