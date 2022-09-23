@@ -28,7 +28,7 @@ class ApplicationController {
 				notice_period: appBody.notice_period,
 			};
 			const createdApplication = await Application.create(application);
-			if (talent?.savedJobs?.some((elem) => elem === appBody.jobId)) {
+			if (talent?.savedJobs?.some((elem) => elem.toString() === appBody.jobId.toString())) {
 				talent.savedJobs = talent.savedJobs.filter((elem) => elem.toString() !== appBody.jobId.toString());
 				await talent.save();
 			}
