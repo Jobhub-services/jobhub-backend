@@ -9,6 +9,61 @@ import { stringify } from 'querystring';
 import Developer from '@/models/Developer';
 
 class TalentJobController {
+	getPublicJobs = async (req: Request, res: Response) => {
+		try {
+			const limitN = 20,
+				count = 20,
+				pageN = 0;
+			const query = CompanyJob.aggregate([
+				{ $sort: { createdAt: -1 } },
+				{ $limit: limitN },
+				{
+					$lookup: {
+						from: Company.collection.collectionName,
+						localField: 'createdBy',
+						foreignField: 'userId',
+						as: 'company',
+					},
+				},
+				{ $unwind: '$company' },
+				{
+					$project: {
+						title: 1,
+						job_type: 1,
+						duration: 1,
+						start_salary: 1,
+						end_salary: 1,
+						salary_type: 1,
+						createdAt: 1,
+						updatedAt: 1,
+						hire_remotly: 1,
+						createdBy: 1,
+						work_remotly: 1,
+						work_location: {
+							country: '$work_location.country.name',
+							city: '$work_location.city',
+						},
+						category: '$category.name',
+						currency: {
+							code: '$currency.code',
+							name: '$currency.name',
+						},
+						company: {
+							companyName: 1,
+							avatar: 1,
+							company_size: '$company.generalinfo.company_size',
+						},
+					},
+				},
+			]);
+
+			const jobs = await query;
+			res.status(200).send({ content: jobs, count, size: jobs.length, pages: Math.ceil(count / limitN), currentPage: pageN });
+		} catch (e: any) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
 	getJobs = async (req: Request, res: Response) => {
 		try {
 			const { name = '', limit = 20, page, os } = req.query;
@@ -20,8 +75,10 @@ class TalentJobController {
 			queryConditions = this._buildQuery(req, queryConditions);
 			let count = 0;
 			if (os && os === '1') {
-				const tmpSavedJobs = (developer?.savedJobs ?? []).filter((elem) => !applications.some((app) => app === elem));
-				count = tmpSavedJobs.length;
+				//console.log(developer?.savedJobs.length);
+				//const tmpSavedJobs = (developer?.savedJobs ?? []).filter((elem) => !applications.some((app) => app.toString() === elem.toString()));
+				count = developer?.savedJobs?.length ?? 0;
+				//console.log(tmpSavedJobs.length);
 			} else count = await CompanyJob.count(queryConditions);
 			const limitFilters = [];
 			let pageN;
@@ -145,7 +202,6 @@ class TalentJobController {
 		if (hourly?.length > 0) salaryCond = ['Hourly', ...salaryCond];
 		if (monthly?.length > 0) salaryCond = ['Monthly', ...salaryCond];
 		if (annually?.length > 0) salaryCond = ['Yearly', ...salaryCond];
-		console.log('salary ', salaryCond);
 		if (salaryCond.length > 0) tmp = { salary_type: { $in: salaryCond }, ...tmp };
 
 		return tmp;
