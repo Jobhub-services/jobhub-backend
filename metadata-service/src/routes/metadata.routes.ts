@@ -20,6 +20,9 @@ router.get('/languages', metadataController.getLanguages);
 router.put('/job-roles', metadataController.initJobRoles);
 router.get('/job-roles', metadataController.getJobRoles);
 
+router.put('/industries', metadataController.initIndustries);
+router.get('/industries', metadataController.getIndustries);
+
 router.put('/timezones', metadataController.initTimezones);
 router.get('/timezones', metadataController.getTimezones);
 
