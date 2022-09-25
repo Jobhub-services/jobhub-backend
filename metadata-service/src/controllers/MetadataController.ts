@@ -8,6 +8,7 @@ import Language from '@/models/Language';
 import JobRole from '@/models/JobRole';
 import Timezone from '@/models/Timezone';
 import { ITimezone } from '@/interfaces/timezone.interface';
+import Industry from '@/models/Industry';
 
 class MetadataController {
 	// countries
@@ -188,7 +189,42 @@ class MetadataController {
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	}
-
+	initIndustries = async (req: Request, res: Response) => {
+		try {
+			const industries = await Industry.findOne();
+			if (!industries) {
+				const jsonFile = await fs.readFileSync(path.join(__dirname, '..', '..', 'json_data', 'industries.json'));
+				const indArr: string[] = JSON.parse(jsonFile.toString()).data;
+				const dbIndus: { name: string }[] = [];
+				for (const indus of indArr) {
+					dbIndus.push({ name: indus });
+				}
+				await Industry.insertMany(dbIndus);
+			}
+			res.status(200).send({ message: 'Industries added' });
+		} catch {
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
+	getIndustries = async (req: Request, res: Response) => {
+		try {
+			const { name = '', limit, page } = req.query;
+			const query = Industry.find({ name: { $regex: name, $options: 'i' } });
+			const count = await Industry.count();
+			if (limit) {
+				const limitN = Number(limit);
+				query.limit(limitN);
+				if (page) {
+					const pageN = Number(page);
+					query.skip(pageN * limitN);
+				}
+			}
+			const industries = await query;
+			res.status(200).send({ content: industries, count, size: industries?.length });
+		} catch {
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
 	// timezones
 	public async initTimezones(req: Request, res: Response) {
 		try {
