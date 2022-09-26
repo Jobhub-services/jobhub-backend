@@ -11,7 +11,7 @@
 			.footer{margin-top: 35px;} .social-icon{ width: 50px;padding-left: 13px; } .gray-text{color: #696969 !important;opacity: .8;} .small-text{
 			font-size: 13.5px; } .staak-btn{display: block; background:#5B4FE3; color:#ffffff !important; padding: 11px 30px;width:
 			max-content;border-radius: 6px;cursor: pointer;font-size: 15px;text-align: center;transition: .2s ease;text-decoration: none;} .staak-btn:hover{
-			background: #7065e7; } h1,h2,h3,h4,h5,p{ margin: 0; }
+			background: #7065e7; } h1,h2,h3,h4,h5,p{ margin: 0; } a{text-decoration: none;}
 		</style>
 	</head>
 	<body>
@@ -26,7 +26,14 @@
 				</table>
 
 				<table class='main-content sized-table'>
-					{{{body}}}
+					<tr>
+						<td>
+							<table style='border-collapse: collapse; width:100%'>
+								{{{body}}}
+							</table>
+						</td>
+					</tr>
+
 				</table>
 
 				<table class='footer sized-table'>

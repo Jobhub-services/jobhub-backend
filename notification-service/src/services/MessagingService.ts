@@ -22,5 +22,6 @@ export default class MessagingService {
 	private _registerAppRoutes() {
 		this.router.post('/reset-password', messagingController.sendResetPasswordEmail);
 		this.router.post('/newsletter', messagingController.subscribeToNewsletter);
+		this.router.put('/job-alerts', messagingController.subscribeToNewsletter);
 	}
 }

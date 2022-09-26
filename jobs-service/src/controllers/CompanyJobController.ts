@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
-import { ICompanyJob, JobLocation } from '@/interfaces/companyJob.interface';
+import { ICompanyJob } from '@/interfaces/companyJob.interface';
 import { CompanyJobDto } from '@/dtos/jobs.dto';
 import Company from '@/models/Company';
 import CompanyJob from '@/models/CompanyJob';
@@ -8,6 +8,7 @@ import { isValidObjectId } from '@/helpers';
 import { metadataService } from '@/services/MetadataService';
 import Application from '@/models/Application';
 import { permissionService } from '@/services/PermissionService';
+import messagingService from '@/services/MessagingService';
 
 class CompanyJobController {
 	createJob = async (req: Request, res: Response) => {
@@ -79,6 +80,7 @@ class CompanyJobController {
 				await permissionService.subtractJobSubscription(rootObjectId, jobs.length);
 			}
 			res.status(200).send({ message: 'Job created successfully', countCreated: jobs.length });
+			messagingService.triggerJobsAlert();
 		} catch (e) {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });

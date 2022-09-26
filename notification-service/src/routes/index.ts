@@ -3,12 +3,14 @@ import { previewRouter } from '@/routes/previews.routes';
 import { newsletterRouter } from '@/routes/newsletter.routes';
 import { emailNotificationRouter } from '@/routes/emailNotification.routes';
 import { userContactsRouter } from '@/routes/userContacts.routes';
+import messagingController from '@/controllers/MessagingController';
 
 const router = Router();
 
 router.use('/preview', previewRouter);
 router.use('/preferences', emailNotificationRouter);
 router.use('/newsletter', newsletterRouter);
+router.get('/testhere', messagingController.sendJobAlertsToTalents);
 router.use('/', userContactsRouter);
 
 router.get('/', (req, res) => {
