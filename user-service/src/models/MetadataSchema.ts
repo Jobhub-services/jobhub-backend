@@ -13,6 +13,12 @@ export const jobRoleSchema = metadataSchema({
 	_id: Types.ObjectId,
 	name: String,
 });
+
+export const industrySchema = metadataSchema({
+	_id: Types.ObjectId,
+	name: String,
+});
+
 export const langSchema = metadataSchema({
 	_id: Types.ObjectId,
 	code: String,

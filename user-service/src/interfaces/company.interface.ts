@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { ICountryData, ITimezoneData, ICurrencyData } from '@/interfaces/metadata.interface';
+import { ICountryData, ITimezoneData, ICurrencyData, IIndustryData } from '@/interfaces/metadata.interface';
 
 export type TSocialProfile = {
 	linkedin?: String;
@@ -9,7 +9,7 @@ export type TSocialProfile = {
 };
 export type TGeneralInfo = {
 	founded?: String;
-	industry?: String;
+	industry?: IIndustryData;
 	company_size?: String;
 };
 

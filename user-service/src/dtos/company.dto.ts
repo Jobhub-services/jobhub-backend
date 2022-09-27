@@ -35,8 +35,8 @@ class GeneralInfoDto {
 
 	@Expose()
 	@IsOptional()
-	@IsString()
-	industry?: string;
+	@IsObjectId()
+	industry: Types.ObjectId;
 
 	@Expose()
 	@IsOptional()

@@ -1,7 +1,7 @@
 import { model, Schema, Types, Document } from 'mongoose';
 import { ICompany } from '@/interfaces/company.interface';
 import User from '@/models/User';
-import { countrySchema, currencySchema, timezoneSchema } from '@/models/MetadataSchema';
+import { countrySchema, currencySchema, timezoneSchema, industrySchema } from '@/models/MetadataSchema';
 import CompanyJob from '@/models/CompanyJob';
 import messagingService from '@/services/MessagingService';
 
@@ -12,7 +12,7 @@ const headquarterSchema: Schema = new Schema({
 });
 const generalInfoSchema: Schema = new Schema({
 	founded: String,
-	industry: String,
+	industry: industrySchema,
 	company_size: String,
 });
 const socialSchema: Schema = new Schema({

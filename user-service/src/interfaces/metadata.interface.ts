@@ -12,6 +12,10 @@ export interface IJobRoleData {
 	_id: Types.ObjectId;
 	name: string;
 }
+export interface IIndustryData {
+	_id: Types.ObjectId;
+	name: string;
+}
 
 export interface ILangData {
 	_id: Types.ObjectId;

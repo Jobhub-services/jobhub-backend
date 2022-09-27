@@ -159,8 +159,8 @@ class CompanyController {
 		profile.headquarter = { ...headquarter, country: await metadataService.getCountry(headquarter.country) };
 	};
 
-	private _setGeneralinfo = (profile: ICompany, generalinfo: CompanyDto['generalinfo']) => {
-		profile.generalinfo = generalinfo;
+	private _setGeneralinfo = async (profile: ICompany, generalinfo: CompanyDto['generalinfo']) => {
+		profile.generalinfo = { ...generalinfo, industry: await metadataService.getIndutry(generalinfo.industry) };
 	};
 
 	private _setCurrency = async (profile: ICompany, currency: CompanyDto['currency']) => {
