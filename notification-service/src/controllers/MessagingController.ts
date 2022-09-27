@@ -3,6 +3,7 @@ import templateRenderService from '@/services/TemplateRenderService';
 import mailService from '@/services/MailService';
 import NotificationEmail from '@/models/NotificationEmail';
 import { NotificationEmailPreference } from '@/interfaces/notificationEmail.interface';
+import { jobSuggestionsService } from '@/services/JobSuggestionsService';
 
 class MessagingController {
 	sendResetPasswordEmail = async (req: Request, res: Response) => {
@@ -40,6 +41,16 @@ class MessagingController {
 				});
 			}
 			res.status(200).send({ message: 'User subscribed' });
+		} catch (e) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
+
+	sendJobAlertsToTalents = async (req: Request, res: Response) => {
+		try {
+			const emailJobs = await jobSuggestionsService.generateEmailJobs();
+			res.status(200).send({ message: 'Notifications sent', emailJobs });
 		} catch (e) {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });

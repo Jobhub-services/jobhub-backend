@@ -1,0 +1,32 @@
+<tr>
+	<td colspan='3' style='padding-top: 10px;padding-bottom:17px'>
+		<div style='padding-bottom: 5px;'>HI, {{fullName}}</div>
+		<div>Here are <strong>today's new jobs, curated for you:</strong></div>
+	</td>
+</tr>
+{{#each jobs}}
+	<tr>
+		<td style='padding: 20px 0;border-bottom:1px solid #afafaf;width:67px'>
+			<a href='{{jobLink}}'>
+				<img style='width:48px;height:48px; border-radius:6px;' src='{{companyLogo}}' />
+			</a>
+		</td>
+		<td style='padding: 20px 0;border-bottom:1px solid #afafaf'>
+			<a href='{{jobLink}}'>
+				<div style='font-size: 18px;padding-bottom:6px;color:#0a66c2;font-weight:600'>{{jobTitle}}</div>
+				<div style='font-size: 14px;color:#525252'>{{jobLocation}}</div>
+			</a>
+		</td>
+		<td style='padding: 20px 0;border-bottom:1px solid #afafaf;width:70px'>
+			<a href='{{jobLink}}'>
+				<div style='font-size: 14px;color:#525252'>{{postDate}}</div>
+			</a>
+		</td>
+	</tr>
+{{/each}}
+
+<tr>
+	<td colspan='3' style='padding-top: 35px;'>
+		<a style='margin:auto;' href='{{browserJobsLink}}' class='staak-btn'>View more jobs</a>
+	</td>
+</tr>

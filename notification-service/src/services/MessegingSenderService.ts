@@ -1,16 +1,11 @@
 import HttpClient from '@/services/HttpClient';
 
-class MessagingService {
+class MessegingSenderService {
 	storageService: HttpClient;
-	notificationService: HttpClient;
-	paymentService: HttpClient;
 	constructor() {
-		const { STORAGE_SERVICE, NOTIFICATION_SERVICE, PAYMENT_SERVICE } = process.env;
+		const { STORAGE_SERVICE } = process.env;
 		this.storageService = new HttpClient(STORAGE_SERVICE);
-		this.notificationService = new HttpClient(NOTIFICATION_SERVICE);
-		this.paymentService = new HttpClient(PAYMENT_SERVICE);
 	}
-
 	presigneUserMedia = async (fileIds: any) => {
 		if (!fileIds) return;
 		try {
@@ -33,18 +28,8 @@ class MessagingService {
 			return null;
 		}
 	};
-
-	triggerJobsAlert = async () => {
-		try {
-			this.notificationService.put('job-alerts');
-			return null;
-		} catch (e) {
-			console.log(e.data);
-			return null;
-		}
-	};
 }
 
-const messagingService = new MessagingService();
+const messagingSenderService = new MessegingSenderService();
 
-export default messagingService;
+export default messagingSenderService;
