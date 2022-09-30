@@ -124,7 +124,7 @@ class CompanyController {
 			const query = Developer.findById(talentId);
 			const talent = await query;
 			if (!talent) return res.status(406).send({ message: 'Talent not found' });
-			const isConnected = await permissionService.checkUsersConnection(rootObjectId, talent._id);
+			const isConnected = await permissionService.checkUsersConnection(rootObjectId, talent.userId);
 			const talentDetail = populateDeveloperToJson(talent, !isConnected);
 			talentDetail.enableContact = isConnected;
 			res.status(200).send({ content: talentDetail, isConnected });
