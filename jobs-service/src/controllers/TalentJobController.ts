@@ -7,6 +7,7 @@ import Application from '@/models/Application';
 import Company from '@/models/Company';
 import { stringify } from 'querystring';
 import Developer from '@/models/Developer';
+import { SORT_VALUES } from '@/constants/job.constant';
 
 class TalentJobController {
 	getPublicJobs = async (req: Request, res: Response) => {
@@ -71,14 +72,12 @@ class TalentJobController {
 			const developer: any = await Developer.findOne({ userId: rootObjectId });
 			let applications: any = await Application.find({ userId: rootObjectId });
 			applications = applications.map((item) => item.jobId);
+			const sortQuery = this._buildSortQuery(req);
 			let queryConditions: any = { status: { $ne: JobStatus.CLOSED }, _id: { $nin: applications } };
 			queryConditions = this._buildQuery(req, queryConditions);
 			let count = 0;
 			if (os && os === '1') {
-				//console.log(developer?.savedJobs.length);
-				//const tmpSavedJobs = (developer?.savedJobs ?? []).filter((elem) => !applications.some((app) => app.toString() === elem.toString()));
 				count = developer?.savedJobs?.length ?? 0;
-				//console.log(tmpSavedJobs.length);
 			} else count = await CompanyJob.count(queryConditions);
 			const limitFilters = [];
 			let pageN;
@@ -94,10 +93,13 @@ class TalentJobController {
 						saved: {
 							$in: ['$_id', developer.savedJobs],
 						},
+						salary: {
+							$toInt: '$end_salary',
+						},
 					},
 				},
 				{ $match: queryConditions },
-				{ $sort: { createdAt: -1 } },
+				{ $sort: sortQuery },
 				...limitFilters,
 				{
 					$lookup: {
@@ -206,6 +208,13 @@ class TalentJobController {
 
 		return tmp;
 	}
+	private _buildSortQuery = (req: Request) => {
+		let tmp = {};
+		const sort = req.query?.sort ?? SORT_VALUES.MOST_RECENT;
+		if (sort === SORT_VALUES.MOST_RECENT) tmp = { ...tmp, createdAt: -1 };
+		if (sort === SORT_VALUES.HIGHEST_SALARY) tmp = { ...tmp, salary: -1 };
+		return tmp;
+	};
 }
 
 export default TalentJobController;
