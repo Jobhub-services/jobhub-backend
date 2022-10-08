@@ -18,7 +18,7 @@ class PermissionService {
 			let contacts = false;
 			for (const feature of subscription.features) {
 				if (feature.slug === FeatureType.CONTACTS_NUMBER) {
-					if (feature.current_value > 0) contacts = true;
+					if (feature.current_value !== 0) contacts = true;
 					break;
 				}
 			}
