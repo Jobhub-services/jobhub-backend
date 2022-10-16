@@ -3,6 +3,7 @@ import JobAlert from '@/models/JobAlert';
 import { JOB_ALERTS_NUBER } from '@/constants/app.constants';
 import messagingSenderService from '@/services/MessegingSenderService';
 import NotificationEmail from '@/models/NotificationEmail';
+import mailService from '@/services/MailService';
 const JOBS_COLLECTION = 'companyjobs';
 const { CLIENT_APP_URL } = process.env;
 class JobSuggestionsService {
@@ -80,6 +81,9 @@ class JobSuggestionsService {
 				},
 			},
 		]);
+		developers.forEach((elem) => {
+			mailService.sendAuthEmail(elem.email, 'simple message', 'Simple Test');
+		});
 		const finalResults = [];
 		return jobAlerts;
 	}
