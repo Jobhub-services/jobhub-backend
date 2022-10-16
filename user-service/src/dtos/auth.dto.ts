@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsBoolean, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { UserType } from '@/interfaces/users.interface';
 import { isEmptyMessage, isStringMessage } from '@/config/dto.config';
 import { Expose, Type } from 'class-transformer';
@@ -56,6 +56,10 @@ export class RegisterDto {
 	@Expose()
 	@IsEnum(UserType)
 	userType: string;
+
+	@Expose()
+	@IsBoolean()
+	agree: boolean;
 
 	@Expose()
 	@IsOptional()

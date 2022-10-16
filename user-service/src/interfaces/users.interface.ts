@@ -19,5 +19,6 @@ export interface IUser {
 	phone: { country_code: string; number: string };
 	username: string;
 	password: string;
+	agree: boolean;
 	userType: UserType;
 }

@@ -47,6 +47,7 @@ class AuthController {
 	public register = async (req: Request, res: Response) => {
 		try {
 			const userInfo: RegisterDto = req.body;
+			if (!userInfo.agree) return res.status(403).send({ message: 'You must check privacy policy and terms & conditions' });
 			const userIp: any = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 			const userGeolocation = userIp ? await getGeolocationInfoFromIp(userIp) : null;
 			const existingUser: IUser = await User.findOne({ $or: [{ email: userInfo.email }, { username: userInfo.username }] });

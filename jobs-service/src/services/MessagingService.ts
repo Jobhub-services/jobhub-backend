@@ -1,3 +1,4 @@
+import { IApplicationEmail } from '@/interfaces/application.interface';
 import HttpClient from '@/services/HttpClient';
 
 class MessagingService {
@@ -40,6 +41,14 @@ class MessagingService {
 			return null;
 		} catch (e) {
 			console.log(e.data);
+			return null;
+		}
+	};
+	applicationEmail = async (payload: IApplicationEmail) => {
+		try {
+			await this.notificationService.get('preferences/application-email');
+			return null;
+		} catch {
 			return null;
 		}
 	};

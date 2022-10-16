@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
 import { ApplicationDto, InterviewDto } from '@/dtos/application.dto';
-import { IApplication, ApplicationStatus } from '@/interfaces/application.interface';
+import { IApplication, ApplicationStatus, IApplicationEmail } from '@/interfaces/application.interface';
 import { ICompanyJob } from '@/interfaces/companyJob.interface';
 import { isValidObjectId } from '@/helpers';
 import { UserType } from '@/interfaces/users.interface';
@@ -9,6 +9,10 @@ import Application from '@/models/Application';
 import CompanyJob from '@/models/CompanyJob';
 import Company from '@/models/Company';
 import Developer from '@/models/Developer';
+import messagingService from '@/services/MessagingService';
+import User from '@/models/User';
+
+const { STAAK_APP } = process.env;
 
 class ApplicationController {
 	createApp = async (req: Request, res: Response) => {
@@ -32,6 +36,27 @@ class ApplicationController {
 				talent.savedJobs = talent.savedJobs.filter((elem) => elem.toString() !== appBody.jobId.toString());
 				await talent.save();
 			}
+			// send application email to user, use notification microservices
+			const user = await User.findById({ _id: rootObjectId });
+			const company = await Company.findOne({ userId: applicationJob.createdBy });
+			const payload: IApplicationEmail = {
+				user_email: user?.email,
+				job_title: applicationJob?.title,
+				category: applicationJob.category?.name,
+				locations: [
+					{
+						city: applicationJob.work_location?.city,
+						country: applicationJob.work_location?.country?.name,
+					},
+				],
+				company_logo: company?.avatar,
+				company_name: company?.companyName,
+				company_link: `${STAAK_APP}/companies/detail/${company?._id}`,
+				profile_link: `${STAAK_APP}/profile/${user?.username}`,
+				application_link: `${STAAK_APP}/applications/detail/${createdApplication?._id}`,
+				jobs_link: `${STAAK_APP}/jobs`,
+			};
+			messagingService.applicationEmail(payload);
 			res.status(200).send({ message: 'Application submited successfully', application: createdApplication });
 		} catch (e: any) {
 			console.log(e);

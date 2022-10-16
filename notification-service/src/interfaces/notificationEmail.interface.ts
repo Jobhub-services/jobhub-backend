@@ -17,3 +17,19 @@ export interface INotificationEmail {
 	email: string;
 	preferences: EmailPreference[];
 }
+
+export interface IApplicationEmail {
+	job_title: string;
+	category: string;
+	locations: {
+		city?: string;
+		country?: string;
+	}[];
+	company_link: string;
+	company_logo: string;
+	company_name: string;
+	profile_link: string;
+	application_link: string;
+	jobs_link: string;
+	user_email: string;
+}
