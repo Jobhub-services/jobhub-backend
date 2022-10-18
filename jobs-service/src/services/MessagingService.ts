@@ -46,7 +46,7 @@ class MessagingService {
 	};
 	applicationEmail = async (payload: IApplicationEmail) => {
 		try {
-			await this.notificationService.get('preferences/application-email');
+			await this.notificationService.post('preferences/application-email', payload);
 			return null;
 		} catch {
 			return null;
