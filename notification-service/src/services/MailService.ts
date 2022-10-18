@@ -10,18 +10,14 @@ class MailService {
 	}
 
 	private _sendEmailWithNoReplyTransporter(payload: { subject: string; content: string; to: string[] }) {
-		try {
-			const { subject, content, to } = payload;
-			this.noReplyMailTransporter.sendMail({
-				from: '"Staak" <no-reply@staak.com>',
-				to: to.join(','),
-				subject,
-				html: content,
-			});
-			console.log('Email send to user');
-		} catch (e) {
-			console.log(e);
-		}
+		const { subject, content, to } = payload;
+		return this.noReplyMailTransporter.sendMail({
+			from: '"Staak" <no-reply@staak.com>',
+			to: to.join(','),
+			subject,
+			html: content,
+		});
+		//console.log('Email send to user');
 	}
 
 	sendAuthEmail(to: string, content: string, subject: string) {

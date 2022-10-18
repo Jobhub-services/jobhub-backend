@@ -4,6 +4,7 @@ import { JOB_ALERTS_NUBER } from '@/constants/app.constants';
 import messagingSenderService from '@/services/MessegingSenderService';
 import NotificationEmail from '@/models/NotificationEmail';
 import mailService from '@/services/MailService';
+import templateRenderService from './TemplateRenderService';
 const JOBS_COLLECTION = 'companyjobs';
 const { CLIENT_APP_URL } = process.env;
 class JobSuggestionsService {
@@ -44,17 +45,17 @@ class JobSuggestionsService {
 		const jobAlerts = [];
 		const fileIds = [];
 		jobs.forEach((doc) => {
-			if (doc.company && doc.company.avatar) fileIds.push(doc.company.avatar);
+			if (doc?.company && doc.company?.avatar) fileIds.push(doc.company?.avatar);
 		});
 		let fileUrls = {};
 		if (fileIds.length > 0) fileUrls = await messagingSenderService.presigneUserMedia(fileIds);
 		jobs.forEach((doc) => {
-			let jobLocation = 'Remote';
+			let jobLocation = `${doc.company?.companyName} - Remote`;
 			if (!doc.work_remotly && doc.work_location) {
 				jobLocation = `${doc.company?.companyName} - ${doc.work_location.city} ${doc.work_location.country.name}`;
 			}
 			jobAlerts.push({
-				companyLogo: fileUrls[doc.company?.avatar] ? fileUrls[doc.company.avatar] : '',
+				companyLogo: fileUrls && fileUrls[doc.company?.avatar] ? fileUrls[doc.company.avatar] : '',
 				jobTitle: doc.title,
 				jobLocation,
 				postDate: doc.createdAt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
@@ -81,8 +82,20 @@ class JobSuggestionsService {
 				},
 			},
 		]);
+		const subject = 'New curated jobs for you';
 		developers.forEach((elem) => {
-			mailService.sendAuthEmail(elem.email, 'simple message', 'Simple Test');
+			const payload = {
+				fullName: `${elem.firstName} ${elem.lastName}`,
+				browserJobsLink: `${CLIENT_APP_URL}/jobs`,
+				jobs: jobAlerts,
+				title: subject,
+			};
+			const htmlContent = templateRenderService.renderTemplateWithLayout({
+				template: 'emails.jobs-alert',
+				data: payload,
+				layout: 'emails.layout',
+			});
+			mailService.sendAuthEmail(elem.email, htmlContent, subject);
 		});
 		const finalResults = [];
 		return jobAlerts;

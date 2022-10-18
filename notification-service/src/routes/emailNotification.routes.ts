@@ -8,6 +8,6 @@ const router = Router();
 
 router.put('/', emailNotificationController.updateUserPreferences);
 router.get('/', emailNotificationController.getUserPreferences);
-router.get('/application-email', messagingController.sendApplicationEmail);
+router.post('/application-email', messagingController.sendApplicationEmail);
 
 export { router as emailNotificationRouter };
