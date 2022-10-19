@@ -37,7 +37,7 @@ class ApplicationController {
 				await talent.save();
 			}
 			// send application email to user, use notification microservices
-			const user = await User.findById({ _id: rootObjectId });
+			const user = await User.findById(rootObjectId);
 			const company = await Company.findOne({ userId: applicationJob.createdBy });
 			const payload: IApplicationEmail = {
 				user_email: user?.email,
