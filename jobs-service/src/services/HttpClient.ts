@@ -9,6 +9,20 @@ export default class HttpClient {
 			headers,
 		});
 	}
+	setAuthToken = (accessToken) => {
+		this._initAuthInterceptor(accessToken);
+	};
+	private _initAuthInterceptor(authToken: string) {
+		const authInterceptor = (config: any) => {
+			if (authToken) {
+				config.headers = {
+					Authorization: authToken,
+				};
+			}
+			return config;
+		};
+		this._client.interceptors.request.use(authInterceptor);
+	}
 	get<T = any, R = AxiosResponse<T>>(url: string, config?: AxiosRequestConfig): Promise<R> {
 		return this._client.get(url, config);
 	}

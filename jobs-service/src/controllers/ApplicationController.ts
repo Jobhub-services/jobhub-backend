@@ -56,14 +56,13 @@ class ApplicationController {
 				application_link: `${STAAK_APP}/applications/detail/${createdApplication?._id}`,
 				jobs_link: `${STAAK_APP}/jobs`,
 			};
-			messagingService.applicationEmail(payload);
+			messagingService.applicationEmail(payload, req.headers.authorization);
 			res.status(200).send({ message: 'Application submited successfully', application: createdApplication });
 		} catch (e: any) {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
 	};
-
 	updateApplication = async (req: Request, res: Response) => {
 		try {
 		} catch {}

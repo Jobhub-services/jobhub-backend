@@ -59,6 +59,7 @@ class MessagingController {
 	sendApplicationEmail = async (req: Request, res: Response) => {
 		try {
 			const data: IApplicationEmail = req.body;
+			console.log('------------ hello worl ------------- ');
 			if (!data.user_email || data.user_email === '') return res.status(406).send({ message: 'User email not provided' });
 			const subject = 'Application has been submitted successfully';
 			const payload = { title: subject, ...data };

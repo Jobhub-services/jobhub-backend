@@ -4,12 +4,14 @@ import HttpClient from '@/services/HttpClient';
 class MessagingService {
 	storageService: HttpClient;
 	notificationService: HttpClient;
+	notificationApp: HttpClient;
 	paymentService: HttpClient;
 	constructor() {
-		const { STORAGE_SERVICE, NOTIFICATION_SERVICE, PAYMENT_SERVICE } = process.env;
+		const { STORAGE_SERVICE, NOTIFICATION_SERVICE, PAYMENT_SERVICE, NOTIFICATION_SERVICE_APP } = process.env;
 		this.storageService = new HttpClient(STORAGE_SERVICE);
 		this.notificationService = new HttpClient(NOTIFICATION_SERVICE);
 		this.paymentService = new HttpClient(PAYMENT_SERVICE);
+		this.notificationApp = new HttpClient(NOTIFICATION_SERVICE_APP);
 	}
 
 	presigneUserMedia = async (fileIds: any) => {
@@ -44,11 +46,12 @@ class MessagingService {
 			return null;
 		}
 	};
-	applicationEmail = async (payload: IApplicationEmail) => {
+	applicationEmail = async (payload: IApplicationEmail, accessToken: string) => {
 		try {
-			await this.notificationService.post('preferences/application-email', payload);
+			this.notificationApp.setAuthToken(accessToken);
+			const response = await this.notificationApp.post('preferences/application-email', payload);
 			return null;
-		} catch {
+		} catch (e: any) {
 			return null;
 		}
 	};
