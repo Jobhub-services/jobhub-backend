@@ -3,7 +3,7 @@ import User from '@/models/User';
 import { RegisterDto } from '@/dtos/auth.dto';
 import { IUser, UserType } from '@/interfaces/users.interface';
 import { tokenService } from '@/services/HashService';
-
+// add to new repo
 class AdminController {
 	public createAdmin = async (req: Request, res: Response) => {
 		try {
