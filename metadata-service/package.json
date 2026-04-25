@@ -1,5 +1,5 @@
 {
-	"name": "jobs-service",
+	"name": "metadata-service",
 	"version": "1.0.0",
 	"description": "Staak API Jobs service",
 	"author": "Staak",
