@@ -10,7 +10,7 @@ import Router from '@/routes';
 import { dbConnection } from '@/config/db.config';
 import MessagingService from '@/services/MessagingService';
 
-new MessagingService();
+if (!process.env.VERCEL) new MessagingService();
 
 const app = express();
 app.use(json());
@@ -20,10 +20,14 @@ app.use(`/`, Router);
 
 if (NODE_ENV !== 'production') set('debug', true);
 
-connect(dbConnection.url, dbConnection.options)
-	.then(async (_connection) => {
-		app.listen(process.env.APP_PORT, () => {
-			console.log(`server started. ${process.env.APP_PORT}`);
-		});
-	})
-	.catch((error) => console.log(error));
+if (!process.env.VERCEL) {
+	connect(dbConnection.url, dbConnection.options)
+		.then(async (_connection) => {
+			app.listen(process.env.APP_PORT, () => {
+				console.log(`server started. ${process.env.APP_PORT}`);
+			});
+		})
+		.catch((error) => console.log(error));
+}
+
+export { app };

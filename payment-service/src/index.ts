@@ -30,10 +30,14 @@ app.use(`/api/${SERVICE_API_PATH}`, Router);
 
 if (NODE_ENV !== 'production') set('debug', true);
 
-connect(dbConnection.url, dbConnection.options)
-	.then(async (_connection) => {
-		app.listen(process.env.APP_PORT, () => {
-			console.log(`server started. ${process.env.APP_PORT}`);
-		});
-	})
-	.catch((error) => console.log(error));
+if (!process.env.VERCEL) {
+	connect(dbConnection.url, dbConnection.options)
+		.then(async (_connection) => {
+			app.listen(process.env.APP_PORT, () => {
+				console.log(`server started. ${process.env.APP_PORT}`);
+			});
+		})
+		.catch((error) => console.log(error));
+}
+
+export { app };

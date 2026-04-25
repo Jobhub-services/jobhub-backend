@@ -1,0 +1,62 @@
+{
+	"version": 2,
+	"installCommand": "npm run install:modules",
+	"builds": [
+		{
+			"src": "user-service/api/index.ts",
+			"use": "@vercel/node"
+		},
+		{
+			"src": "jobs-service/api/index.ts",
+			"use": "@vercel/node"
+		},
+		{
+			"src": "payment-service/api/index.ts",
+			"use": "@vercel/node"
+		},
+		{
+			"src": "notification-service/api/index.ts",
+			"use": "@vercel/node"
+		},
+		{
+			"src": "metadata-service/api/index.ts",
+			"use": "@vercel/node"
+		},
+		{
+			"src": "storage-service/api/index.ts",
+			"use": "@vercel/node"
+		}
+	],
+	"routes": [
+		{
+			"src": "/api/users/(.*)",
+			"dest": "user-service/api/index.ts",
+			"methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+		},
+		{
+			"src": "/api/jobs/(.*)",
+			"dest": "jobs-service/api/index.ts",
+			"methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+		},
+		{
+			"src": "/api/payments/(.*)",
+			"dest": "payment-service/api/index.ts",
+			"methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+		},
+		{
+			"src": "/api/notifications/(.*)",
+			"dest": "notification-service/api/index.ts",
+			"methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+		},
+		{
+			"src": "/api/metadata/(.*)",
+			"dest": "metadata-service/api/index.ts",
+			"methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+		},
+		{
+			"src": "/cdn/(.*)",
+			"dest": "storage-service/api/index.ts",
+			"methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+		}
+	]
+}
