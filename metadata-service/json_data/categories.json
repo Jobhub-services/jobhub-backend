@@ -1,0 +1,355 @@
+[
+	{
+		"value": "",
+		"label": "Academic Research"
+	},
+	{
+		"value": "",
+		"label": "Accounting & Finance"
+	},
+	{
+		"value": "",
+		"label": "Advertising"
+	},
+	{
+		"value": "",
+		"label": "Agriculture, Animals & Plants"
+	},
+	{
+		"value": "",
+		"label": "Banking, Insurance & Financial Services"
+	},
+	{
+		"value": "",
+		"label": "Business & Systems Analysis"
+	},
+	{
+		"value": "",
+		"label": "Charity, Public & Civil Service"
+	},
+	{
+		"value": "",
+		"label": "Civil Services"
+	},
+	{
+		"value": "",
+		"label": "Construction"
+	},
+	{
+		"value": "",
+		"label": "Data Science"
+	},
+	{
+		"value": "",
+		"label": "Design"
+	},
+	{
+		"value": "",
+		"label": "Education"
+	},
+	{
+		"value": "",
+		"label": "Energy, Natural Resources & Utilities"
+	},
+	{
+		"value": "",
+		"label": "Environmental"
+	},
+	{
+		"value": "",
+		"label": "Food"
+	},
+	{
+		"value": "",
+		"label": "Healthcare"
+	},
+	{
+		"value": "",
+		"label": "Hospitality, Sport, Leisure & Tourism"
+	},
+	{
+		"value": "",
+		"label": "Human Resource Management"
+	},
+	{
+		"value": "",
+		"label": "Investment Banking & Fund Management"
+	},
+	{
+		"value": "",
+		"label": "Law"
+	},
+	{
+		"value": "",
+		"label": "Law Enforcement"
+	},
+	{
+		"value": "",
+		"label": "Law, Legal Services & Patents"
+	},
+	{
+		"value": "",
+		"label": "Management"
+	},
+	{
+		"value": "",
+		"label": "Management Consulting"
+	},
+	{
+		"value": "",
+		"label": "Marketing, Advertising & PR"
+	},
+	{
+		"value": "",
+		"label": "Media, Journalism & Publishing"
+	},
+	{
+		"value": "",
+		"label": "Merchandising"
+	},
+	{
+		"value": "",
+		"label": "Network Engineering"
+	},
+	{
+		"value": "",
+		"label": "Procurement"
+	},
+	{
+		"value": "",
+		"label": "Product R&D"
+	},
+	{
+		"value": "",
+		"label": "Property Consultant"
+	},
+	{
+		"value": "",
+		"label": "Public Relations & Communications"
+	},
+	{
+		"value": "",
+		"label": "Publishing"
+	},
+	{
+		"value": "",
+		"label": "Retail"
+	},
+	{
+		"value": "",
+		"label": "Sales"
+	},
+	{
+		"value": "",
+		"label": "Science, R&D, Food industry"
+	},
+	{
+		"value": "",
+		"label": "Social & Market Research"
+	},
+	{
+		"value": "",
+		"label": "Social, Community & Youth"
+	},
+	{
+		"value": "",
+		"label": "Software Testing"
+	},
+	{
+		"value": "",
+		"label": "Supply Chain"
+	},
+	{
+		"value": "",
+		"label": "Teaching"
+	},
+	{
+		"value": "",
+		"label": "Technical Consultancy"
+	},
+	{
+		"value": "",
+		"label": "Technical Support"
+	},
+	{
+		"value": "",
+		"label": "Training & Development"
+	},
+	{
+		"value": "",
+		"label": "Warehouse Management"
+	},
+	{
+		"value": "",
+		"label": "Accounting"
+	},
+	{
+		"value": "",
+		"label": "Administration"
+	},
+	{
+		"value": "",
+		"label": "Building Services"
+	},
+	{
+		"value": "",
+		"label": "Charities & Voluntary Sector"
+	},
+	{
+		"value": "",
+		"label": "Civil & Structural"
+	},
+	{
+		"value": "",
+		"label": "Compliance & Regulation"
+	},
+	{
+		"value": "",
+		"label": "Consulting"
+	},
+	{
+		"value": "",
+		"label": "Dental"
+	},
+	{
+		"value": "",
+		"label": "Emergency Services"
+	},
+	{
+		"value": "",
+		"label": "Engineering"
+	},
+	{
+		"value": "",
+		"label": "Event management"
+	},
+	{
+		"value": "",
+		"label": "HR & Recruitment"
+	},
+	{
+		"value": "",
+		"label": "Higher Education"
+	},
+	{
+		"value": "",
+		"label": "Hotel Management"
+	},
+	{
+		"value": "",
+		"label": "Information Services"
+	},
+	{
+		"value": "",
+		"label": "Journalism"
+	},
+	{
+		"value": "",
+		"label": "Law Barristers"
+	},
+	{
+		"value": "",
+		"label": "Law Solicitors"
+	},
+	{
+		"value": "",
+		"label": "Leisure & Tourism"
+	},
+	{
+		"value": "",
+		"label": "Management & Business"
+	},
+	{
+		"value": "",
+		"label": "Marketing"
+	},
+	{
+		"value": "",
+		"label": "Media"
+	},
+	{
+		"value": "",
+		"label": "Medical, Healthcare & Dental"
+	},
+	{
+		"value": "",
+		"label": "Museums, Libraries & Heritage"
+	},
+	{
+		"value": "",
+		"label": "Pharmaceutical"
+	},
+	{
+		"value": "",
+		"label": "Procurement & Supply Chain"
+	},
+	{
+		"value": "",
+		"label": "Property Asset Management"
+	},
+	{
+		"value": "",
+		"label": "Property, Construction & QS"
+	},
+	{
+		"value": "",
+		"label": "Public Service"
+	},
+	{
+		"value": "",
+		"label": "Recruitment"
+	},
+	{
+		"value": "",
+		"label": "Retail, Business & Commercial Services"
+	},
+	{
+		"value": "",
+		"label": "Sales & Lettings"
+	},
+	{
+		"value": "",
+		"label": "Security & Intelligence"
+	},
+	{
+		"value": "",
+		"label": "Social Care"
+	},
+	{
+		"value": "",
+		"label": "Software Engineering"
+	},
+	{
+		"value": "",
+		"label": "Sports"
+	},
+	{
+		"value": "",
+		"label": "Surveying"
+	},
+	{
+		"value": "",
+		"label": "Teaching & Education"
+	},
+	{
+		"value": "",
+		"label": "Technical Sales"
+	},
+	{
+		"value": "",
+		"label": "Technology"
+	},
+	{
+		"value": "",
+		"label": "Veterinary"
+	},
+	{
+		"value": "",
+		"label": "Web development"
+	},
+	{
+		"value": "",
+		"label": "Mobile Engineer"
+	},
+	{ "value": "", "label": "Others" }
+]

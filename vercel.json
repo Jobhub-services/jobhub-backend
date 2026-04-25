@@ -1,0 +1,44 @@
+{
+	"version": 2,
+	"installCommand": "npm run install:modules",
+	"builds": [
+		{
+			"src": "user-service/api/index.ts",
+			"use": "@vercel/node"
+		},
+		{
+			"src": "jobs-service/api/index.ts",
+			"use": "@vercel/node"
+		},
+		{
+			"src": "payment-service/api/index.ts",
+			"use": "@vercel/node"
+		},
+		{
+			"src": "notification-service/api/index.ts",
+			"use": "@vercel/node",
+			"config": {
+				"includeFiles": "notification-service/src/views/**"
+			}
+		},
+		{
+			"src": "metadata-service/api/index.ts",
+			"use": "@vercel/node",
+			"config": {
+				"includeFiles": "metadata-service/json_data/**"
+			}
+		},
+		{
+			"src": "storage-service/api/index.ts",
+			"use": "@vercel/node"
+		}
+	],
+	"routes": [
+		{ "src": "/api/users/(.*)",        "dest": "user-service/api/index.ts" },
+		{ "src": "/api/jobs/(.*)",          "dest": "jobs-service/api/index.ts" },
+		{ "src": "/api/payments/(.*)",      "dest": "payment-service/api/index.ts" },
+		{ "src": "/api/notifications/(.*)", "dest": "notification-service/api/index.ts" },
+		{ "src": "/api/metadata/(.*)",      "dest": "metadata-service/api/index.ts" },
+		{ "src": "/cdn/(.*)",               "dest": "storage-service/api/index.ts" }
+	]
+}

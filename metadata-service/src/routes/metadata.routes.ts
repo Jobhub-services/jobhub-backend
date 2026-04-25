@@ -1,0 +1,29 @@
+import { Router } from 'express';
+import MetadataController from '@/controllers/MetadataController';
+
+const metadataController = new MetadataController();
+
+const router = Router();
+
+router.put('/countries', metadataController.initCountries);
+router.get('/countries', metadataController.getCountries);
+
+router.put('/currencies', metadataController.initCurrencies);
+router.get('/currencies', metadataController.getCurrencies);
+
+router.put('/job-categories', metadataController.initCategories);
+router.get('/job-categories', metadataController.getCategories);
+
+router.put('/languages', metadataController.initLanguages);
+router.get('/languages', metadataController.getLanguages);
+
+router.put('/job-roles', metadataController.initJobRoles);
+router.get('/job-roles', metadataController.getJobRoles);
+
+router.put('/industries', metadataController.initIndustries);
+router.get('/industries', metadataController.getIndustries);
+
+router.put('/timezones', metadataController.initTimezones);
+router.get('/timezones', metadataController.getTimezones);
+
+export { router as metadataRouter };

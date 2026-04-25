@@ -1,0 +1,15 @@
+{
+	"name": "cronjobs-service",
+	"version": "1.0.0",
+	"description": "Staak API Jobs service",
+	"author": "Staak",
+	"license": "ISC",
+	"scripts": {
+		"start:dev": "cross-env NODE_ENV=development nodemon --exec ts-node -r tsconfig-paths/register --transpile-only src/index.ts",
+		"start": "cross-env NODE_ENV=production node dist/index.js",
+		"build": "tsc && npx tsc-alias"
+	},
+	"dependencies": {
+		"agenda": "^4.3.0"
+	}
+}

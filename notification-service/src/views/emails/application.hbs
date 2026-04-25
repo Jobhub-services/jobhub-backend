@@ -1,0 +1,47 @@
+<tr>
+	<td style='padding-top: 15px'>
+		<h2 style='font-size: 20px; color: #4f545c'>Your application has been submitted!</h2>
+		<p style='color: #636d79; margin: 0'>If there's a match, we will make an email introduction.</p>
+	</td>
+</tr>
+<tr>
+	<td style='padding-top: 40px'>
+		<h2 style='font-size: 18px; color: #4f545c; margin: 0'>{{job_title}}</h2>
+		<div style='margin-top: 10px'>
+			<span style='font-size: 14px; display: inline-block; font-weight: bold'>Category</span>
+			<span style='color: #636d79; display: inline-block; margin: 0 0 0 10px'>{{category}}</span>
+		</div>
+		<div style='margin-top: 10px'>
+			<span style='font-size: 14px; display: inline-block; font-weight: bold'>Location</span>
+			{{#each locations}}
+				<span style='color: #636d79; display: inline-block; margin: 0 0 0 10px'>{{city}} . {{country}}</span>
+			{{/each}}
+		</div>
+	</td>
+	<td>
+		<a href='{{company_link}}' style='cursor:pointer'>
+			<img src={{company_logo}} alt='img' style='width:48px;height:48px; border-radius:6px;' />
+			<div style='margin-top: 10px'>{{company_name}}</div>
+		</a>
+	</td>
+</tr>
+<tr>
+	<td style='padding-top: 30px'>
+		<h3 style='font-size: 14px; color: #4f545c; margin: 0'>IN THE MEANTIME</h3>
+		<ul>
+			<li>You can <a class='my-link' href='{{profile_link}}'>update your profile</a> before your application is reviewed.</li>
+			<li>Read up on on how to make your profile stand out even more.</li>
+			<li>Check out the other <a class='my-link' href='{{jobs_link}}'>unique jobs</a> on Staak.</li>
+		</ul>
+	</td>
+</tr>
+<tr>
+	<td style='padding-top: 10px; padding-bottom: 10px'>
+		<a href='{{application_link}}' style='margin: auto' class='staak-btn'>View My Application</a>
+	</td>
+</tr>
+<tr>
+	<td style='padding-top: 10px; padding-bottom: 10px'>
+		<a href='{{jobs_link}}' style='margin: auto' class='staak-btn-outlined'>Browse More Jobs</a>
+	</td>
+</tr>

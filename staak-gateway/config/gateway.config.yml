@@ -1,0 +1,156 @@
+http:
+  port: ${PORT}
+  host: ${HOST}
+apiEndpoints:
+  users:
+    host: '*'
+    paths: ['/api/users', '/api/users/*']
+  jobs:
+    host: '*'
+    paths: ['/api/jobs', '/api/jobs/*']
+  metadata:
+    host: '*'
+    paths: ['/api/metadata', '/api/metadata/*']
+  cdn:
+    host: '*'
+    paths: ['/cdn/*']
+  notifications:
+    host: '*'
+    paths: ['/api/notifications', '/api/notifications/*']
+  websockets:
+    host: '*'
+    paths: ['/api/websocket', '/api/websocket/*']
+  payments:
+    host: '*'
+    paths: ['/api/payments', '/api/payments/*']
+serviceEndpoints:
+  jobs:
+    url: 'http://localhost:3001'
+  users:
+    url: 'http://localhost:3002'
+  metadata:
+    url: 'http://localhost:3003'
+  cdn:
+    url: 'http://localhost:3004'
+  notifications:
+    url: 'http://localhost:3006'
+  payments:
+    url: 'http://localhost:3008'
+  websockets:
+    url: 'http://localhost:3009'
+policies:
+  - basic-auth
+  - cors
+  - expression
+  - key-auth
+  - auth
+  - proxy
+  - rate-limit
+
+pipelines:
+  cdn:
+    apiEndpoints:
+      - cdn
+    policies:
+      - cors:
+          - action:
+              origin: '*'
+      - proxy:
+          - action:
+              serviceEndpoint: cdn
+              changeOrigin: true
+  notifications:
+    apiEndpoints:
+      - notifications
+    policies:
+      - cors:
+          - action:
+              origin: '*'
+      - auth:
+          - action:
+              excludedRoutes:
+                [
+                  '/api/notifications/newsletter/subscribe',
+                  '/api/notifications/contact-us',
+                  '/api/notifications/preview/reset-password',
+                  '/api/notifications/preview/job-alerts',
+                ]
+      - proxy:
+          - action:
+              serviceEndpoint: notifications
+              changeOrigin: true
+  users:
+    apiEndpoints:
+      - users
+    policies:
+      - cors:
+          - action:
+              origin: '*'
+      - auth:
+          - action:
+              excludedRoutes:
+                [
+                  '/api/users/auth/login',
+                  '/api/users/auth/register',
+                  '/api/users/auth/forget-password',
+                  '/api/users/auth/reset-password',
+                  '/api/users/super-user/create',
+                ]
+      - proxy:
+          - action:
+              serviceEndpoint: users
+              changeOrigin: true
+  jobs:
+    apiEndpoints:
+      - jobs
+    policies:
+      - cors:
+          - action:
+              origin: '*'
+      - auth:
+          - action:
+              excludedRoutes: ['/api/jobs/public']
+      - proxy:
+          - action:
+              serviceEndpoint: jobs
+              changeOrigin: true
+  metadata:
+    apiEndpoints:
+      - metadata
+    policies:
+      - cors:
+          - action:
+              origin: '*'
+      - auth:
+          - action:
+              excludedRoutes: ['/api/metadata/countries']
+      - proxy:
+          - action:
+              serviceEndpoint: metadata
+              changeOrigin: true
+  websockets:
+    apiEndpoints:
+      - websockets
+    policies:
+      - cors:
+          - action:
+              origin: '*'
+      - auth:
+      - proxy:
+          - action:
+              serviceEndpoint: websockets
+              changeOrigin: true
+  payments:
+    apiEndpoints:
+      - payments
+    policies:
+      - cors:
+          - action:
+              origin: '*'
+      - auth:
+          - action:
+              excludedRoutes: ['/api/payments/customers/customer']
+      - proxy:
+          - action:
+              serviceEndpoint: payments
+              changeOrigin: true
