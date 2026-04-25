@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
+import { Types } from 'mongoose';
 import Subscription from '@/models/Subscription';
-import { ISubscription } from '@/interfaces/subscriptions.interface';
-import { IPSubscription, ITapSubscription, SubscriptionType } from '@/interfaces/pSubscriptions.interface';
+import { FeatureType, ISubscription } from '@/interfaces/subscriptions.interface';
+import { IPSubscription, ITapSubscription, SubscriptionStatus, SubscriptionType } from '@/interfaces/pSubscriptions.interface';
+import { ChargesStatus } from '@/interfaces/pCharges.interface';
 import Company from '@/models/Company';
 import PaymentCustomer from '@/models/PaymentCustomer';
 import PaymentMethod from '@/models/PaymentMethod';
@@ -9,7 +11,6 @@ import { createTransactionPostURL, getCurrentDataWithFormat } from '@/helpers';
 import { TransactionTypes } from '@/interfaces/pTransaction.interface';
 import { paymentService } from '@/services/PaymentService';
 import PaymentSubscription from '@/models/PaymentSubscription';
-import { ChargesStatus } from '@/interfaces/pCharges.interface';
 
 class SubscriptionController {
 	getSubscriptions = async (req: Request, res: Response) => {
@@ -115,6 +116,101 @@ class SubscriptionController {
 			if (!isCanceled) return res.status(406).send({ content: "We can't cancel your subscription now please try later or contact support" });
 			await subscription.remove();
 			res.status(200).send({ content: 'Your subscription canceled successfully' });
+		} catch (e: any) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
+
+	mockSubscription = async (req: Request, res: Response) => {
+		try {
+			const { userId, subscriptionId, interval } = req.body;
+			if (!userId || !subscriptionId) {
+				return res.status(400).send({ message: 'userId and subscriptionId are required' });
+			}
+			const subscription = await Subscription.findById(subscriptionId);
+			if (!subscription) return res.status(404).send({ message: 'Subscription plan not found' });
+
+			const subscriptionType = interval === SubscriptionType.YEARLY ? SubscriptionType.YEARLY : SubscriptionType.MONTHLY;
+			const amount = subscriptionType === SubscriptionType.YEARLY ? subscription.yearly_amount * 12 : subscription.monthly_amount;
+
+			await PaymentSubscription.deleteOne({ userId: new Types.ObjectId(userId) });
+
+			const mockSub = await PaymentSubscription.create({
+				userId: new Types.ObjectId(userId),
+				subscriptionId: subscription._id,
+				interval: subscriptionType,
+				amount,
+				auto_renew: false,
+				creation_status: ChargesStatus.CAPTURED,
+				status: SubscriptionStatus.ACTIVE,
+				description: `[MOCK] ${subscription.title} - ${subscriptionType}`,
+				features: subscription.features.map((f) => ({
+					feature_id: f._id,
+					slug: f.slug,
+					total_value: f.value,
+					current_value: f.value,
+				})),
+				timezone: { code: 'UTC', name: 'Coordinated Universal Time', utc: '+00:00' },
+				currency: { code: 'USD', name: 'US Dollar' },
+			});
+
+			res.status(200).send({ message: 'Mock subscription created', _id: mockSub._id, plan: subscription.title, interval: subscriptionType });
+		} catch (e: any) {
+			console.log(e);
+			res.status(500).send({ message: 'Something went wrong please try again' });
+		}
+	};
+
+	seedSubscriptions = async (_req: Request, res: Response) => {
+		try {
+			const plans = [
+				{
+					title: 'For One',
+					description: 'Perfect for small companies just getting started with hiring.',
+					monthly_amount: 49,
+					yearly_amount: 39,
+					features: [
+						{ slug: FeatureType.POSTING_NUMBER, title: 'Job Postings', description: '5 active job postings', value: 5 },
+						{ slug: FeatureType.POSTING_DURATION, title: 'Posting Duration', description: '30 days per posting', value: 30 },
+						{ slug: FeatureType.CONTACTS_NUMBER, title: 'Contacts', description: 'Up to 50 candidate contacts', value: 50 },
+					],
+				},
+				{
+					title: 'Standard',
+					description: 'For growing companies with regular hiring needs.',
+					monthly_amount: 149,
+					yearly_amount: 119,
+					features: [
+						{ slug: FeatureType.POSTING_NUMBER, title: 'Job Postings', description: '20 active job postings', value: 20 },
+						{ slug: FeatureType.POSTING_DURATION, title: 'Posting Duration', description: '60 days per posting', value: 60 },
+						{ slug: FeatureType.CONTACTS_NUMBER, title: 'Contacts', description: 'Up to 200 candidate contacts', value: 200 },
+					],
+				},
+				{
+					title: 'Infinity',
+					description: 'Unlimited hiring power for large enterprises.',
+					monthly_amount: 349,
+					yearly_amount: 279,
+					features: [
+						{ slug: FeatureType.POSTING_NUMBER, title: 'Job Postings', description: 'Unlimited active job postings', value: 9999 },
+						{ slug: FeatureType.POSTING_DURATION, title: 'Posting Duration', description: '90 days per posting', value: 90 },
+						{ slug: FeatureType.CONTACTS_NUMBER, title: 'Contacts', description: 'Unlimited candidate contacts', value: 9999 },
+					],
+				},
+			];
+
+			const results = [];
+			for (const plan of plans) {
+				const existing = await Subscription.findOne({ title: plan.title });
+				if (!existing) {
+					const created = await Subscription.create(plan);
+					results.push({ title: plan.title, status: 'created', _id: created._id });
+				} else {
+					results.push({ title: plan.title, status: 'already exists', _id: existing._id });
+				}
+			}
+			res.status(200).send({ message: 'Seed complete', results });
 		} catch (e: any) {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });

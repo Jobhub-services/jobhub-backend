@@ -16,11 +16,17 @@
 		},
 		{
 			"src": "notification-service/api/index.ts",
-			"use": "@vercel/node"
+			"use": "@vercel/node",
+			"config": {
+				"includeFiles": "notification-service/src/views/**"
+			}
 		},
 		{
 			"src": "metadata-service/api/index.ts",
-			"use": "@vercel/node"
+			"use": "@vercel/node",
+			"config": {
+				"includeFiles": "metadata-service/json_data/**"
+			}
 		},
 		{
 			"src": "storage-service/api/index.ts",
@@ -28,35 +34,11 @@
 		}
 	],
 	"routes": [
-		{
-			"src": "/api/users/(.*)",
-			"dest": "user-service/api/index.ts",
-			"methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
-		},
-		{
-			"src": "/api/jobs/(.*)",
-			"dest": "jobs-service/api/index.ts",
-			"methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
-		},
-		{
-			"src": "/api/payments/(.*)",
-			"dest": "payment-service/api/index.ts",
-			"methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
-		},
-		{
-			"src": "/api/notifications/(.*)",
-			"dest": "notification-service/api/index.ts",
-			"methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
-		},
-		{
-			"src": "/api/metadata/(.*)",
-			"dest": "metadata-service/api/index.ts",
-			"methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
-		},
-		{
-			"src": "/cdn/(.*)",
-			"dest": "storage-service/api/index.ts",
-			"methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
-		}
+		{ "src": "/api/users/(.*)",        "dest": "user-service/api/index.ts" },
+		{ "src": "/api/jobs/(.*)",          "dest": "jobs-service/api/index.ts" },
+		{ "src": "/api/payments/(.*)",      "dest": "payment-service/api/index.ts" },
+		{ "src": "/api/notifications/(.*)", "dest": "notification-service/api/index.ts" },
+		{ "src": "/api/metadata/(.*)",      "dest": "metadata-service/api/index.ts" },
+		{ "src": "/cdn/(.*)",               "dest": "storage-service/api/index.ts" }
 	]
 }

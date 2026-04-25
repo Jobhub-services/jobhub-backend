@@ -9,23 +9,23 @@ import { permissionService } from '@/services/PermissionService';
 export default class UserController {
 	public userInfo = async (req: Request, res: Response) => {
 		try {
-			const userData: IUser = req.user;
-			delete userData.password;
-			const userInfo: any = {
-				...userData,
-			};
-			if (userData.userType === UserType.DEVELOPER) {
-				const developer = await Developer.findOne({ userId: userData._id });
-				userInfo.firstName = developer.firstName;
-				userInfo.lastName = developer.lastName;
-				userInfo.avatar = developer.avatar;
-			} else if (userData.userType === UserType.COMPANY) {
-				const company = await Company.findOne({ userId: userData._id });
-				userInfo.companyName = company.companyName;
-				userInfo.owner_first_name = company.owner_first_name;
-				userInfo.owner_last_name = company.owner_last_name;
-				userInfo.avatar = company.avatar;
-				userInfo.enableCreateJob = await permissionService.checkJobCreationStatus(userData._id);
+			const userId = req.rootObjectId;
+			const user: IUser = await User.findById(userId).lean();
+			if (!user) return res.status(404).send({ message: 'User not found' });
+			delete user.password;
+			const userInfo: any = { ...user };
+			if (user.userType === UserType.DEVELOPER) {
+				const developer = await Developer.findOne({ userId: user._id });
+				userInfo.firstName = developer?.firstName;
+				userInfo.lastName = developer?.lastName;
+				userInfo.avatar = developer?.avatar;
+			} else if (user.userType === UserType.COMPANY) {
+				const company = await Company.findOne({ userId: user._id });
+				userInfo.companyName = company?.companyName;
+				userInfo.owner_first_name = company?.owner_first_name;
+				userInfo.owner_last_name = company?.owner_last_name;
+				userInfo.avatar = company?.avatar;
+				userInfo.enableCreateJob = await permissionService.checkJobCreationStatus(user._id);
 			}
 			res.status(200).send({ message: 'Info fetched successfully', data: userInfo });
 		} catch (e: any) {

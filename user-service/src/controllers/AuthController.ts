@@ -32,6 +32,8 @@ class AuthController {
 							else userConnection.connections.push({ userIp, geoInfoNotFound: true, connected_at: new Date().toUTCString() });
 							await userConnection.save();
 						}
+						const maxAge = Number(process.env.TOKEN_EXPIRATION) || 86400;
+						res.setHeader('Set-Cookie', `token=${token}; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=${maxAge}`);
 						res.status(200).send({ message: 'user authentified successfully', data: token });
 						return;
 					}
@@ -103,6 +105,11 @@ class AuthController {
 			console.log(e);
 			res.status(500).send({ message: 'Something went wrong please try again' });
 		}
+	};
+
+	public logout = (_req: Request, res: Response) => {
+		res.setHeader('Set-Cookie', 'token=; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=0');
+		res.status(200).send({ message: 'Logged out successfully' });
 	};
 
 	public resetPassword = async (req: Request, res: Response) => {

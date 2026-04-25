@@ -23,7 +23,17 @@ export default class TokenService {
 	createToken = (user: IUser, expiresIn = 60 * 60 * 24 * 3) => {
 		try {
 			const jwtSecret = this.jwtSecret;
-			const token = jwt.sign({ sub: user._id }, jwtSecret, { expiresIn });
+			const token = jwt.sign(
+				{
+					sub: String(user._id),
+					_id: String(user._id),
+					userType: user.userType,
+					username: user.username,
+					email: user.email,
+				},
+				jwtSecret,
+				{ expiresIn },
+			);
 			return token;
 		} catch (e) {
 			return null;

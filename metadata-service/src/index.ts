@@ -13,9 +13,10 @@ import Router from '@/routes';
 const app = express();
 
 app.use(json());
-app.use(cors());
+app.use(cors({ origin: process.env.FRONTEND_URL || true, credentials: true }));
 app.use(`/api/${SERVICE_API_PATH}`, Router);
 
+set('strictQuery', true);
 if (NODE_ENV !== 'production') set('debug', true);
 
 if (!process.env.VERCEL) {

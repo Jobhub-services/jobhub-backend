@@ -1,3 +1,4 @@
+import './register';
 import 'reflect-metadata';
 import { connect, connection } from 'mongoose';
 import { IncomingMessage, ServerResponse } from 'http';
@@ -8,7 +9,7 @@ import { app } from '../src/index';
 const DB_URL = process.env.DB_CONNECT_URL!;
 const JWT_SECRET = process.env.JWT_SECRET!;
 
-const PUBLIC_ROUTES = ['/api/payments/customers/customer'];
+const PUBLIC_ROUTES = ['/api/payments/customers/customer', '/api/payments/subscriptions/seed', '/api/payments/subscriptions/mock'];
 
 let connectionPromise: Promise<void> | null = null;
 
@@ -22,12 +23,19 @@ function getDbConnection(): Promise<void> {
 	return connectionPromise;
 }
 
+function parseCookieToken(req: any): string | undefined {
+	const cookie = req.headers.cookie as string | undefined;
+	if (!cookie) return undefined;
+	const match = cookie.split(';').map((c: string) => c.trim()).find((c: string) => c.startsWith('token='));
+	return match ? decodeURIComponent(match.slice('token='.length)) : undefined;
+}
+
 function applyAuth(req: any, res: any): boolean {
 	const path: string = req.url?.split('?')[0] ?? '';
 	const isPublic = PUBLIC_ROUTES.some((r) => path === r || path.startsWith(r + '/'));
 	if (isPublic) return true;
 
-	const token = (req.headers.authorization as string | undefined)?.replace(/^Bearer\s+/i, '');
+	const token = parseCookieToken(req) || (req.headers.authorization as string | undefined)?.replace(/^Bearer\s+/i, '');
 	if (!token) {
 		res.statusCode = 401;
 		res.setHeader('Content-Type', 'application/json');
@@ -38,7 +46,7 @@ function applyAuth(req: any, res: any): boolean {
 	try {
 		const decoded = jwt.verify(token, JWT_SECRET) as any;
 		req.headers['user'] = JSON.stringify(decoded);
-		req.headers['user_id'] = decoded._id ?? decoded.id ?? '';
+		req.headers['user_id'] = decoded._id ?? decoded.id ?? decoded.sub ?? '';
 		return true;
 	} catch {
 		res.statusCode = 401;
@@ -50,7 +58,7 @@ function applyAuth(req: any, res: any): boolean {
 
 export default async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
 	await getDbConnection();
-	if (!applyAuth(req, res)) return;
+	if (req.method !== 'OPTIONS' && !applyAuth(req, res)) return;
 	return new Promise((resolve) => {
 		(app as any)(req, res, resolve);
 	});

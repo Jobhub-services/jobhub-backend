@@ -9,6 +9,9 @@ const subscriptionController = new SubscriptionController();
 
 const router = Router();
 
+router.post('/seed', subscriptionController.seedSubscriptions);
+router.post('/mock', subscriptionController.mockSubscription);
+
 router.get('/', authRole(UserType.COMPANY), subscriptionController.getSubscriptions);
 router.get('/me', authRole(UserType.COMPANY), subscriptionController.getMySubscription);
 router.post('/subscribe', authRole(UserType.COMPANY), validationMiddleware(PaymentSubscriptionDto), subscriptionController.createPaymentSubscription);

@@ -1,3 +1,4 @@
+import './register';
 import 'reflect-metadata';
 import { connect, connection } from 'mongoose';
 import { IncomingMessage, ServerResponse } from 'http';
